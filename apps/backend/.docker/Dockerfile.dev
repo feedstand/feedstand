@@ -1,0 +1,11 @@
+FROM node:22.8-alpine
+WORKDIR /feedstand
+
+COPY package*.json .
+COPY tsconfig.json .
+COPY apps/backend/package.json apps/backend/
+RUN npm ci -s -w apps/backend --ignore-scripts
+
+COPY apps/backend apps/backend/
+EXPOSE 4001
+CMD ["npm", "run", "dev", "-w", "apps/backend"]

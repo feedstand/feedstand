@@ -1,0 +1,47 @@
+x-common-deploy: &common-deploy
+  replicas: 1
+  update_config:
+    parallelism: 1
+    order: start-first
+    failure_action: rollback
+  restart_policy:
+    condition: any
+
+x-common-healthcheck: &common-healthcheck
+  interval: 10s
+  timeout: 5s
+  retries: 3
+  start_period: 30s
+
+services:
+  frontend:
+    image: feedstand/frontend:${IMAGE_TAG}
+    ports:
+      - 4000:4000
+    deploy:
+      <<: *common-deploy
+    healthcheck:
+      <<: *common-healthcheck
+      test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:4000"]
+
+  backend:
+    image: feedstand/backend:${IMAGE_TAG}
+    ports:
+      - 4001:4001
+    deploy:
+      <<: *common-deploy
+    healthcheck:
+      <<: *common-healthcheck
+      test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:4001/health"]
+
+  cleanup:
+    image: docker:cli
+    command: ["sh", "-c", "docker system prune -af"]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: none
