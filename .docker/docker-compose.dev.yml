@@ -1,5 +1,10 @@
 name: feedstand
 
+x-common-healthcheck: &common-healthcheck
+  interval: 10s
+  timeout: 5s
+  retries: 3
+
 services:
   frontend:
     build:
@@ -8,8 +13,7 @@ services:
     ports:
       - 4000:4000
     volumes:
-      - ..:/app
-      - /app/node_modules
+      - /feedstand/node_modules
 
   backend:
     build:
@@ -18,12 +22,32 @@ services:
     ports:
       - 4001:4001
     volumes:
-      - ..:/app
-      - /app/node_modules
-
-  db:
-    image: postgres:15-alpine
+      - /feedstand/node_modules
     environment:
-      POSTGRES_DB: feedstand
-      POSTGRES_USER: feedstand
-      POSTGRES_PASSWORD: feedstand
+      DATABASE_HOST: postgres
+    depends_on:
+      database:
+        condition: service_healthy
+      queue:
+        condition: service_healthy
+
+  database:
+    image: postgres:16.4-alpine
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PORT: ${DATABASE_PORT}
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASS}
+    healthcheck:
+      <<: *common-healthcheck
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER}"]
+
+  queue:
+    image: docker.dragonflydb.io/dragonflydb/dragonfly
+    ports:
+      - 6379:6379
+    healthcheck:
+      <<: *common-healthcheck
+      test: ["CMD", "redis-cli", "-h", "localhost", "ping"]

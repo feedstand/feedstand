@@ -33,6 +33,36 @@ services:
     healthcheck:
       <<: *common-healthcheck
       test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:4001/health"]
+    depends_on:
+      - database
+      - queue
+
+  database:
+    image: postgres:16.4-alpine
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PORT: ${DATABASE_PORT}
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASS}
+    volumes:
+      - database_data:/var/lib/postgresql/data
+    healthcheck:
+      <<: *common-healthcheck
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER}"]
+
+  queue:
+    image: docker.dragonflydb.io/dragonflydb/dragonfly
+    deploy:
+      <<: *common-deploy
+    ports:
+      - 6379:6379
+    volumes:
+      - queue_data:/data
+    healthcheck:
+      <<: *common-healthcheck
+      test: ["CMD", "redis-cli", "-h", "localhost", "ping"]
 
   cleanup:
     image: docker:cli
@@ -45,3 +75,7 @@ services:
           - node.role == manager
       restart_policy:
         condition: none
+
+volumes:
+  database_data:
+  queue_data:

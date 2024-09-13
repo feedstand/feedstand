@@ -3,7 +3,7 @@
     "type": "module",
     "devDependencies": {
         "husky": "^9.1",
-        "typescript": "^5.5"
+        "typescript": "^5.6"
     },
     "engines": {
         "node": ">=22.8",
