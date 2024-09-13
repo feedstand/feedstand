@@ -34,8 +34,10 @@ services:
       <<: *common-healthcheck
       test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:4001/health"]
     depends_on:
-      - database
-      - queue
+      database:
+        condition: service_healthy
+      queue:
+        condition: service_healthy
 
   database:
     image: postgres:16.4-alpine
@@ -66,7 +68,7 @@ services:
 
   cleanup:
     image: docker:cli
-    command: ["sh", "-c", "docker system prune -af"]
+    command: ["sh", "-c", "sleep 60 && docker system prune -af"]
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     deploy:
@@ -75,6 +77,15 @@ services:
           - node.role == manager
       restart_policy:
         condition: none
+    depends_on:
+      frontend:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+      database:
+        condition: service_healthy
+      queue:
+        condition: service_healthy
 
 volumes:
   database_data:
