@@ -4,6 +4,7 @@ import { checker } from 'vite-plugin-checker'
 
 export default defineConfig(({ command }) => ({
     server: {
+        host: '0.0.0.0',
         port: 4000,
     },
     cacheDir: resolve(__dirname, '../..', 'node_modules/.cache/vite'),
