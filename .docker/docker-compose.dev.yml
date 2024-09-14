@@ -1,35 +1,31 @@
 name: feedstand
 
-x-common-healthcheck: &common-healthcheck
-  interval: 10s
-  timeout: 5s
-  retries: 3
-
 services:
   frontend:
+    image: feedstand/frontend:dev
     build:
       context: ..
       dockerfile: apps/frontend/.docker/Dockerfile.dev
+      args:
+        VERSION_TAG: dev
     ports:
       - 4000:4000
     volumes:
       - /feedstand/node_modules
 
   backend:
+    image: feedstand/backend:dev
     build:
       context: ..
       dockerfile: apps/backend/.docker/Dockerfile.dev
+      args:
+        VERSION_TAG: dev
     ports:
       - 4001:4001
     volumes:
       - /feedstand/node_modules
     environment:
       DATABASE_HOST: postgres
-    depends_on:
-      database:
-        condition: service_healthy
-      queue:
-        condition: service_healthy
 
   database:
     image: postgres:16.4-alpine
@@ -40,14 +36,8 @@ services:
       POSTGRES_DB: ${DATABASE_NAME}
       POSTGRES_USER: ${DATABASE_USER}
       POSTGRES_PASSWORD: ${DATABASE_PASS}
-    healthcheck:
-      <<: *common-healthcheck
-      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER}"]
 
   queue:
     image: redis:7-alpine
     ports:
       - 6379:6379
-    healthcheck:
-      <<: *common-healthcheck
-      test: ["CMD", "redis-cli", "ping"]

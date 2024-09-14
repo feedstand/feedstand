@@ -1,8 +1,8 @@
 FROM node:22.8-alpine AS build
 WORKDIR /feedstand
 
-ARG COMMIT_HASH
-ENV VITE_COMMIT_HASH=${COMMIT_HASH}
+ARG VERSION_TAG
+ENV VITE_VERSION_TAG=${VERSION_TAG}
 
 COPY package*.json .
 COPY tsconfig.json .

@@ -30,7 +30,7 @@ jobs:
 
       - name: Build ${{ matrix.app }} image
         run: |
-          docker build -t ${{ env.IMAGE_NAME }} -f apps/${{ matrix.app }}/.docker/Dockerfile.prod --build-arg COMMIT_HASH=${{ github.sha }} .
+          docker build -t ${{ env.IMAGE_NAME }} -f apps/${{ matrix.app }}/.docker/Dockerfile.prod --build-arg VERSION_TAG=${{ github.sha }} .
           docker save ${{ env.IMAGE_NAME }} | gzip > ${{ env.ZIP_NAME }}
 
       - name: Store ${{ matrix.app }} image artifact
@@ -76,4 +76,4 @@ jobs:
             cd ${{ secrets.SERVER_PATH }}
             docker load < feedstand-frontend.tar.gz
             docker load < feedstand-backend.tar.gz
-            IMAGE_TAG=${{ github.sha }} docker stack deploy -c docker-stack.prod.yml feedstand
+            VERSION_TAG=${{ github.sha }} docker stack deploy -c docker-stack.prod.yml feedstand

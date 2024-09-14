@@ -2,15 +2,21 @@ name: feedstand
 
 services:
   frontend:
+    image: feedstand/frontend:test
     build:
       context: ..
       dockerfile: apps/frontend/.docker/Dockerfile.test
+      args:
+        VERSION_TAG: test
     volumes:
       - /feedstand/node_modules
 
   backend:
+    image: feedstand/frontend:test
     build:
       context: ..
       dockerfile: apps/backend/.docker/Dockerfile.test
+      args:
+        VERSION_TAG: test
     volumes:
       - /feedstand/node_modules
