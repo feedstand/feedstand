@@ -34,6 +34,9 @@ export const channels = pgTable(
         title: varchar('title').notNull(),
         link: text('link').notNull(),
         description: varchar('description'),
+        createdAt: timestamp('created_at').notNull().defaultNow(),
+        updatedAt: timestamp('updated_at').notNull().defaultNow(),
+        lastScannedAt: timestamp('last_scanned_at'),
     },
     (table) => ({
         urlIdx: uniqueIndex('channels_url_idx').on(table.url),
