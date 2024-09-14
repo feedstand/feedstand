@@ -11,6 +11,7 @@ services:
     ports:
       - 4000:4000
     volumes:
+      - ..:/feedstand
       - /feedstand/node_modules
 
   backend:
@@ -23,9 +24,11 @@ services:
     ports:
       - 4001:4001
     volumes:
+      - ..:/feedstand
       - /feedstand/node_modules
     environment:
-      DATABASE_HOST: postgres
+      DATABASE_HOST: database
+      QUEUE_HOST: queue
 
   database:
     image: postgres:16.4-alpine
