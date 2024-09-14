@@ -33,11 +33,6 @@ services:
     healthcheck:
       <<: *common-healthcheck
       test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:4001/health"]
-    depends_on:
-      database:
-        condition: service_healthy
-      queue:
-        condition: service_healthy
 
   database:
     image: postgres:16.4-alpine
@@ -77,15 +72,6 @@ services:
           - node.role == manager
       restart_policy:
         condition: none
-    depends_on:
-      frontend:
-        condition: service_healthy
-      backend:
-        condition: service_healthy
-      database:
-        condition: service_healthy
-      queue:
-        condition: service_healthy
 
 volumes:
   database_data:
