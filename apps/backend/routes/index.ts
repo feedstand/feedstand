@@ -1,10 +1,11 @@
 import { channelsQueue } from '~/queue/channels.js'
-import { router } from '~/instances/server.js'
+import { app } from '~/instances/server.js'
 
-router.get('/', (context) => {
-    context.type = 'application/json'
-    context.status = 200
-    context.body = { message: `Hello world! Hash: ${process.env.VERSION_TAG}` }
+app.get('/', async (request, reply) => {
+    reply
+        .type('application/json')
+        .status(200)
+        .send({ message: `Hello world! Hash: ${process.env.VERSION_TAG}` })
 
-    channelsQueue.add('scan', 1)
+    await channelsQueue.add('scan', 1)
 })

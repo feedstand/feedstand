@@ -1,5 +1,5 @@
-import { router } from '~/instances/server.js'
+import { app } from '~/instances/server.js'
 
-router.get('/health', (context) => {
-    context.status = 200
+app.get('/health', async (request, reply) => {
+    reply.status(200).send()
 })

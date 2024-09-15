@@ -10,13 +10,12 @@
         "db:truncate": "tsx database/tasks/truncate.ts"
     },
     "dependencies": {
-        "@koa/router": "^12.0",
+        "@fastify/compress": "^7.0.3",
         "bullmq": "^5.0",
         "dotenv": "^16.0",
         "drizzle-orm": "^0.33",
+        "fastify": "^4.28.1",
         "ioredis": "^5.0",
-        "koa": "^2.0",
-        "koa-compress": "^5.0",
         "lodash-es": "^4.0",
         "postgres": "^3.0",
         "tsx": "^4.0"

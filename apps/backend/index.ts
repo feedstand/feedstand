@@ -1,15 +1,19 @@
-import compress from 'koa-compress'
+import fastifyCompress from '@fastify/compress'
 import * as serverConstants from '~/constants/server.js'
-import { app, router, server } from './instances/server.js'
+import { app } from './instances/server.js'
 
 const boot = async () => {
     await import('~/routes/index.js')
     await import('~/routes/health.js')
 
-    app.use(compress()).use(router.routes()).use(router.allowedMethods())
+    app.register(fastifyCompress)
 
-    server.listen(serverConstants.port, serverConstants.host, () => {
-        console.log(`Server running on http://${serverConstants.host}:${serverConstants.port}`)
+    app.listen({ port: serverConstants.port, host: serverConstants.host }, (err, address) => {
+        if (err) {
+            console.error(err)
+            process.exit(1)
+        }
+        console.log(`Server running on ${address}`)
     })
 }
 
