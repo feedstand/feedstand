@@ -1,6 +1,6 @@
 import postgres from 'postgres'
 import { drizzle } from 'drizzle-orm/postgres-js'
-import * as databaseConstants from './constants.js'
+import * as databaseConstants from '~/constants/database.js'
 
 export const client = postgres({
     host: databaseConstants.host,
@@ -9,4 +9,5 @@ export const client = postgres({
     username: databaseConstants.user,
     password: databaseConstants.password,
 })
+
 export const db = drizzle(client)

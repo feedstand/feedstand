@@ -1,4 +1,4 @@
-import { client, db } from '../index.js'
+import { client, db } from '~/instances/database.js'
 import { sql, getTableName } from 'drizzle-orm'
 import * as tables from '../tables.js'
 

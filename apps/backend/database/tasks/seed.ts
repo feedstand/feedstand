@@ -1,4 +1,4 @@
-import { client } from '../index.js'
+import { client } from '~/instances/database.js'
 import { seedChannels } from '../seeders/channels.js'
 import { seedItems } from '../seeders/items.js'
 import { seedSources } from '../seeders/sources.js'
