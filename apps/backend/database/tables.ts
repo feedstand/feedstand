@@ -66,6 +66,7 @@ export const items = pgTable(
             columns: [table.channelId],
             foreignColumns: [channels.id],
         }).onDelete('cascade'),
+        channelIdGuidIdx: uniqueIndex('items_channel_id_guid').on(table.channelId, table.guid),
     }),
 )
 
