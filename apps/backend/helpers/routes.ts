@@ -16,7 +16,7 @@ export const parseRequestToSchema = <S extends ZodSchema = never>({
         return schema.parse(request)
     } catch (error) {
         if (error instanceof ZodError) {
-            reply.status(405).send(showErrors ? error.errors : undefined)
+            reply.status(422).send(showErrors ? error.errors : undefined)
         } else {
             reply.status(500)
         }
