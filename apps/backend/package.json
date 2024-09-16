@@ -10,11 +10,12 @@
         "db:truncate": "tsx database/tasks/truncate.ts"
     },
     "dependencies": {
-        "@fastify/compress": "^7.0.3",
+        "@fastify/compress": "^7.0",
         "bullmq": "^5.0",
         "dotenv": "^16.0",
         "drizzle-orm": "^0.33",
-        "fastify": "^4.28.1",
+        "drizzle-zod": "^0.5",
+        "fastify": "^4.28",
         "ioredis": "^5.0",
         "lodash-es": "^4.0",
         "postgres": "^3.0",
