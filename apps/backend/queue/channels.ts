@@ -1,6 +1,6 @@
 import { composeQueue } from '~/helpers/queue.js'
-import { scanChannel } from '~/actions/scanChannel.js'
+import { scanExistingChannel } from '~/actions/scanExistingChannel.js'
 
 export const channelsQueue = composeQueue('channels', {
-    scan: scanChannel,
+    scan: scanExistingChannel,
 })

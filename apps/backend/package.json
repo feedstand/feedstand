@@ -12,6 +12,7 @@
     "dependencies": {
         "@fastify/compress": "^7.0",
         "bullmq": "^5.0",
+        "dayjs": "^1.11",
         "dotenv": "^16.0",
         "drizzle-orm": "^0.33",
         "drizzle-zod": "^0.5",
@@ -19,6 +20,7 @@
         "ioredis": "^5.0",
         "lodash-es": "^4.0",
         "postgres": "^3.0",
+        "rss-parser": "^3.13.0",
         "tsx": "^4.0"
     },
     "devDependencies": {
