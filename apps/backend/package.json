@@ -5,7 +5,7 @@
         "dev": "tsx --watch index.ts",
         "test": "echo 'Hello backend test!'",
         "start": "tsx index.ts",
-        "db:push": "tsx ../../node_modules/.bin/drizzle-kit push --config=configs/database.ts",
+        "db:push": "tsx ../../node_modules/.bin/drizzle-kit push --config=configs/database.ts --verbose",
         "db:seed": "tsx database/tasks/seed.ts",
         "db:truncate": "tsx database/tasks/truncate.ts"
     },
