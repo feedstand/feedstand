@@ -12,6 +12,9 @@ app.post('/preview', async (request, reply) => {
     const schema = z.object({ body: z.object({ url: z.string().url() }) })
     const { body } = parseRequestToSchema({ request, reply, schema })
 
+    // TODO: Check if there's already exsisting Channel with given URL. If so, return it's data
+    // instead of fetching feed data directly.
+
     // TODO: Enable caching of requests based on headers in the response.
     const response = await fetch(body.url)
     const contentType = response.headers.get('Content-Type')
