@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker'
-import { NewSource } from '../types.js'
+import { NewSource } from '~/types/database.js'
 import { capitalize } from 'lodash-es'
 
 export const generateSource = (source?: Partial<NewSource>): NewSource => {
@@ -7,6 +7,7 @@ export const generateSource = (source?: Partial<NewSource>): NewSource => {
 
     return {
         name: capitalize(faker.lorem.words({ min: 1, max: 4 })),
+        url: faker.internet.url(),
         userId: faker.number.bigInt(),
         channelId: faker.number.bigInt(),
         createdAt,

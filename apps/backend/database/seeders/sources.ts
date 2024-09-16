@@ -1,8 +1,8 @@
 import { generateSource } from '../factories/source.js'
 import { random, sampleSize } from 'lodash-es'
-import { db } from '../index.js'
+import { db } from '~/instances/database.js'
 import { channels, sources, users } from '../tables.js'
-import { NewSource } from '../types.js'
+import { NewSource } from '~/types/database.js'
 
 export const seedSources = async () => {
     const newSources: Array<NewSource> = []

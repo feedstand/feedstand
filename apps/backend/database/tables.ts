@@ -79,6 +79,7 @@ export const sources = pgTable(
         channelId: bigint('channel_id', { mode: 'bigint' })
             .notNull()
             .references(() => channels.id, { onDelete: 'cascade' }),
+        url: text('url').notNull(),
         name: varchar('name').notNull(),
         createdAt: timestamp('created_at').notNull().defaultNow(),
         updatedAt: timestamp('updated_at').notNull().defaultNow(),

@@ -1,7 +1,7 @@
 import { random } from 'lodash-es'
-import { db } from '../index.js'
+import { db } from '~/instances/database.js'
 import { channels, items } from '../tables.js'
-import { NewItem } from '../types.js'
+import { NewItem } from '~/types/database.js'
 import { generateItem } from '../factories/item.js'
 
 export const seedItems = async () => {

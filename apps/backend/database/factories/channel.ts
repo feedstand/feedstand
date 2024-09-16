@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker'
-import { NewChannel } from '../types.js'
+import { NewChannel } from '~/types/database.js'
 import { capitalize } from 'lodash-es'
 
 export const generateChannel = (channel?: Partial<NewChannel>): NewChannel => {
