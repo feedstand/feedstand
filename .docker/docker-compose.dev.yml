@@ -13,6 +13,7 @@ services:
     volumes:
       - ..:/feedstand
       - /feedstand/node_modules
+    restart: always
 
   backend:
     image: feedstand/backend:dev
@@ -29,6 +30,7 @@ services:
     environment:
       DATABASE_HOST: database
       QUEUE_HOST: queue
+    restart: always
 
   database:
     image: postgres:16.4-alpine
@@ -39,8 +41,10 @@ services:
       POSTGRES_DB: ${DATABASE_NAME}
       POSTGRES_USER: ${DATABASE_USER}
       POSTGRES_PASSWORD: ${DATABASE_PASS}
+    restart: always
 
   queue:
     image: redis:7-alpine
     ports:
       - 6379:6379
+    restart: always
