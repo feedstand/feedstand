@@ -4,7 +4,7 @@ import { capitalize } from 'lodash-es'
 
 export const generateItem = (item?: Partial<NewItem>): NewItem => {
     return {
-        channelId: faker.number.bigInt(),
+        channelId: faker.number.int(),
         title: capitalize(faker.lorem.words({ min: 2, max: 8 })),
         link: faker.internet.url(),
         description: faker.lorem.sentences({ min: 1, max: 2 }),

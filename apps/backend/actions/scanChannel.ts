@@ -5,8 +5,5 @@ import { db } from '~/instances/database.js'
 export const scanChannel = async (channelId: number) => {
     console.log(`Perform scanning of Channel #${channelId}`)
 
-    await db
-        .update(channels)
-        .set({ lastScannedAt: new Date() })
-        .where(eq(channels.id, BigInt(channelId)))
+    await db.update(channels).set({ lastScannedAt: new Date() }).where(eq(channels.id, channelId))
 }

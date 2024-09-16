@@ -8,8 +8,8 @@ export const generateSource = (source?: Partial<NewSource>): NewSource => {
     return {
         name: capitalize(faker.lorem.words({ min: 1, max: 4 })),
         url: faker.internet.url(),
-        userId: faker.number.bigInt(),
-        channelId: faker.number.bigInt(),
+        userId: faker.number.int(),
+        channelId: faker.number.int(),
         createdAt,
         updatedAt: faker.date.between({ from: createdAt, to: new Date() }),
         ...source,

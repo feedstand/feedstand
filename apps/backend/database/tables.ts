@@ -1,19 +1,19 @@
 import {
     pgTable,
-    bigserial,
+    serial,
     varchar,
     timestamp,
     uniqueIndex,
     text,
-    bigint,
     index,
     foreignKey,
+    integer,
 } from 'drizzle-orm/pg-core'
 
 export const users = pgTable(
     'users',
     {
-        id: bigserial('id', { mode: 'bigint' }).primaryKey(),
+        id: serial('id').primaryKey(),
         name: varchar('name').notNull(),
         email: varchar('email').notNull(),
         password: varchar('password').notNull(),
@@ -29,7 +29,7 @@ export const users = pgTable(
 export const channels = pgTable(
     'channels',
     {
-        id: bigserial('id', { mode: 'bigint' }).primaryKey(),
+        id: serial('id').primaryKey(),
         url: text('url').notNull(),
         title: varchar('title').notNull(),
         link: text('link').notNull(),
@@ -46,8 +46,8 @@ export const channels = pgTable(
 export const items = pgTable(
     'items',
     {
-        id: bigserial('id', { mode: 'bigint' }).primaryKey(),
-        channelId: bigint('channel_id', { mode: 'bigint' })
+        id: serial('id').primaryKey(),
+        channelId: integer('channel_id')
             .notNull()
             .references(() => channels.id, { onDelete: 'cascade' }),
         title: varchar('title').notNull(),
@@ -72,11 +72,11 @@ export const items = pgTable(
 export const sources = pgTable(
     'sources',
     {
-        id: bigserial('id', { mode: 'bigint' }).primaryKey(),
-        userId: bigint('user_id', { mode: 'bigint' })
+        id: serial('id').primaryKey(),
+        userId: integer('user_id')
             .notNull()
             .references(() => users.id, { onDelete: 'cascade' }),
-        channelId: bigint('channel_id', { mode: 'bigint' })
+        channelId: integer('channel_id')
             .notNull()
             .references(() => channels.id, { onDelete: 'cascade' }),
         url: text('url').notNull(),
@@ -100,11 +100,11 @@ export const sources = pgTable(
 export const unreads = pgTable(
     'unreads',
     {
-        id: bigserial('id', { mode: 'bigint' }).primaryKey(),
-        userId: bigint('user_id', { mode: 'bigint' })
+        id: serial('id').primaryKey(),
+        userId: integer('user_id')
             .notNull()
             .references(() => users.id, { onDelete: 'cascade' }),
-        itemId: bigint('item_id', { mode: 'bigint' })
+        itemId: integer('item_id')
             .notNull()
             .references(() => items.id, { onDelete: 'cascade' }),
     },
