@@ -1,6 +1,6 @@
 import dayjs from 'dayjs'
 import { NewChannel, NewItem } from '~/types/database.js'
-import { castArray } from 'lodash-es'
+import { castArray, get } from 'lodash-es'
 import { JsonFeed, XmlFeed } from '~/types/feeds.js'
 import { rssParser } from '~/instances/rssParser.js'
 
@@ -19,7 +19,7 @@ export const mapJsonFeedToNewItems = (feed: JsonFeed): Array<NewItem> => {
         title: item.title ?? '',
         link: item.url ?? '',
         description: item.summary,
-        author: castArray(item.authors)[0],
+        author: get(item.authors, '0.name'),
         guid: item.id ?? '',
         content: item.content_html ?? item.content_text ?? '',
         publishedAt: dayjs(item.date_published).toDate(),
@@ -42,7 +42,7 @@ export const mapXmlFeedToNewItems = (feed: XmlFeed): Array<NewItem> => {
         link: item.link ?? '',
         description: item.summary,
         author: item.author,
-        guid: item.guid ?? '',
+        guid: (item.guid || item.id) ?? '',
         content: item.content ?? '',
         publishedAt: dayjs(item.pubDate).toDate(),
     }))
@@ -82,5 +82,6 @@ export const fetchAndParseFeed = async (
         }
     }
 
+    // TODO: Implement custom error class and handling them in Fastify.
     throw new Error()
 }
