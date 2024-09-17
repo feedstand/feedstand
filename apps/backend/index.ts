@@ -6,6 +6,7 @@ const boot = async () => {
     await import('~/routes/index.js')
     await import('~/routes/health.js')
     await import('~/routes/channels.js')
+    await import('~/routes/items.js')
     await import('~/routes/preview.js')
 
     app.register(fastifyCompress)
