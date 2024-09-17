@@ -15,6 +15,11 @@ app.get('/channels/:id', async (request, reply) => {
         where: (channels, { eq }) => eq(channels.id, params.id),
     })
 
+    if (!channel) {
+        // TODO: Implement custom error class and handling them in Fastify.
+        throw new Error()
+    }
+
     return reply.send(channel)
 })
 
@@ -27,7 +32,8 @@ app.get('/channels/:id/scan', async (request, reply) => {
     })
 
     if (!channel) {
-        return reply.status(404).send()
+        // TODO: Implement custom error class and handling them in Fastify.
+        throw new Error()
     }
 
     // TODO: Consider adding support for adjusting scanning frequency based on the actual new items
