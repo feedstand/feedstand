@@ -1,7 +1,7 @@
 import { app } from '~/instances/server.js'
 import { parseRequestToSchema } from '~/helpers/routes.js'
 import { z } from 'zod'
-import { fetchAndParseAnyFeed } from '~/helpers/feeds.js'
+import { fetchAndParseFeed } from '~/helpers/feeds.js'
 
 app.post('/preview', async (request, reply) => {
     const schema = z.object({ body: z.object({ url: z.string().url() }) })
@@ -13,5 +13,7 @@ app.post('/preview', async (request, reply) => {
     // TODO: Add support for detecting and displaying a list of all available feeds if the user
     // provides a URL to a website that does not support feeds.
 
-    return reply.send(await fetchAndParseAnyFeed(body.url))
+    const feed = await fetchAndParseFeed(body.url)
+
+    return reply.send(feed)
 })

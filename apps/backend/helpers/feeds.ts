@@ -55,7 +55,7 @@ const xmlContentTypes = [
     'text/xml',
 ]
 
-export const fetchAndParseAnyFeed = async (
+export const fetchAndParseFeed = async (
     url: string,
 ): Promise<{ channel: NewChannel; items: Array<NewItem> }> => {
     // TODO: Enable caching of requests based on headers in the response.
