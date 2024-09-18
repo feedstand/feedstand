@@ -1,9 +1,19 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 import { ZodError, ZodSchema, z } from 'zod'
 
+export class HttpError extends Error {
+    statusCode: number
+    data: unknown
+
+    constructor(statusCode: number, { message, data }: { message?: string; data?: unknown } = {}) {
+        super(message)
+        this.statusCode = statusCode
+        this.data = data
+    }
+}
+
 export const parseRequestToSchema = <S extends ZodSchema = never>({
     request,
-    reply,
     schema,
     showErrors,
 }: {
@@ -16,9 +26,12 @@ export const parseRequestToSchema = <S extends ZodSchema = never>({
         return schema.parse(request)
     } catch (error) {
         if (error instanceof ZodError) {
-            reply.status(422).send(showErrors ? error.errors : undefined)
-        } else {
-            reply.status(500)
+            throw new HttpError(422, {
+                message: error.message,
+                data: showErrors ? error.errors : undefined,
+            })
         }
+
+        throw error
     }
 }

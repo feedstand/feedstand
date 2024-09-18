@@ -1,5 +1,5 @@
 import { app } from '~/instances/server.js'
-import { parseRequestToSchema } from '~/helpers/routes.js'
+import { HttpError, parseRequestToSchema } from '~/helpers/routes.js'
 import { z } from 'zod'
 import { db } from '~/instances/database.js'
 import { channels, items } from '~/database/tables.js'
@@ -16,8 +16,7 @@ app.get('/channels/:id', async (request, reply) => {
     })
 
     if (!channel) {
-        // TODO: Implement custom error class and handling them in Fastify.
-        throw new Error()
+        throw new HttpError(404)
     }
 
     return reply.send(channel)
@@ -32,8 +31,7 @@ app.get('/channels/:id/scan', async (request, reply) => {
     })
 
     if (!channel) {
-        // TODO: Implement custom error class and handling them in Fastify.
-        throw new Error()
+        throw new HttpError(404)
     }
 
     // TODO: Consider adding support for adjusting scanning frequency based on the actual new items

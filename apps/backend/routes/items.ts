@@ -1,5 +1,5 @@
 import { app } from '~/instances/server.js'
-import { parseRequestToSchema } from '~/helpers/routes.js'
+import { HttpError, parseRequestToSchema } from '~/helpers/routes.js'
 import { z } from 'zod'
 import { db } from '~/instances/database.js'
 
@@ -13,8 +13,7 @@ app.get('/channels/:id/items', async (request, reply) => {
     })
 
     if (!channel) {
-        // TODO: Implement custom error class and handling them in Fastify.
-        throw new Error()
+        throw new HttpError(404)
     }
 
     const items = await db.query.items.findMany({
