@@ -37,6 +37,8 @@ services:
     ports:
       - 5432:5432
     environment:
+      TZ: UTC
+      PGTZ: UTC
       POSTGRES_PORT: ${DATABASE_PORT}
       POSTGRES_DB: ${DATABASE_NAME}
       POSTGRES_USER: ${DATABASE_USER}
