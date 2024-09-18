@@ -2,10 +2,10 @@ import { app } from '~/instances/server.js'
 import { parseRequestToSchema } from '~/helpers/routes.js'
 import { z } from 'zod'
 import { db } from '~/instances/database.js'
-import { fetchAndParseFeed } from '~/helpers/feeds.js'
 import { channels, items } from '~/database/tables.js'
 import { eq } from 'drizzle-orm'
 import { NewItem } from '~/types/database.js'
+import { fetchAndParseFeed } from '~/actions/fetchAndParseFeed.js'
 
 app.get('/channels/:id', async (request, reply) => {
     const schema = z.object({ params: z.object({ id: z.coerce.number() }) })
