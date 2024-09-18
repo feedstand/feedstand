@@ -1,42 +1,22 @@
 import { app } from '~/instances/server.js'
-import { HttpError, parseRequestToSchema } from '~/helpers/routes.js'
-import { z } from 'zod'
 import { db } from '~/instances/database.js'
 import { channels, items } from '~/database/tables.js'
 import { eq } from 'drizzle-orm'
 import { NewItem } from '~/types/database.js'
 import { fetchAndParseFeed } from '~/actions/fetchAndParseFeed.js'
+import { fetchChannelById } from '~/actions/fetchChannelById.js'
 
 app.get('/channels/:id', async (request, reply) => {
-    const schema = z.object({ params: z.object({ id: z.coerce.number() }) })
-    const { params } = parseRequestToSchema({ request, schema })
-
-    const channel = await db.query.channels.findFirst({
-        where: (channels, { eq }) => eq(channels.id, params.id),
-    })
-
-    if (!channel) {
-        throw new HttpError(404)
-    }
+    const channel = await fetchChannelById(request)
 
     return reply.send(channel)
 })
 
 app.get('/channels/:id/scan', async (request, reply) => {
-    const schema = z.object({ params: z.object({ id: z.coerce.number() }) })
-    const { params } = parseRequestToSchema({ request, schema })
-
-    const channel = await db.query.channels.findFirst({
-        where: (channels, { eq }) => eq(channels.id, params.id),
-    })
-
-    if (!channel) {
-        throw new HttpError(404)
-    }
-
     // TODO: Consider adding support for adjusting scanning frequency based on the actual new items
     // being added to the feed. Elegant solution: https://stackoverflow.com/a/6651638.
 
+    const channel = await fetchChannelById(request)
     const feed = await fetchAndParseFeed(channel.url)
 
     const newItems: Array<NewItem> = []
