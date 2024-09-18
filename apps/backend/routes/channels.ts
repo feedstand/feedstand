@@ -9,7 +9,7 @@ import { fetchAndParseFeed } from '~/actions/fetchAndParseFeed.js'
 
 app.get('/channels/:id', async (request, reply) => {
     const schema = z.object({ params: z.object({ id: z.coerce.number() }) })
-    const { params } = parseRequestToSchema({ request, reply, schema })
+    const { params } = parseRequestToSchema({ request, schema })
 
     const channel = await db.query.channels.findFirst({
         where: (channels, { eq }) => eq(channels.id, params.id),
@@ -24,7 +24,7 @@ app.get('/channels/:id', async (request, reply) => {
 
 app.get('/channels/:id/scan', async (request, reply) => {
     const schema = z.object({ params: z.object({ id: z.coerce.number() }) })
-    const { params } = parseRequestToSchema({ request, reply, schema })
+    const { params } = parseRequestToSchema({ request, schema })
 
     const channel = await db.query.channels.findFirst({
         where: (channels, { eq }) => eq(channels.id, params.id),

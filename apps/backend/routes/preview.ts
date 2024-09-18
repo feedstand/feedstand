@@ -5,7 +5,7 @@ import { fetchAndParseFeed } from '~/actions/fetchAndParseFeed.js'
 
 app.post('/preview', async (request, reply) => {
     const schema = z.object({ body: z.object({ url: z.string().url() }) })
-    const { body } = parseRequestToSchema({ request, reply, schema })
+    const { body } = parseRequestToSchema({ request, schema })
 
     // TODO: Check if there's already exsisting Channel with given URL. If so, return it's data
     // instead of fetching feed data directly.

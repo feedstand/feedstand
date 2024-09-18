@@ -6,6 +6,7 @@ import {
     mapXmlFeedToNewChannel,
     mapXmlFeedToNewItems,
 } from '~/helpers/feeds.js'
+import { HttpError } from '~/helpers/routes.js'
 
 const xmlContentTypes = [
     'application/atom+xml',
@@ -41,6 +42,5 @@ export const fetchAndParseFeed = async (
         }
     }
 
-    // TODO: Implement custom error class and handling them in Fastify.
-    throw new Error()
+    throw new HttpError(422)
 }

@@ -1,4 +1,4 @@
-import { FastifyReply, FastifyRequest } from 'fastify'
+import { FastifyRequest } from 'fastify'
 import { ZodError, ZodSchema, z } from 'zod'
 
 export class HttpError extends Error {
@@ -18,7 +18,6 @@ export const parseRequestToSchema = <S extends ZodSchema = never>({
     showErrors,
 }: {
     request: FastifyRequest
-    reply: FastifyReply
     schema: S
     showErrors?: boolean
 }): z.infer<S> => {
