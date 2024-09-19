@@ -2,8 +2,9 @@ import { HttpError, parseRequestToSchema } from '~/helpers/routes.js'
 import { z } from 'zod'
 import { db } from '~/instances/database.js'
 import { FastifyRequest } from 'fastify'
+import { Channel } from '~/types/database.js'
 
-export const fetchChannelById = async (request: FastifyRequest) => {
+export const fetchChannelById = async (request: FastifyRequest): Promise<Channel> => {
     const schema = z.object({ params: z.object({ id: z.coerce.number() }) })
     const { params } = parseRequestToSchema({ request, schema })
 
