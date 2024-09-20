@@ -13,6 +13,10 @@ export const scanExistingChannel = async (channel: Channel) => {
         newItems.push({ ...newItem, channelId: channel.id })
     }
 
+    // TODO: If necessary, update contents of the existing Items so that if feed item is updated,
+    // we always store the newest version of it.
+    // Consideration: Should the changes history be kept to highlight changes in the Item?
+
     await db
         .insert(items)
         .values(newItems)
