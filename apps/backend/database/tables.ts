@@ -8,6 +8,7 @@ import {
     index,
     foreignKey,
     integer,
+    boolean,
 } from 'drizzle-orm/pg-core'
 
 export const users = pgTable(
@@ -56,6 +57,7 @@ export const items = pgTable(
         author: varchar('author'),
         guid: varchar('guid').notNull(),
         content: text('content').notNull(),
+        isReadabilitified: boolean('is_readabilitified').default(false),
         publishedAt: timestamp('published_at').notNull(),
         createdAt: timestamp('created_at').notNull().defaultNow(),
         updatedAt: timestamp('updated_at').notNull().defaultNow(),
@@ -82,6 +84,7 @@ export const sources = pgTable(
             .notNull()
             .references(() => channels.id, { onDelete: 'cascade' }),
         name: varchar('name').notNull(),
+        isReadabilitified: boolean('is_readabilitified').default(false),
         createdAt: timestamp('created_at').notNull().defaultNow(),
         updatedAt: timestamp('updated_at').notNull().defaultNow(),
     },
