@@ -26,6 +26,7 @@ export const parseRequestToSchema = <S extends ZodSchema = never>({
     } catch (error) {
         if (error instanceof ZodError) {
             throw new HttpError(422, {
+                // TODO: Format validation errors in a more readable way.
                 message: error.message,
                 data: showErrors ? error.errors : undefined,
             })
