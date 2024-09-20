@@ -4,14 +4,10 @@ import { app } from './instances/server.js'
 import { FastifyError, FastifyReply, FastifyRequest } from 'fastify'
 import { HttpError } from './helpers/routes.js'
 import { isDev } from './constants/app.js'
+import { importFilesFromDirectory } from './helpers/files.js'
 
 const boot = async () => {
-    await import('~/routes/index.js')
-    await import('~/routes/health.js')
-    await import('~/routes/channels.js')
-    await import('~/routes/items.js')
-    await import('~/routes/sources.js')
-    await import('~/routes/preview.js')
+    await importFilesFromDirectory('./routes')
 
     app.register(fastifyCompress)
 
