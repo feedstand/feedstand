@@ -1,8 +1,8 @@
-import { channels } from '~/database/tables.js'
-import { db } from '~/instances/database.js'
-import { fetchAndParseFeed } from './fetchAndParseFeed.js'
-import { Channel } from '~/types/database.js'
-import { scanExistingChannel } from './scanExistingChannel.js'
+import { channels } from '~/database/tables'
+import { db } from '~/instances/database'
+import { fetchAndParseFeed } from './fetchAndParseFeed'
+import { Channel } from '~/types/database'
+import { scanExistingChannel } from './scanExistingChannel'
 
 export const fetchOrCreateChannel = async (url: string): Promise<Channel> => {
     const existingChannel = await db.query.channels.findFirst({

@@ -1,7 +1,7 @@
-import { app } from '~/instances/server.js'
-import { fetchChannelById } from '~/actions/fetchChannelById.js'
-import { deleteOrphanChannels } from '~/actions/deleteOrphanChannels.js'
-import { scanExistingChannel } from '~/actions/scanExistingChannel.js'
+import { app } from '~/instances/server'
+import { fetchChannelById } from '~/actions/fetchChannelById'
+import { deleteOrphanChannels } from '~/actions/deleteOrphanChannels'
+import { scanExistingChannel } from '~/actions/scanExistingChannel'
 
 app.post('/channels/delete', async (request, reply) => {
     // TODO: Move this to background job running periodically.

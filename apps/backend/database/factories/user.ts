@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker'
-import { NewUser } from '~/types/database.js'
+import { NewUser } from '~/types/database'
 
 export const generateUser = (user?: Partial<NewUser>): NewUser => {
     return {

@@ -1,7 +1,7 @@
-import { app } from '~/instances/server.js'
-import { parseRequestToSchema } from '~/helpers/routes.js'
+import { app } from '~/instances/server'
+import { parseRequestToSchema } from '~/helpers/routes'
 import { z } from 'zod'
-import { fetchAndParseFeed } from '~/actions/fetchAndParseFeed.js'
+import { fetchAndParseFeed } from '~/actions/fetchAndParseFeed'
 
 app.post('/preview', async (request, reply) => {
     const schema = z.object({ body: z.object({ url: z.string().url() }) })

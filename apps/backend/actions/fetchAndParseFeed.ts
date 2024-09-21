@@ -1,12 +1,12 @@
-import { NewChannel, NewItem } from '~/types/database.js'
-import { rssParser } from '~/instances/rssParser.js'
+import { NewChannel, NewItem } from '~/types/database'
+import { rssParser } from '~/instances/rssParser'
 import {
     mapJsonFeedToNewChannel,
     mapJsonFeedToNewItems,
     mapXmlFeedToNewChannel,
     mapXmlFeedToNewItems,
-} from '~/helpers/feeds.js'
-import { HttpError } from '~/helpers/routes.js'
+} from '~/helpers/feeds'
+import { HttpError } from '~/helpers/routes'
 
 const xmlContentTypes = [
     'application/atom+xml',

@@ -1,10 +1,10 @@
 import fastifyCompress from '@fastify/compress'
-import * as serverConstants from '~/constants/server.js'
-import { app } from './instances/server.js'
+import * as serverConstants from '~/constants/server'
+import { app } from './instances/server'
 import { FastifyError, FastifyReply, FastifyRequest } from 'fastify'
-import { HttpError } from './helpers/routes.js'
-import { isDev } from './constants/app.js'
-import { importFilesFromDirectory } from './helpers/files.js'
+import { HttpError } from './helpers/routes'
+import { isDev } from './constants/app'
+import { importFilesFromDirectory } from './helpers/files'
 
 const boot = async () => {
     await importFilesFromDirectory('./routes')

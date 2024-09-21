@@ -1,7 +1,7 @@
 import postgres from 'postgres'
 import { drizzle } from 'drizzle-orm/postgres-js'
-import * as databaseConstants from '~/constants/database.js'
-import * as schema from '~/database/tables.js'
+import * as databaseConstants from '~/constants/database'
+import * as schema from '~/database/tables'
 
 export const client = postgres({
     host: databaseConstants.host,

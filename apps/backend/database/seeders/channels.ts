@@ -1,6 +1,6 @@
-import { generateChannel } from '../factories/channel.js'
-import { db } from '~/instances/database.js'
-import { channels } from '~/database/tables.js'
+import { generateChannel } from '../factories/channel'
+import { db } from '~/instances/database'
+import { channels } from '~/database/tables'
 
 export const seedChannels = async () => {
     await db.insert(channels).values([

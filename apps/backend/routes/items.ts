@@ -1,6 +1,6 @@
-import { app } from '~/instances/server.js'
-import { db } from '~/instances/database.js'
-import { fetchChannelById } from '~/actions/fetchChannelById.js'
+import { app } from '~/instances/server'
+import { db } from '~/instances/database'
+import { fetchChannelById } from '~/actions/fetchChannelById'
 
 app.get('/channels/:id/items', async (request, reply) => {
     const channel = await fetchChannelById(request)

@@ -5,7 +5,7 @@
         "dev": "tsx --watch index.ts",
         "test": "echo 'Hello backend test!'",
         "start": "tsx index.ts",
-        "db:push": "tsx ../../node_modules/.bin/drizzle-kit push --config=configs/database.ts --verbose",
+        "db:push": "drizzle-kit push --config=configs/database.ts --verbose",
         "db:seed": "tsx database/tasks/seed.ts",
         "db:truncate": "tsx database/tasks/truncate.ts"
     },
@@ -18,7 +18,7 @@
         "drizzle-zod": "^0.5.0",
         "fastify": "^5.0.0",
         "ioredis": "^5.0.0",
-        "lodash-es": "^4.0.0",
+        "lodash": "^4.0.0",
         "postgres": "^3.0.0",
         "rss-parser": "^3.13.0",
         "tsx": "^4.0.0",
@@ -26,7 +26,7 @@
     },
     "devDependencies": {
         "@faker-js/faker": "^8.0.0",
-        "@types/lodash-es": "^4.0.0",
+        "@types/lodash": "^4.0.0",
         "@types/node": "^22.0.0",
         "drizzle-kit": "^0.24.0"
     }

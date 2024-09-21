@@ -1,5 +1,5 @@
-import { composeQueue } from '~/helpers/queue.js'
-import { scanExistingChannel } from '~/actions/scanExistingChannel.js'
+import { composeQueue } from '~/helpers/queue'
+import { scanExistingChannel } from '~/actions/scanExistingChannel'
 
 export const channelsQueue = composeQueue('channels', {
     scan: scanExistingChannel,

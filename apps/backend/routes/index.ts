@@ -1,4 +1,4 @@
-import { app } from '~/instances/server.js'
+import { app } from '~/instances/server'
 
 app.get('/', (request, reply) => {
     reply

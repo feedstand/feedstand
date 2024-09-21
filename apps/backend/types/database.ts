@@ -1,5 +1,5 @@
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm'
-import { users, channels, items, sources, unreads } from '~/database/tables.js'
+import { users, channels, items, sources, unreads } from '~/database/tables'
 
 export type User = InferSelectModel<typeof users>
 

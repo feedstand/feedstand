@@ -1,7 +1,7 @@
-import { dayjs } from '~/instances/dayjs.js'
+import { dayjs } from '~/instances/dayjs'
 import { and, eq, inArray, isNull, lt } from 'drizzle-orm'
-import { channels, sources } from '~/database/tables.js'
-import { db } from '~/instances/database.js'
+import { channels, sources } from '~/database/tables'
+import { db } from '~/instances/database'
 
 export const deleteOrphanChannels = async () => {
     const oneDayAgo = dayjs().subtract(1, 'day').toDate()

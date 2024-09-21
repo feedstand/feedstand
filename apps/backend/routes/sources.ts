@@ -1,10 +1,10 @@
 import { createInsertSchema } from 'drizzle-zod'
 import { z } from 'zod'
-import { fetchOrCreateChannel } from '~/actions/fetchOrCreateChannel.js'
-import { sources } from '~/database/tables.js'
-import { parseRequestToSchema } from '~/helpers/routes.js'
-import { db } from '~/instances/database.js'
-import { app } from '~/instances/server.js'
+import { fetchOrCreateChannel } from '~/actions/fetchOrCreateChannel'
+import { sources } from '~/database/tables'
+import { parseRequestToSchema } from '~/helpers/routes'
+import { db } from '~/instances/database'
+import { app } from '~/instances/server'
 
 app.post('/sources', async (request, reply) => {
     const schema = z.object({

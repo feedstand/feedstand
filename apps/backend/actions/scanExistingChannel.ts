@@ -1,8 +1,8 @@
 import { eq } from 'drizzle-orm'
-import { channels, items } from '~/database/tables.js'
-import { db } from '~/instances/database.js'
-import { Channel, NewItem } from '~/types/database.js'
-import { fetchAndParseFeed } from './fetchAndParseFeed.js'
+import { channels, items } from '~/database/tables'
+import { db } from '~/instances/database'
+import { Channel, NewItem } from '~/types/database'
+import { fetchAndParseFeed } from './fetchAndParseFeed'
 
 export const scanExistingChannel = async (channel: Channel) => {
     const feed = await fetchAndParseFeed(channel.url)
