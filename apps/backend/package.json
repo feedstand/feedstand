@@ -7,7 +7,9 @@
         "start": "tsx index.ts",
         "db:push": "drizzle-kit push --config=configs/database.ts --verbose",
         "db:seed": "tsx database/tasks/seed.ts",
-        "db:truncate": "tsx database/tasks/truncate.ts"
+        "db:truncate": "tsx database/tasks/truncate.ts",
+        "lint": "npm run lint:tsc",
+        "lint:tsc": "tsc --pretty --noEmit"
     },
     "dependencies": {
         "@fastify/compress": "^8.0.0",
