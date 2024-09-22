@@ -1,5 +1,5 @@
 import { generateSource } from '../factories/source'
-import { random, sampleSize } from 'lodash'
+import { random, sampleSize } from 'lodash-es'
 import { db } from '~/instances/database'
 import { channels, sources, users } from '../tables'
 import { NewSource } from '~/types/database'

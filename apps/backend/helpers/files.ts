@@ -8,7 +8,7 @@ export const importFilesFromDirectory = async (directory: string) => {
 
         for (const file of filteredFiles) {
             const filePath = path.join(directory, file)
-            const resolvedPath = path.resolve(filePath).replace(/\.ts$/, '.js')
+            const resolvedPath = path.resolve(filePath)
             await import(resolvedPath)
         }
     } catch (error) {

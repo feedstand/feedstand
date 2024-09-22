@@ -1,4 +1,4 @@
-import { random } from 'lodash'
+import { random } from 'lodash-es'
 import { db } from '~/instances/database'
 import { channels, items } from '../tables'
 import { NewItem } from '~/types/database'
