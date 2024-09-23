@@ -1,9 +1,9 @@
 import { generateChannel } from '../factories/channel'
 import { db } from '~/instances/database'
-import { channels } from '~/database/tables'
+import { tables } from '~/database/tables'
 
 export const seedChannels = async () => {
-    await db.insert(channels).values([
+    await db.insert(tables.channels).values([
         generateChannel({
             url: 'https://zenhabits.net/feed',
             title: 'zen habits',

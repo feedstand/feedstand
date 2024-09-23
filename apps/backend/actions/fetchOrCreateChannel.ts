@@ -1,13 +1,16 @@
-import { channels } from '~/database/tables'
+import { tables } from '~/database/tables'
 import { db } from '~/instances/database'
 import { fetchAndParseFeed } from './fetchAndParseFeed'
 import { Channel } from '~/types/database'
 import { scanExistingChannel } from './scanExistingChannel'
+import { eq } from 'drizzle-orm'
 
 export const fetchOrCreateChannel = async (url: string): Promise<Channel> => {
-    const existingChannel = await db.query.channels.findFirst({
-        where: (channels, { eq }) => eq(channels.url, url),
-    })
+    const [existingChannel] = await db
+        .select()
+        .from(tables.channels)
+        .where(eq(tables.channels.url, url))
+        .limit(1)
 
     if (existingChannel) {
         // TODO: Do we need this? Maybe it depends on the last update time and the frequency of
@@ -18,7 +21,7 @@ export const fetchOrCreateChannel = async (url: string): Promise<Channel> => {
     }
 
     const feed = await fetchAndParseFeed(url)
-    const [newChannel] = await db.insert(channels).values(feed.channel).returning()
+    const [newChannel] = await db.insert(tables.channels).values(feed.channel).returning()
 
     // TODO: Do we scan for new items right away? Or perform scanning for new items when the user
     // opens the page with the channel and it's empty?

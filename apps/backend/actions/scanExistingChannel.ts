@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm'
-import { channels, items } from '~/database/tables'
+import { tables } from '~/database/tables'
 import { db } from '~/instances/database'
 import { Channel, NewItem } from '~/types/database'
 import { fetchAndParseFeed } from './fetchAndParseFeed'
@@ -18,12 +18,12 @@ export const scanExistingChannel = async (channel: Channel) => {
     // Consideration: Should the changes history be kept to highlight changes in the Item?
 
     await db
-        .insert(items)
+        .insert(tables.items)
         .values(newItems)
-        .onConflictDoNothing({ target: [items.channelId, items.guid] })
+        .onConflictDoNothing({ target: [tables.items.channelId, tables.items.guid] })
 
     await db
-        .update(channels)
+        .update(tables.channels)
         .set({ ...feed.channel, lastScannedAt: new Date() })
-        .where(eq(channels.id, channel.id))
+        .where(eq(tables.channels.id, channel.id))
 }

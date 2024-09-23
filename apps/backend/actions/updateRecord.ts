@@ -1,19 +1,19 @@
 import { db } from '~/instances/database'
 import { FastifyRequest } from 'fastify'
-import * as tables from '~/database/tables'
+import { tables } from '~/database/tables'
 import { eq } from 'drizzle-orm'
-import { fetchRecordById } from './fetchRecordById'
+import { fetchRecord } from './fetchRecord'
 import { pick } from 'lodash-es'
 import { parseRequestToSchema } from '~/helpers/routes'
 import { createSelectSchema } from 'drizzle-zod'
 import { z } from 'zod'
 
-export const updateRecordById = async <T extends (typeof tables)[keyof typeof tables]>(
+export const updateRecord = async <T extends (typeof tables)[keyof typeof tables]>(
     request: FastifyRequest,
     table: T,
     fields: Array<keyof T['$inferSelect']>,
 ): Promise<T['$inferSelect']> => {
-    const existingRecord = await fetchRecordById(request, table)
+    const existingRecord = await fetchRecord(request, table)
 
     const picked = Object.fromEntries(fields.map((field) => [field, true])) as any
     const schema = z.object({ body: createSelectSchema(table).pick(picked) })

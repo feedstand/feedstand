@@ -1,12 +1,12 @@
 import { random } from 'lodash-es'
 import { db } from '~/instances/database'
-import { channels, items } from '../tables'
+import { tables } from '../tables'
 import { NewItem } from '~/types/database'
 import { generateItem } from '../factories/item'
 
 export const seedItems = async () => {
     const newItems: Array<NewItem> = []
-    const allChannels = await db.select().from(channels)
+    const allChannels = await db.select().from(tables.channels)
 
     for (let i = 0; i < 100; ++i) {
         const randomChannel = allChannels[random(0, allChannels.length - 1)]
@@ -14,5 +14,5 @@ export const seedItems = async () => {
         newItems.push(generateItem({ channelId: randomChannel.id }))
     }
 
-    await db.insert(items).values(newItems)
+    await db.insert(tables.items).values(newItems)
 }

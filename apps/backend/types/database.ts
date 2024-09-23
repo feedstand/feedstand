@@ -1,22 +1,21 @@
-import { InferInsertModel, InferSelectModel } from 'drizzle-orm'
-import { users, channels, items, sources, unreads } from '~/database/tables'
+import { tables } from '~/database/tables'
 
-export type User = InferSelectModel<typeof users>
+export type User = (typeof tables.users)['$inferSelect']
 
-export type NewUser = InferInsertModel<typeof users>
+export type NewUser = (typeof tables.users)['$inferInsert']
 
-export type Channel = InferSelectModel<typeof channels>
+export type Channel = (typeof tables.channels)['$inferSelect']
 
-export type NewChannel = InferInsertModel<typeof channels>
+export type NewChannel = (typeof tables.channels)['$inferInsert']
 
-export type Item = InferSelectModel<typeof items>
+export type Item = (typeof tables.items)['$inferSelect']
 
-export type NewItem = InferInsertModel<typeof items>
+export type NewItem = (typeof tables.items)['$inferInsert']
 
-export type Source = InferSelectModel<typeof sources>
+export type Source = (typeof tables.sources)['$inferSelect']
 
-export type NewSource = InferInsertModel<typeof sources>
+export type NewSource = (typeof tables.sources)['$inferInsert']
 
-export type Unread = InferSelectModel<typeof unreads>
+export type Unread = (typeof tables.unreads)['$inferSelect']
 
-export type NewUnread = InferInsertModel<typeof unreads>
+export type NewUnread = (typeof tables.unreads)['$inferInsert']

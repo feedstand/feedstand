@@ -11,7 +11,7 @@ import {
     boolean,
 } from 'drizzle-orm/pg-core'
 
-export const users = pgTable(
+const users = pgTable(
     'users',
     {
         id: serial('id').primaryKey(),
@@ -27,7 +27,7 @@ export const users = pgTable(
     }),
 )
 
-export const channels = pgTable(
+const channels = pgTable(
     'channels',
     {
         id: serial('id').primaryKey(),
@@ -44,7 +44,7 @@ export const channels = pgTable(
     }),
 )
 
-export const items = pgTable(
+const items = pgTable(
     'items',
     {
         id: serial('id').primaryKey(),
@@ -73,7 +73,7 @@ export const items = pgTable(
     }),
 )
 
-export const sources = pgTable(
+const sources = pgTable(
     'sources',
     {
         id: serial('id').primaryKey(),
@@ -101,7 +101,7 @@ export const sources = pgTable(
     }),
 )
 
-export const unreads = pgTable(
+const unreads = pgTable(
     'unreads',
     {
         id: serial('id').primaryKey(),
@@ -124,3 +124,11 @@ export const unreads = pgTable(
         }).onDelete('cascade'),
     }),
 )
+
+export const tables = {
+    users,
+    channels,
+    items,
+    sources,
+    unreads,
+}
