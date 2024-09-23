@@ -1,7 +1,8 @@
 import { app } from '~/instances/server'
-import { fetchChannelById } from '~/actions/fetchChannelById'
+import { fetchRecordById } from '~/actions/fetchRecordById'
 import { deleteOrphanChannels } from '~/actions/deleteOrphanChannels'
 import { scanExistingChannel } from '~/actions/scanExistingChannel'
+import { channels } from '~/database/tables'
 
 app.post('/channels/delete', async (request, reply) => {
     // TODO: Move this to background job running periodically.
@@ -12,7 +13,7 @@ app.post('/channels/delete', async (request, reply) => {
 })
 
 app.get('/channels/:id', async (request, reply) => {
-    const channel = await fetchChannelById(request)
+    const channel = await fetchRecordById(request, channels)
 
     return reply.send(channel)
 })
@@ -23,7 +24,7 @@ app.get('/channels/:id/scan', async (request, reply) => {
     // TODO: Consider adding support for adjusting scanning frequency based on the actual new items
     // being added to the feed. Elegant solution: https://stackoverflow.com/a/6651638.
 
-    const channel = await fetchChannelById(request)
+    const channel = await fetchRecordById(request, channels)
 
     await scanExistingChannel(channel)
 

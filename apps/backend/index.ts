@@ -19,19 +19,19 @@ const boot = async () => {
             })
         }
 
+        if (isDev) {
+            return reply.status(error.statusCode || 500).send({
+                message: error.message,
+                data: error,
+            })
+        }
+
         return reply.status(error.statusCode || 500).send({
-            message: error.message,
-            data: isDev ? error : undefined,
+            message: 'Something went wrong',
         })
     })
 
-    app.listen({ port: serverConstants.port, host: serverConstants.host }, (err, address) => {
-        if (err) {
-            console.error(err)
-            process.exit(1)
-        }
-        console.log(`Server running on ${address}`)
-    })
+    app.listen({ port: serverConstants.port, host: serverConstants.host })
 }
 
 boot()
