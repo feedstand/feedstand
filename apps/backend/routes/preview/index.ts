@@ -1,11 +1,34 @@
 import { hono } from '~/instances/hono'
-import { z } from 'zod'
 import { fetchAndParseFeed } from '~/actions/fetchAndParseFeed'
-import { validate } from '~/helpers/routes'
+import { createInsertSchema } from 'drizzle-zod'
+import { tables } from '~/database/tables'
+import { createRoute, z } from '@hono/zod-openapi'
 
-const jsonSchema = z.object({ url: z.string().url() })
+const route = createRoute({
+    method: 'post',
+    path: '/preview',
+    request: {
+        body: {
+            content: { 'application/json': { schema: z.object({ url: z.string().url() }) } },
+            description: '',
+        },
+    },
+    responses: {
+        200: {
+            content: {
+                'application/json': {
+                    schema: z.object({
+                        channel: createInsertSchema(tables.channels),
+                        items: z.array(createInsertSchema(tables.items)),
+                    }),
+                },
+            },
+            description: '',
+        },
+    },
+})
 
-hono.post('/preview', validate('json', jsonSchema), async (context) => {
+hono.openapi(route, async (context) => {
     // TODO: Check if there's already exsisting Channel with given URL. If so, return it's data
     // instead of fetching feed data directly.
 
@@ -15,5 +38,5 @@ hono.post('/preview', validate('json', jsonSchema), async (context) => {
     const json = context.req.valid('json')
     const feed = await fetchAndParseFeed(json.url)
 
-    return context.json(feed)
+    return context.json(feed, 200)
 })

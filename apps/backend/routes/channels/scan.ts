@@ -5,7 +5,6 @@ import { z } from 'zod'
 import { validate } from '~/helpers/routes'
 import { db } from '~/instances/database'
 import { eq } from 'drizzle-orm'
-import { HTTPException } from 'hono/http-exception'
 
 const paramSchema = z.object({ id: z.coerce.number() })
 
@@ -22,7 +21,7 @@ hono.get('/channels/:id/scan', validate('param', paramSchema), async (context) =
         .limit(1)
 
     if (!channel) {
-        throw new HTTPException(404)
+        return context.notFound()
     }
 
     await scanExistingChannel(channel)

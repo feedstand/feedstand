@@ -5,5 +5,5 @@ import { deleteOrphanChannels } from '~/actions/deleteOrphanChannels'
 hono.get('/channels/delete', async (context) => {
     const deletedChannels = await deleteOrphanChannels()
 
-    return context.json(deletedChannels)
+    return context.json(deletedChannels, 200)
 })

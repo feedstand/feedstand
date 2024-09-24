@@ -1,14 +1,28 @@
 import { eq } from 'drizzle-orm'
-import { HTTPException } from 'hono/http-exception'
-import { z } from 'zod'
+import { createRoute, z } from '@hono/zod-openapi'
 import { tables } from '~/database/tables'
-import { validate } from '~/helpers/routes'
 import { db } from '~/instances/database'
 import { hono } from '~/instances/hono'
+import { createSelectSchema } from 'drizzle-zod'
 
-const paramSchema = z.object({ id: z.coerce.number() })
+const route = createRoute({
+    method: 'get',
+    path: '/channels/{id}',
+    request: {
+        params: z.object({ id: z.coerce.number() }),
+    },
+    responses: {
+        200: {
+            content: { 'application/json': { schema: createSelectSchema(tables.channels) } },
+            description: '',
+        },
+        404: {
+            description: '',
+        },
+    },
+})
 
-hono.get('/channels/:id', validate('param', paramSchema), async (context) => {
+hono.openapi(route, async (context) => {
     const params = context.req.valid('param')
 
     const [channel] = await db
@@ -18,7 +32,7 @@ hono.get('/channels/:id', validate('param', paramSchema), async (context) => {
         .limit(1)
 
     if (!channel) {
-        throw new HTTPException(404)
+        return context.notFound()
     }
 
     return context.json(channel)

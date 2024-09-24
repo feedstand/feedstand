@@ -5,8 +5,6 @@ import { importFilesFromDirectory } from './helpers/files'
 
 await importFilesFromDirectory('./routes')
 
-// await import('~/routes/sources/update')
-
 serve({
     fetch: hono.fetch,
     hostname: serverConstants.host,

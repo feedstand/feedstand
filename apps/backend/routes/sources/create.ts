@@ -1,16 +1,34 @@
-import { createInsertSchema } from 'drizzle-zod'
-import { z } from 'zod'
+import { createInsertSchema, createSelectSchema } from 'drizzle-zod'
 import { fetchOrCreateChannel } from '~/actions/fetchOrCreateChannel'
 import { tables } from '~/database/tables'
-import { validate } from '~/helpers/routes'
 import { db } from '~/instances/database'
 import { hono } from '~/instances/hono'
+import { createRoute, z } from '@hono/zod-openapi'
 
-const jsonSchema = createInsertSchema(tables.sources)
-    .omit({ channelId: true })
-    .extend({ url: z.string().url() })
+const route = createRoute({
+    method: 'post',
+    path: '/sources',
+    request: {
+        body: {
+            content: {
+                'application/json': {
+                    schema: createInsertSchema(tables.sources)
+                        .omit({ channelId: true })
+                        .extend({ url: z.string().url() }),
+                },
+            },
+            description: '',
+        },
+    },
+    responses: {
+        201: {
+            content: { 'application/json': { schema: createSelectSchema(tables.sources) } },
+            description: '',
+        },
+    },
+})
 
-hono.post('/sources', validate('json', jsonSchema), async (context) => {
+hono.openapi(route, async (context) => {
     const json = context.req.valid('json')
 
     const channel = await fetchOrCreateChannel(json.url)
