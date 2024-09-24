@@ -20,6 +20,7 @@ const route = createRoute({
             description: '',
         },
     },
+    tags: ['Channels'],
 })
 
 hono.openapi(route, async (context) => {

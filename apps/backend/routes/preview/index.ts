@@ -26,6 +26,7 @@ const route = createRoute({
             description: '',
         },
     },
+    tags: ['Feeds'],
 })
 
 hono.openapi(route, async (context) => {

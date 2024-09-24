@@ -32,6 +32,7 @@ const route = createRoute({
             description: '',
         },
     },
+    tags: ['Sources'],
 })
 
 hono.openapi(route, async (context) => {

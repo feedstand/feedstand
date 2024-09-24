@@ -20,6 +20,7 @@ hono.doc31('/swagger.json', {
         title: 'Feedstand API',
         version,
     },
+    tags: [{ name: 'General' }, { name: 'Channels' }, { name: 'Sources' }, { name: 'Items' }],
 })
 
 hono.use('*', compress())

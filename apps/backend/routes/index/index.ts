@@ -18,6 +18,7 @@ const route = createRoute({
             description: 'Return boolean indicating app health and the version tag.',
         },
     },
+    tags: ['General'],
 })
 
 hono.openapi(route, async (context) => {
