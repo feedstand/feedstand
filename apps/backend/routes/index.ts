@@ -1,5 +1,5 @@
-import { app } from '~/instances/server'
+import { hono } from '~/instances/hono'
 
-app.get('/', async (request, reply) => {
-    reply.status(200).send()
+hono.get('/', async (context) => {
+    return context.json({}, 200)
 })
