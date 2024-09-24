@@ -1,10 +1,26 @@
-import { Hono } from 'hono'
+import { OpenAPIHono } from '@hono/zod-openapi'
 import { compress } from 'hono/compress'
 import { HTTPException } from 'hono/http-exception'
 import { ZodError } from 'zod'
-import { isDev } from '~/constants/app'
+import { isDev, version } from '~/constants/app'
 
-export const hono = new Hono()
+export const hono = new OpenAPIHono({
+    defaultHook: (result) => {
+        if (!result.success) {
+            // If request validation fails, just kick the can further down the road. Any exceptions
+            // will be handled by the global error handler defined in `hono.onError`.
+            throw result.error
+        }
+    },
+})
+
+hono.doc31('/swagger.json', {
+    openapi: '3.1.0',
+    info: {
+        title: 'Feedstand API',
+        version,
+    },
+})
 
 hono.use('*', compress())
 
