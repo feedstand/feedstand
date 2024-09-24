@@ -30,6 +30,9 @@ services:
     environment:
       DATABASE_HOST: database
       QUEUE_HOST: queue
+    depends_on:
+      - database
+      - queue
     restart: always
 
   database:
@@ -50,3 +53,12 @@ services:
     ports:
       - 6379:6379
     restart: always
+
+  swagger-ui:
+    image: swaggerapi/swagger-ui
+    ports:
+      - 8080:8080
+    environment:
+      - URL=http://backend:4001/swagger.json
+    depends_on:
+      - backend
