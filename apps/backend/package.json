@@ -9,7 +9,9 @@
         "db:seed": "tsx database/tasks/seed.ts",
         "db:truncate": "tsx database/tasks/truncate.ts",
         "lint": "npm run lint:tsc",
-        "lint:tsc": "tsc --pretty --noEmit"
+        "lint:tsc": "tsc --pretty --noEmit",
+        "lint:prettier:base": "prettier --write",
+        "lint:prettier": "npm run lint:prettier:base -- ."
     },
     "dependencies": {
         "@hono/node-server": "^1.13.0",

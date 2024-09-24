@@ -1,3 +1,3 @@
-export default {
-    '*.{ts,tsx}': [() => 'npm run lint:tsc'],
-}
+import config from '../../lint-staged.config.js'
+
+export default config

@@ -6,7 +6,9 @@
         "test": "echo 'Hello frontend test!'",
         "build": "vite build",
         "lint": "npm run lint:tsc",
-        "lint:tsc": "tsc --pretty --noEmit"
+        "lint:tsc": "tsc --pretty --noEmit",
+        "lint:prettier:base": "prettier --write",
+        "lint:prettier": "npm run lint:prettier:base -- ."
     },
     "devDependencies": {
         "@types/react": "^18.0.0",
