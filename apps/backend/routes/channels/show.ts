@@ -1,9 +1,9 @@
-import { eq } from 'drizzle-orm'
 import { createRoute, z } from '@hono/zod-openapi'
+import { eq } from 'drizzle-orm'
+import { createSelectSchema } from 'drizzle-zod'
 import { tables } from '~/database/tables'
 import { db } from '~/instances/database'
 import { hono } from '~/instances/hono'
-import { createSelectSchema } from 'drizzle-zod'
 
 const route = createRoute({
     method: 'get',

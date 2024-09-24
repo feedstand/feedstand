@@ -1,12 +1,12 @@
-import { NewChannel, NewItem } from '~/types/database'
-import { rssParser } from '~/instances/rssParser'
+import { HTTPException } from 'hono/http-exception'
 import {
     mapJsonFeedToNewChannel,
     mapJsonFeedToNewItems,
     mapXmlFeedToNewChannel,
     mapXmlFeedToNewItems,
 } from '~/helpers/feeds'
-import { HTTPException } from 'hono/http-exception'
+import { rssParser } from '~/instances/rssParser'
+import { NewChannel, NewItem } from '~/types/database'
 
 const xmlContentTypes = [
     'application/atom+xml',

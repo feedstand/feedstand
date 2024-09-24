@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
-import { NewItem } from '~/types/database'
 import { capitalize } from 'lodash-es'
+import { NewItem } from '~/types/database'
 
 export const generateItem = (item?: Partial<NewItem>): NewItem => {
     return {

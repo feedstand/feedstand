@@ -1,9 +1,9 @@
+import { createRoute, z } from '@hono/zod-openapi'
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod'
 import { fetchOrCreateChannel } from '~/actions/fetchOrCreateChannel'
 import { tables } from '~/database/tables'
 import { db } from '~/instances/database'
 import { hono } from '~/instances/hono'
-import { createRoute, z } from '@hono/zod-openapi'
 
 const route = createRoute({
     method: 'post',

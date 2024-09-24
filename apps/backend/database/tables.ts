@@ -1,14 +1,14 @@
 import {
+    boolean,
+    foreignKey,
+    index,
+    integer,
     pgTable,
     serial,
-    varchar,
+    text,
     timestamp,
     uniqueIndex,
-    text,
-    index,
-    foreignKey,
-    integer,
-    boolean,
+    varchar,
 } from 'drizzle-orm/pg-core'
 
 export const users = pgTable(

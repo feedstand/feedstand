@@ -1,8 +1,8 @@
-import { hono } from '~/instances/hono'
-import { fetchAndParseFeed } from '~/actions/fetchAndParseFeed'
-import { createInsertSchema } from 'drizzle-zod'
-import { tables } from '~/database/tables'
 import { createRoute, z } from '@hono/zod-openapi'
+import { createInsertSchema } from 'drizzle-zod'
+import { fetchAndParseFeed } from '~/actions/fetchAndParseFeed'
+import { tables } from '~/database/tables'
+import { hono } from '~/instances/hono'
 
 const route = createRoute({
     method: 'post',

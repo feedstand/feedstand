@@ -1,9 +1,9 @@
+import { eq } from 'drizzle-orm'
 import { tables } from '~/database/tables'
 import { db } from '~/instances/database'
-import { fetchAndParseFeed } from './fetchAndParseFeed'
 import { Channel } from '~/types/database'
+import { fetchAndParseFeed } from './fetchAndParseFeed'
 import { scanExistingChannel } from './scanExistingChannel'
-import { eq } from 'drizzle-orm'
 
 export const fetchOrCreateChannel = async (url: string): Promise<Channel> => {
     const [existingChannel] = await db
