@@ -6,7 +6,7 @@ import {
     mapXmlFeedToNewChannel,
     mapXmlFeedToNewItems,
 } from '~/helpers/feeds'
-import { HttpError } from '~/helpers/routes'
+import { HTTPException } from 'hono/http-exception'
 
 const xmlContentTypes = [
     'application/atom+xml',
@@ -15,9 +15,12 @@ const xmlContentTypes = [
     'text/xml',
 ]
 
-export const fetchAndParseFeed = async (
-    url: string,
-): Promise<{ channel: NewChannel; items: Array<NewItem> }> => {
+type FetchAndParseFeed = (url: string) => Promise<{
+    channel: NewChannel
+    items: Array<NewItem>
+}>
+
+export const fetchAndParseFeed: FetchAndParseFeed = async (url) => {
     // TODO: Enable caching of requests based on headers in the response.
     const response = await fetch(url)
     const contentType = response.headers.get('Content-Type')
@@ -42,5 +45,5 @@ export const fetchAndParseFeed = async (
         }
     }
 
-    throw new HttpError(422)
+    throw new HTTPException(422)
 }

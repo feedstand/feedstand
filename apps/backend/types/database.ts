@@ -1,5 +1,7 @@
 import { tables } from '~/database/tables'
 
+export type Table = (typeof tables)[keyof typeof tables]
+
 export type User = (typeof tables.users)['$inferSelect']
 
 export type NewUser = (typeof tables.users)['$inferInsert']
