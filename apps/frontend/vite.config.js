@@ -10,10 +10,9 @@ export default defineConfig(({ command }) => ({
     cacheDir: resolve(__dirname, '../..', 'node_modules/.cache/vite'),
     build: {
         emptyOutDir: true,
-        target: 'esnext',
     },
     esbuild: {
-        drop: command === 'serve' ? [] : ['console', 'debugger'],
+        drop: command === 'build' ? ['console', 'debugger'] : [],
     },
     resolve: {
         alias: {
