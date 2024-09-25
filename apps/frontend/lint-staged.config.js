@@ -1,3 +1,1 @@
-import config from '../../lint-staged.config.js'
-
-export default config
+export { default } from '../../lint-staged.config.js'
