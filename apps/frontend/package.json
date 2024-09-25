@@ -11,6 +11,7 @@
         "lint:prettier": "npm run lint:prettier:base -- ."
     },
     "dependencies": {
+        "@tabler/icons-react": "^3.17.0",
         "dotenv": "^16.0.0",
         "react": "^18.0.0",
         "react-dom": "^18.0.0"
