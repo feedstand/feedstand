@@ -11,14 +11,14 @@
         "lint:prettier": "npm run lint:prettier:base -- ."
     },
     "dependencies": {
-        "@tabler/icons-react": "^3.17.0",
+        "@tanstack/react-query": "5.54.1",
         "dotenv": "^16.0.0",
-        "react": "^18.0.0",
-        "react-dom": "^18.0.0"
+        "react": "^19.0.0-rc",
+        "react-dom": "^19.0.0-rc"
     },
     "devDependencies": {
-        "@types/react": "^18.0.0",
-        "@types/react-dom": "^18.0.0",
+        "@types/react": "npm:types-react@rc",
+        "@types/react-dom": "npm:types-react-dom@rc",
         "vite": "^5.0.0",
         "vite-plugin-checker": "^0.8.0"
     }
