@@ -1,10 +1,10 @@
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
-import { scanExistingChannel } from '~/actions/scanExistingChannel'
-import { tables } from '~/database/tables'
-import { validate } from '~/helpers/routes'
-import { db } from '~/instances/database'
-import { hono } from '~/instances/hono'
+import { scanExistingChannel } from '../../actions/scanExistingChannel'
+import { tables } from '../../database/tables'
+import { validate } from '../../helpers/routes'
+import { db } from '../../instances/database'
+import { hono } from '../../instances/hono'
 
 const paramSchema = z.object({ id: z.coerce.number() })
 

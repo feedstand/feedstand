@@ -1,4 +1,4 @@
-import { client } from '~/instances/database'
+import { client } from '../../instances/database'
 import { seedChannels } from '../seeders/channels'
 import { seedItems } from '../seeders/items'
 import { seedSources } from '../seeders/sources'

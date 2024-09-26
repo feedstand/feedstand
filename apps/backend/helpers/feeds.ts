@@ -1,7 +1,7 @@
 import dayjs from 'dayjs'
 import { castArray, get } from 'lodash-es'
-import { NewChannel, NewItem } from '~/types/database'
-import { JsonFeed, XmlFeed } from '~/types/feeds'
+import { NewChannel, NewItem } from '../types/database'
+import { JsonFeed, XmlFeed } from '../types/feeds'
 
 export const mapJsonFeedToNewChannel = (feed: JsonFeed): NewChannel => {
     return {

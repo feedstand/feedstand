@@ -1,6 +1,6 @@
 import { random } from 'lodash-es'
-import { db } from '~/instances/database'
-import { NewItem } from '~/types/database'
+import { db } from '../../instances/database'
+import { NewItem } from '../../types/database'
 import { generateItem } from '../factories/item'
 import { tables } from '../tables'
 

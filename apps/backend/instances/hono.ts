@@ -2,7 +2,7 @@ import { OpenAPIHono } from '@hono/zod-openapi'
 import { compress } from 'hono/compress'
 import { HTTPException } from 'hono/http-exception'
 import { ZodError } from 'zod'
-import { isDev } from '~/constants/app'
+import { isDev } from '../constants/app'
 
 export const hono = new OpenAPIHono({
     defaultHook: (result) => {

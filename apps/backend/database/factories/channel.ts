@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { capitalize } from 'lodash-es'
-import { NewChannel } from '~/types/database'
+import { NewChannel } from '../../types/database'
 
 export const generateChannel = (channel?: Partial<NewChannel>): NewChannel => {
     const createdAt = faker.date.between({ from: faker.date.past({ years: 10 }), to: new Date() })

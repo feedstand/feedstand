@@ -1,5 +1,5 @@
 import { getTableName, sql } from 'drizzle-orm'
-import { client, db } from '~/instances/database'
+import { client, db } from '../../instances/database'
 import { tables } from '../tables'
 
 const tableNames = Object.values(tables).map(getTableName)

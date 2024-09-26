@@ -1,4 +1,4 @@
-import { tables } from '~/database/tables'
+import { tables } from '../database/tables'
 
 export type Table = (typeof tables)[keyof typeof tables]
 

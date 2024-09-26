@@ -1,5 +1,5 @@
 import { Redis } from 'ioredis'
-import * as queueConstants from '~/constants/queue'
+import * as queueConstants from '../constants/queue'
 
 export const connection = new Redis({
     host: queueConstants.host,

@@ -1,4 +1,4 @@
-import { rssParser } from '~/instances/rssParser'
+import { rssParser } from '../instances/rssParser'
 
 export type JsonFeed = ReturnType<typeof JSON.parse>
 

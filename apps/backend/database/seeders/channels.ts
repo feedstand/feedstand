@@ -1,5 +1,5 @@
-import { tables } from '~/database/tables'
-import { db } from '~/instances/database'
+import { tables } from '../../database/tables'
+import { db } from '../../instances/database'
 import { generateChannel } from '../factories/channel'
 
 export const seedChannels = async () => {

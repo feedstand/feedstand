@@ -1,5 +1,5 @@
 import { Processor, Queue, Worker } from 'bullmq'
-import { connection } from '~/instances/queue'
+import { connection } from '../instances/queue'
 
 export const composeQueue = <Data, Result, Name extends string>(
     name: string,

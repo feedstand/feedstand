@@ -4,9 +4,9 @@ import {
     mapJsonFeedToNewItems,
     mapXmlFeedToNewChannel,
     mapXmlFeedToNewItems,
-} from '~/helpers/feeds'
-import { rssParser } from '~/instances/rssParser'
-import { NewChannel, NewItem } from '~/types/database'
+} from '../helpers/feeds'
+import { rssParser } from '../instances/rssParser'
+import { NewChannel, NewItem } from '../types/database'
 
 const xmlContentTypes = [
     'application/atom+xml',

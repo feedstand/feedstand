@@ -1,8 +1,8 @@
 import { createRoute, z } from '@hono/zod-openapi'
-import { version } from '~/constants/app'
-import { hono } from '~/instances/hono'
+import { version } from '../../constants/app'
+import { hono } from '../../instances/hono'
 
-const route = createRoute({
+export const route = createRoute({
     method: 'get',
     path: '/',
     responses: {

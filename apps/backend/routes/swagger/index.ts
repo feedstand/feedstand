@@ -1,6 +1,6 @@
 import { swaggerUI } from '@hono/swagger-ui'
-import { version } from '~/constants/app'
-import { hono } from '~/instances/hono'
+import { version } from '../../constants/app'
+import { hono } from '../../instances/hono'
 
 hono.get('/swagger', swaggerUI({ url: '/swagger.json' }))
 
