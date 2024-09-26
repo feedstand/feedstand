@@ -12,10 +12,8 @@ export const deleteOrphanChannels = async () => {
         .leftJoin(tables.sources, eq(tables.sources.channelId, tables.channels.id))
         .where(and(isNull(tables.sources.id), lt(tables.channels.createdAt, oneDayAgo)))
 
-    const deletedChannels = await db
+    await db
         .delete(tables.channels)
         .where(inArray(tables.channels.id, orphanChannelsSubquery))
         .returning()
-
-    return deletedChannels
 }
