@@ -46,10 +46,18 @@ services:
       POSTGRES_DB: ${DATABASE_NAME}
       POSTGRES_USER: ${DATABASE_USER}
       POSTGRES_PASSWORD: ${DATABASE_PASS}
+    volumes:
+      - database_data:/var/lib/postgresql/data
     restart: always
 
   queue:
     image: redis:7-alpine
     ports:
       - 6379:6379
+    volumes:
+      - queue_data:/data
     restart: always
+
+volumes:
+  database_data:
+  queue_data:
