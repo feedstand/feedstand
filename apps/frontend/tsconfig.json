@@ -3,9 +3,6 @@
     "compilerOptions": {
         "moduleResolution": "bundler",
         "jsx": "react",
-        "types": ["vite/client"],
-        "paths": {
-            "~/*": ["./*"]
-        }
+        "types": ["vite/client"]
     }
 }
