@@ -1,5 +1,5 @@
-import dayjs from 'dayjs'
 import { castArray, get } from 'lodash-es'
+import { dayjs } from '../instances/dayjs'
 import { NewChannel, NewItem } from '../types/database'
 import { JsonFeed, XmlFeed } from '../types/feeds'
 
