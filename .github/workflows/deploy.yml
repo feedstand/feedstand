@@ -78,4 +78,5 @@ jobs:
             docker load < feedstand-backend.tar.gz
             echo "${{ secrets.ENV_FILE }}" > .env
             echo "VERSION_TAG=${{ github.sha }}" >> .env
+            export $(grep -v '^#' .env | xargs)
             docker stack deploy -c docker-stack.prod.yml --env-file .env feedstand
