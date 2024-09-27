@@ -32,7 +32,7 @@ services:
       <<: *common-deploy
     healthcheck:
       <<: *common-healthcheck
-      test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:4001/health"]
+      test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:4001"]
 
   database:
     image: postgres:17-alpine
