@@ -41,7 +41,6 @@ services:
     environment:
       TZ: UTC
       PGTZ: UTC
-      POSTGRES_PORT: ${DATABASE_PORT}
       POSTGRES_DB: ${DATABASE_NAME}
       POSTGRES_USER: ${DATABASE_USER}
       POSTGRES_PASSWORD: ${DATABASE_PASS}
@@ -62,18 +61,6 @@ services:
     healthcheck:
       <<: *common-healthcheck
       test: ["CMD", "redis-cli", "ping"]
-
-  cleanup:
-    image: docker:cli
-    command: ["sh", "-c", "sleep 60 && docker system prune -af"]
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    deploy:
-      placement:
-        constraints:
-          - node.role == manager
-      restart_policy:
-        condition: none
 
 volumes:
   database_data:

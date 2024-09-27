@@ -27,9 +27,6 @@ services:
     volumes:
       - ..:/feedstand
       - /feedstand/node_modules
-    environment:
-      DATABASE_HOST: database
-      QUEUE_HOST: queue
     depends_on:
       - database
       - queue
@@ -42,7 +39,6 @@ services:
     environment:
       TZ: UTC
       PGTZ: UTC
-      POSTGRES_PORT: ${DATABASE_PORT}
       POSTGRES_DB: ${DATABASE_NAME}
       POSTGRES_USER: ${DATABASE_USER}
       POSTGRES_PASSWORD: ${DATABASE_PASS}
