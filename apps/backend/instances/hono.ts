@@ -3,6 +3,7 @@ import { compress } from 'hono/compress'
 import { HTTPException } from 'hono/http-exception'
 import { ZodError } from 'zod'
 import { isDev } from '../constants/app'
+import { sentry } from '../instances/sentry'
 
 export const hono = new OpenAPIHono({
     defaultHook: (result) => {
@@ -17,6 +18,8 @@ export const hono = new OpenAPIHono({
 hono.use('*', compress())
 
 hono.onError((error, context) => {
+    sentry?.captureException(error)
+
     if (error instanceof HTTPException) {
         return context.json({ message: error.message, cause: error.cause }, error.status)
     }
