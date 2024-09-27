@@ -5,7 +5,6 @@
         "dev": "tsx --watch index.ts",
         "test": "echo 'Hello backend test!'",
         "build": "esbuild index.ts --bundle --minify --sourcemap --platform=node --format=esm --outfile=dist/index.js",
-        "start": "node index.ts",
         "db:push": "drizzle-kit push --config=configs/database.ts --verbose",
         "db:seed": "tsx database/tasks/seed.ts",
         "db:truncate": "tsx database/tasks/truncate.ts",
