@@ -1,5 +1,7 @@
+import { withScope } from '@sentry/node'
 import { Processor, Queue, Worker } from 'bullmq'
 import { connection } from '../instances/queue'
+import { sentry } from '../instances/sentry'
 
 export const composeQueue = <Data, Result, Name extends string>(
     name: string,
@@ -11,7 +13,18 @@ export const composeQueue = <Data, Result, Name extends string>(
         return await actions[job.name](job.data)
     }
 
-    new Worker<Data, Result, Name>(name, processor, { connection })
+    const worker = new Worker<Data, Result, Name>(name, processor, { connection })
+
+    queue.on('error', (error) => sentry?.captureException(error))
+    worker.on('error', (error) => sentry?.captureException(error))
+    worker.on('failed', (job, error) => {
+        withScope((scope) => {
+            scope.setTag('job.id', job?.id)
+            scope.setTag('job.name', job?.name)
+            scope.setTag('job.queueName', job?.queueName)
+            sentry?.captureException(error, undefined, scope)
+        })
+    })
 
     return queue
 }
