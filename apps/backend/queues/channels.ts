@@ -1,8 +1,8 @@
-import { composeQueue } from '../helpers/queues'
+import { createQueue } from '../helpers/queues'
 import { deleteOrphanChannels } from '../jobs/deleteOrphanChannels'
 import { scanChannels } from '../jobs/scanChannels'
 
-export const channelsQueue = composeQueue('channels', {
+export const channelsQueue = createQueue('channels', {
     deleteOrphanChannels,
     scanChannels,
 })

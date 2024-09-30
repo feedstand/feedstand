@@ -3,7 +3,7 @@ import { Processor, Queue, Worker } from 'bullmq'
 import { connection } from '../instances/queue'
 import { sentry } from '../instances/sentry'
 
-export const composeQueue = <Data, Result, Name extends string>(
+export const createQueue = <Data, Result, Name extends string>(
     name: string,
     actions: Record<Name, (data: Data) => Result>,
 ) => {
