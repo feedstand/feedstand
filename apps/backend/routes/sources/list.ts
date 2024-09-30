@@ -1,9 +1,9 @@
 import { createRoute, z } from '@hono/zod-openapi'
 import { desc } from 'drizzle-orm'
-import { createSelectSchema } from 'drizzle-zod'
 import { tables } from '../../database/tables'
+import { createHandler } from '../../helpers/hono'
 import { db } from '../../instances/database'
-import { hono } from '../../instances/hono'
+import { source } from '../../schemas/source'
 
 export const route = createRoute({
     method: 'get',
@@ -11,15 +11,14 @@ export const route = createRoute({
     responses: {
         200: {
             content: {
-                'application/json': { schema: z.array(createSelectSchema(tables.sources)) },
+                'application/json': { schema: z.array(source) },
             },
             description: '',
         },
     },
-    tags: ['Sources'],
 })
 
-hono.openapi(route, async (context) => {
+export const handler = createHandler(route, async (context) => {
     const sources = await db.select().from(tables.sources).orderBy(desc(tables.sources.createdAt))
 
     return context.json(sources, 200)

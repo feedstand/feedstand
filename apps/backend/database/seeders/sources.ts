@@ -1,6 +1,6 @@
 import { random, sampleSize } from 'lodash-es'
 import { db } from '../../instances/database'
-import { NewSource } from '../../types/database'
+import { NewSource } from '../../types/schemas'
 import { generateSource } from '../factories/source'
 import { tables } from '../tables'
 

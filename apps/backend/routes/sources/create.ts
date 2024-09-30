@@ -1,9 +1,10 @@
 import { createRoute, z } from '@hono/zod-openapi'
-import { createInsertSchema, createSelectSchema } from 'drizzle-zod'
 import { fetchOrCreateChannel } from '../../actions/fetchOrCreateChannel'
 import { tables } from '../../database/tables'
+import { createHandler } from '../../helpers/hono'
 import { db } from '../../instances/database'
-import { hono } from '../../instances/hono'
+import { newSource } from '../../schemas/newSource'
+import { source } from '../../schemas/source'
 
 export const route = createRoute({
     method: 'post',
@@ -12,9 +13,7 @@ export const route = createRoute({
         body: {
             content: {
                 'application/json': {
-                    schema: createInsertSchema(tables.sources)
-                        .omit({ channelId: true })
-                        .extend({ url: z.string().url() }),
+                    schema: newSource.omit({ channelId: true }).extend({ url: z.string().url() }),
                 },
             },
             description: '',
@@ -22,14 +21,13 @@ export const route = createRoute({
     },
     responses: {
         201: {
-            content: { 'application/json': { schema: createSelectSchema(tables.sources) } },
+            content: { 'application/json': { schema: source } },
             description: '',
         },
     },
-    tags: ['Sources'],
 })
 
-hono.openapi(route, async (context) => {
+export const handler = createHandler(route, async (context) => {
     const json = context.req.valid('json')
 
     const channel = await fetchOrCreateChannel(json.url)

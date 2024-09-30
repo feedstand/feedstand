@@ -1,8 +1,8 @@
 import { createRoute, z } from '@hono/zod-openapi'
-import { createInsertSchema } from 'drizzle-zod'
 import { fetchAndParseFeed } from '../../actions/fetchAndParseFeed'
-import { tables } from '../../database/tables'
-import { hono } from '../../instances/hono'
+import { createHandler } from '../../helpers/hono'
+import { newChannel } from '../../schemas/newChannel'
+import { newItem } from '../../schemas/newItem'
 
 export const route = createRoute({
     method: 'post',
@@ -18,18 +18,17 @@ export const route = createRoute({
             content: {
                 'application/json': {
                     schema: z.object({
-                        channel: createInsertSchema(tables.channels),
-                        items: z.array(createInsertSchema(tables.items)),
+                        channel: newChannel,
+                        items: z.array(newItem),
                     }),
                 },
             },
             description: '',
         },
     },
-    tags: ['Feeds'],
 })
 
-hono.openapi(route, async (context) => {
+export const handler = createHandler(route, async (context) => {
     // TODO: Check if there's already exsisting Channel with given URL. If so, return it's data
     // instead of fetching feed data directly.
 

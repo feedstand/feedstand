@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm'
 import { tables } from '../database/tables'
 import { db } from '../instances/database'
-import { Channel, NewItem } from '../types/database'
+import { Channel, NewItem } from '../types/schemas'
 import { fetchAndParseFeed } from './fetchAndParseFeed'
 
 export const scanExistingChannel = async (channel: Channel) => {

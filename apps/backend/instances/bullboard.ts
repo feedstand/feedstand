@@ -11,3 +11,5 @@ export const bullBoard = createBullBoard({
     queues: [new BullMQAdapter(channelsQueue)],
     serverAdapter,
 })
+
+export const routeHandler = serverAdapter.registerPlugin()

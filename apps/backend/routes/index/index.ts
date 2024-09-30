@@ -1,6 +1,6 @@
 import { createRoute, z } from '@hono/zod-openapi'
 import { version } from '../../constants/app'
-import { hono } from '../../instances/hono'
+import { createHandler } from '../../helpers/hono'
 
 export const route = createRoute({
     method: 'get',
@@ -18,9 +18,8 @@ export const route = createRoute({
             description: 'Return boolean indicating app health and the version tag.',
         },
     },
-    tags: ['General'],
 })
 
-hono.openapi(route, async (context) => {
+export const handler = createHandler(route, async (context) => {
     return context.json({ healthy: true, version }, 200)
 })

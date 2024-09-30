@@ -1,10 +1,11 @@
 import { createRoute, z } from '@hono/zod-openapi'
 import { eq } from 'drizzle-orm'
-import { createSelectSchema } from 'drizzle-zod'
+import { HTTPException } from 'hono/http-exception'
 import { pick } from 'lodash-es'
 import { tables } from '../../database/tables'
+import { createHandler } from '../../helpers/hono'
 import { db } from '../../instances/database'
-import { hono } from '../../instances/hono'
+import { source } from '../../schemas/source'
 
 export const route = createRoute({
     method: 'patch',
@@ -14,10 +15,7 @@ export const route = createRoute({
         body: {
             content: {
                 'application/json': {
-                    schema: createSelectSchema(tables.sources).pick({
-                        name: true,
-                        isReadabilitified: true,
-                    }),
+                    schema: source.pick({ name: true, isReadabilitified: true }),
                 },
             },
             description: '',
@@ -25,17 +23,13 @@ export const route = createRoute({
     },
     responses: {
         200: {
-            content: { 'application/json': { schema: createSelectSchema(tables.sources) } },
-            description: '',
-        },
-        404: {
+            content: { 'application/json': { schema: source } },
             description: '',
         },
     },
-    tags: ['Sources'],
 })
 
-hono.openapi(route, async (context) => {
+export const handler = createHandler(route, async (context) => {
     const params = context.req.valid('param')
     const json = context.req.valid('json')
 
@@ -46,7 +40,7 @@ hono.openapi(route, async (context) => {
         .limit(1)
 
     if (!existingSource) {
-        return context.notFound()
+        throw new HTTPException(404)
     }
 
     const fields = ['name', 'isReadabilitified']

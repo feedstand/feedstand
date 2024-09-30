@@ -1,9 +1,10 @@
 import { createRoute, z } from '@hono/zod-openapi'
 import { eq } from 'drizzle-orm'
-import { createSelectSchema } from 'drizzle-zod'
+import { HTTPException } from 'hono/http-exception'
 import { tables } from '../../database/tables'
+import { createHandler } from '../../helpers/hono'
 import { db } from '../../instances/database'
-import { hono } from '../../instances/hono'
+import { source } from '../../schemas/source'
 
 export const route = createRoute({
     method: 'get',
@@ -13,17 +14,13 @@ export const route = createRoute({
     },
     responses: {
         200: {
-            content: { 'application/json': { schema: createSelectSchema(tables.sources) } },
-            description: '',
-        },
-        404: {
+            content: { 'application/json': { schema: source } },
             description: '',
         },
     },
-    tags: ['Sources'],
 })
 
-hono.openapi(route, async (context) => {
+export const handler = createHandler(route, async (context) => {
     const params = context.req.valid('param')
 
     const [source] = await db
@@ -33,7 +30,7 @@ hono.openapi(route, async (context) => {
         .limit(1)
 
     if (!source) {
-        return context.notFound()
+        throw new HTTPException(404)
     }
 
     return context.json(source, 200)
