@@ -2,15 +2,12 @@ import { createBullBoard } from '@bull-board/api'
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter'
 import { HonoAdapter } from '@bull-board/hono'
 import { serveStatic } from '@hono/node-server/serve-static'
-import { hono } from '../../instances/hono'
-import { channelsQueue } from '../../queues/channels'
+import { path } from '../constants/bullboard'
+import { channelsQueue } from '../queues/channels'
 
-const serverAdapter = new HonoAdapter(serveStatic)
+export const serverAdapter = new HonoAdapter(serveStatic).setBasePath(path)
 
-createBullBoard({
+export const bullBoard = createBullBoard({
     queues: [new BullMQAdapter(channelsQueue)],
     serverAdapter,
 })
-
-serverAdapter.setBasePath('/bullmq')
-hono.route('/bullmq', serverAdapter.registerPlugin())
