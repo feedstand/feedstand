@@ -6,5 +6,3 @@ for file in /usr/share/nginx/html/assets/*.js; do
     envsubst "$ALLOWED_VARS" < "$file" > "${file}.tmp"
     mv "${file}.tmp" "$file"
 done
-
-nginx -g "daemon off;"
