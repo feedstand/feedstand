@@ -64,7 +64,7 @@ services:
       - database_data:/var/lib/postgresql/data
     healthcheck:
       <<: *common-healthcheck
-      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER}"]
+      test: ["CMD-SHELL", "pg_isready -U ${BACKEND_DATABASE_USER}"]
 
   queue:
     image: redis:7-alpine
