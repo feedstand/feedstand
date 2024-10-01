@@ -6,8 +6,8 @@ services:
     build:
       context: ..
       dockerfile: apps/frontend/.docker/Dockerfile.dev
-      args:
-        VERSION_TAG: dev
+    env_file:
+      - ../apps/frontend/.env
     ports:
       - 4000:4000
     volumes:
@@ -20,8 +20,8 @@ services:
     build:
       context: ..
       dockerfile: apps/backend/.docker/Dockerfile.dev
-      args:
-        VERSION_TAG: dev
+    env_file:
+      - ../apps/frontend/.env
     ports:
       - 4001:4001
     volumes:
