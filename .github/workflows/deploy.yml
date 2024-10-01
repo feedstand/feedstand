@@ -39,12 +39,12 @@ jobs:
           name: ${{ env.ZIP_NAME }}
           path: ${{ env.ZIP_NAME }}
 
-      - name: Store docker stack artifact
+      - name: Store docker compose artifact
         if: ${{ matrix.app == 'frontend' }}
         uses: actions/upload-artifact@v4
         with:
-          name: docker-stack.prod.yml
-          path: .docker/docker-stack.prod.yml
+          name: docker-compose.prod.yml
+          path: .docker/docker-compose.prod.yml
 
   deploy:
     needs: build
@@ -57,13 +57,13 @@ jobs:
           path: .
           merge-multiple: true
 
-      - name: Copy images and stack file to server
+      - name: Copy images and compose file to server
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          source: feedstand-frontend.tar.gz,feedstand-backend.tar.gz,docker-stack.prod.yml
+          source: feedstand-frontend.tar.gz,feedstand-backend.tar.gz,docker-compose.prod.yml
           target: ${{ secrets.SERVER_PATH }}
 
       - name: Deploy to server
@@ -76,7 +76,5 @@ jobs:
             cd ${{ secrets.SERVER_PATH }}
             docker load < feedstand-frontend.tar.gz
             docker load < feedstand-backend.tar.gz
-            echo "${{ secrets.ENV_FILE }}" > .env
-            echo "VERSION_TAG=${{ github.sha }}" >> .env
-            set -a; . ./.env; set +a
-            docker stack deploy -c docker-stack.prod.yml feedstand
+            export VERSION_TAG=${{ github.sha }}
+            docker stack deploy -c docker-compose.prod.yml feedstand
