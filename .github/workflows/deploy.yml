@@ -40,7 +40,7 @@ jobs:
           path: ${{ env.ZIP_NAME }}
 
       - name: Store docker stack artifact
-        if: ${{ matrix.app == "frontend" }}
+        if: ${{ matrix.app == 'frontend' }}
         uses: actions/upload-artifact@v4
         with:
           name: docker-stack.prod.yml
