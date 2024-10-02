@@ -4,7 +4,6 @@ import { importFilesFromDirectory } from './helpers/files'
 import { hono } from './instances/hono'
 
 await importFilesFromDirectory('./queues')
-await importFilesFromDirectory('./routes')
 
 serve({
     fetch: hono.fetch,
