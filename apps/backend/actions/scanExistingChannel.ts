@@ -24,6 +24,12 @@ export const scanExistingChannel = async (channel: Channel) => {
 
     await db
         .update(tables.channels)
-        .set({ ...feed.channel, lastScannedAt: new Date() })
+        .set({
+            // TODO: Use lodash.defaults instead of ||?
+            title: feed.channel.title || channel.title,
+            description: feed.channel.description || channel.description,
+            link: feed.channel.link || channel.link,
+            lastScannedAt: new Date(),
+        })
         .where(eq(tables.channels.id, channel.id))
 }
