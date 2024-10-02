@@ -76,6 +76,7 @@ jobs:
             cd ${{ secrets.SERVER_PATH }}
             docker load < feedstand-frontend.tar.gz
             docker load < feedstand-backend.tar.gz
-            export VERSION_TAG=${{ github.sha }}
-            eval "$(echo '${{ secrets.ENV_FILE }}' | sed 's/^/export /')"
+            echo "${{ secrets.ENV_FILE }}" > .env
+            echo "VERSION_TAG=${{ github.sha }}" >> .env
+            set -a; . ./.env; set +a
             docker stack deploy -c docker-compose.prod.yml feedstand
