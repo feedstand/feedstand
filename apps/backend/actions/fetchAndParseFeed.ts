@@ -20,10 +20,13 @@ type FetchAndParseFeed = (url: string) => Promise<{
     items: Array<NewItem>
 }>
 
+// TODO: To optimize the function use cases, add options parameter that will give control whether
+// to return channel/items or not. This could be useful in fetchAndDiscoverFeeds action where we
+// only need the Channel details and do not care about Items.
 export const fetchAndParseFeed: FetchAndParseFeed = async (url) => {
     // TODO: Enable caching of requests based on headers in the response.
     const response = await fetch(url)
-    const contentType = response.headers.get('Content-Type')
+    const contentType = response.headers.get('content-type')
 
     if (contentType?.includes('application/json')) {
         // TODO: Validate if the JSON file is actually a JSON Feed.
@@ -35,7 +38,7 @@ export const fetchAndParseFeed: FetchAndParseFeed = async (url) => {
         }
     }
 
-    if (contentType && xmlContentTypes.some((xmlType) => contentType.includes(xmlType))) {
+    if (contentType && xmlContentTypes.some((type) => contentType.includes(type))) {
         const xml = await response.text()
         const feed = await rssParser.parseString(xml)
 
