@@ -1,6 +1,6 @@
 #!/bin/sh
 
-ALLOWED_VARS=$(grep -v '^#' .env.production | cut -d= -f1 | sed 's/^VITE_//' | sed 's/^/$/' | tr '\n' ' ')
+ALLOWED_VARS=$(cat /tmp/allowed_vars)
 
 for file in /usr/share/nginx/html/assets/*.js; do
     envsubst "$ALLOWED_VARS" < "$file" > "${file}.tmp"
