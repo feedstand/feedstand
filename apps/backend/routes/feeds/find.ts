@@ -1,7 +1,7 @@
 import { createRoute, z } from '@hono/zod-openapi'
 import { fetchAndFindFeeds } from '../../actions/fetchAndFindFeeds'
 import { createHandler } from '../../helpers/hono'
-import { feed } from '../../schemas/feed'
+import { feedInfo } from '../../schemas/feedInfo'
 
 export const route = createRoute({
     method: 'post',
@@ -14,7 +14,7 @@ export const route = createRoute({
     },
     responses: {
         200: {
-            content: { 'application/json': { schema: z.array(feed) } },
+            content: { 'application/json': { schema: z.array(feedInfo) } },
             description: '',
         },
     },

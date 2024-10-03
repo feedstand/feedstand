@@ -1,9 +1,9 @@
 import { castArray, get } from 'lodash-es'
 import { dayjs } from '../instances/dayjs'
 import { JsonFeed, XmlFeed } from '../types/feeds'
-import { NewChannel, NewItemNoChannel } from '../types/schemas'
+import { FeedChannel, FeedItem } from '../types/schemas'
 
-export const mapJsonFeedToNewChannel = (feed: JsonFeed): NewChannel => {
+export const mapJsonFeedToFeedChannel = (feed: JsonFeed): FeedChannel => {
     return {
         url: feed.feed_url ?? '',
         title: feed.title ?? '',
@@ -12,7 +12,7 @@ export const mapJsonFeedToNewChannel = (feed: JsonFeed): NewChannel => {
     }
 }
 
-export const mapJsonFeedToNewItems = (feed: JsonFeed): Array<NewItemNoChannel> => {
+export const mapJsonFeedToFeedItems = (feed: JsonFeed): Array<FeedItem> => {
     return castArray(feed.items).map((item) => ({
         title: item.title ?? '',
         link: item.url ?? '',
@@ -24,7 +24,7 @@ export const mapJsonFeedToNewItems = (feed: JsonFeed): Array<NewItemNoChannel> =
     }))
 }
 
-export const mapXmlFeedToNewChannel = (feed: XmlFeed): NewChannel => {
+export const mapXmlFeedToFeedChannel = (feed: XmlFeed): FeedChannel => {
     return {
         url: feed.feedUrl ?? '',
         title: feed.title ?? '',
@@ -33,7 +33,7 @@ export const mapXmlFeedToNewChannel = (feed: XmlFeed): NewChannel => {
     }
 }
 
-export const mapXmlFeedToNewItems = (feed: XmlFeed): Array<NewItemNoChannel> => {
+export const mapXmlFeedToFeedItems = (feed: XmlFeed): Array<FeedItem> => {
     return feed.items.map((item) => ({
         title: item.title ?? '',
         link: item.link ?? '',

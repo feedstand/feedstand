@@ -1,18 +1,18 @@
 import { HTTPException } from 'hono/http-exception'
 import { jsonFeedContentTypes, xmlFeedContentTypes } from '../constants/scrapers'
 import {
-    mapJsonFeedToNewChannel,
-    mapJsonFeedToNewItems,
-    mapXmlFeedToNewChannel,
-    mapXmlFeedToNewItems,
+    mapJsonFeedToFeedChannel,
+    mapJsonFeedToFeedItems,
+    mapXmlFeedToFeedChannel,
+    mapXmlFeedToFeedItems,
 } from '../helpers/feeds'
 import { isOneOfContentTypes } from '../helpers/scrapers'
 import { rssParser } from '../instances/rssParser'
-import { NewChannel, NewItemNoChannel } from '../types/schemas'
+import { FeedItem, NewChannel } from '../types/schemas'
 
 type FetchAndParseFeed = (url: string) => Promise<{
     channel: NewChannel
-    items: Array<NewItemNoChannel>
+    items: Array<FeedItem>
 }>
 
 // TODO: To optimize the function use cases, add options parameter that will give control whether
@@ -28,8 +28,8 @@ export const fetchAndParseFeed: FetchAndParseFeed = async (feedUrl) => {
         const feed = await response.json()
 
         return {
-            channel: mapJsonFeedToNewChannel(feed),
-            items: mapJsonFeedToNewItems(feed),
+            channel: mapJsonFeedToFeedChannel(feed),
+            items: mapJsonFeedToFeedItems(feed),
         }
     }
 
@@ -38,8 +38,8 @@ export const fetchAndParseFeed: FetchAndParseFeed = async (feedUrl) => {
         const feed = await rssParser.parseString(xml)
 
         return {
-            channel: mapXmlFeedToNewChannel(feed),
-            items: mapXmlFeedToNewItems(feed),
+            channel: mapXmlFeedToFeedChannel(feed),
+            items: mapXmlFeedToFeedItems(feed),
         }
     }
 

@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const feed = z.object({
+export const feedInfo = z.object({
     url: z.string().url(),
     title: z.string(),
 })
