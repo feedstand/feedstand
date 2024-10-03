@@ -4,6 +4,7 @@ import { feed } from '../schemas/feed'
 import { item } from '../schemas/item'
 import { newChannel } from '../schemas/newChannel'
 import { newItem } from '../schemas/newItem'
+import { newItemNoChannel } from '../schemas/newItemNoChannel'
 import { newSource } from '../schemas/newSource'
 import { newUnread } from '../schemas/newUnread'
 import { newUser } from '../schemas/newUser'
@@ -22,6 +23,8 @@ export type NewChannel = z.infer<typeof newChannel>
 export type Item = z.infer<typeof item>
 
 export type NewItem = z.infer<typeof newItem>
+
+export type NewItemNoChannel = z.infer<typeof newItemNoChannel>
 
 export type Source = z.infer<typeof source>
 

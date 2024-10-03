@@ -8,11 +8,11 @@ import {
 } from '../helpers/feeds'
 import { isOneOfContentTypes } from '../helpers/scrapers'
 import { rssParser } from '../instances/rssParser'
-import { NewChannel, NewItem } from '../types/schemas'
+import { NewChannel, NewItemNoChannel } from '../types/schemas'
 
 type FetchAndParseFeed = (url: string) => Promise<{
     channel: NewChannel
-    items: Array<NewItem>
+    items: Array<NewItemNoChannel>
 }>
 
 // TODO: To optimize the function use cases, add options parameter that will give control whether

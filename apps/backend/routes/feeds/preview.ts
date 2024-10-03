@@ -2,7 +2,7 @@ import { createRoute, z } from '@hono/zod-openapi'
 import { fetchAndParseFeed } from '../../actions/fetchAndParseFeed'
 import { createHandler } from '../../helpers/hono'
 import { newChannel } from '../../schemas/newChannel'
-import { newItem } from '../../schemas/newItem'
+import { newItemNoChannel } from '../../schemas/newItemNoChannel'
 
 export const route = createRoute({
     method: 'post',
@@ -19,7 +19,7 @@ export const route = createRoute({
                 'application/json': {
                     schema: z.object({
                         channel: newChannel,
-                        items: z.array(newItem),
+                        items: z.array(newItemNoChannel),
                     }),
                 },
             },

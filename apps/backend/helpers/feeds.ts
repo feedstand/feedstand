@@ -1,7 +1,7 @@
 import { castArray, get } from 'lodash-es'
 import { dayjs } from '../instances/dayjs'
 import { JsonFeed, XmlFeed } from '../types/feeds'
-import { NewChannel, NewItem } from '../types/schemas'
+import { NewChannel, NewItemNoChannel } from '../types/schemas'
 
 export const mapJsonFeedToNewChannel = (feed: JsonFeed): NewChannel => {
     return {
@@ -12,9 +12,8 @@ export const mapJsonFeedToNewChannel = (feed: JsonFeed): NewChannel => {
     }
 }
 
-export const mapJsonFeedToNewItems = (feed: JsonFeed): Array<NewItem> => {
+export const mapJsonFeedToNewItems = (feed: JsonFeed): Array<NewItemNoChannel> => {
     return castArray(feed.items).map((item) => ({
-        channelId: Infinity,
         title: item.title ?? '',
         link: item.url ?? '',
         description: item.summary,
@@ -34,9 +33,8 @@ export const mapXmlFeedToNewChannel = (feed: XmlFeed): NewChannel => {
     }
 }
 
-export const mapXmlFeedToNewItems = (feed: XmlFeed): Array<NewItem> => {
+export const mapXmlFeedToNewItems = (feed: XmlFeed): Array<NewItemNoChannel> => {
     return feed.items.map((item) => ({
-        channelId: Infinity,
         title: item.title ?? '',
         link: item.link ?? '',
         description: item.summary,
