@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { channel } from '../schemas/channel'
+import { feed } from '../schemas/feed'
 import { item } from '../schemas/item'
 import { newChannel } from '../schemas/newChannel'
 import { newItem } from '../schemas/newItem'
@@ -29,3 +30,5 @@ export type NewSource = z.infer<typeof newSource>
 export type Unread = z.infer<typeof unread>
 
 export type NewUnread = z.infer<typeof newUnread>
+
+export type Feed = z.infer<typeof feed>
