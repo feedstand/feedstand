@@ -8,7 +8,7 @@ import { fetchAndParseFeed } from './fetchAndParseFeed'
 // TODO: Make it extensible by providing a way to parse and discover feeds differently depending on
 // the service. For example, if a user provides a link to a YouTube video, we could obtain the HTML
 // of the author's YouTube channel and retrieve the RSS feed from there.
-export const fetchAndDiscoverFeeds = async (pageUrl: string): Promise<Array<Feed>> => {
+export const fetchAndFindFeeds = async (pageUrl: string): Promise<Array<Feed>> => {
     // TODO: Enable caching of requests based on headers in the response.
     const response = await fetch(pageUrl)
     const contentType = response.headers.get('content-type')

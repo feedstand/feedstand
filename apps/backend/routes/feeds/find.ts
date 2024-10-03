@@ -1,11 +1,11 @@
 import { createRoute, z } from '@hono/zod-openapi'
-import { fetchAndDiscoverFeeds } from '../../actions/fetchAndDiscoverFeeds'
+import { fetchAndFindFeeds } from '../../actions/fetchAndFindFeeds'
 import { createHandler } from '../../helpers/hono'
 import { feed } from '../../schemas/feed'
 
 export const route = createRoute({
     method: 'post',
-    path: '/feeds/discover',
+    path: '/feeds/find',
     request: {
         body: {
             content: { 'application/json': { schema: z.object({ url: z.string().url() }) } },
@@ -22,7 +22,7 @@ export const route = createRoute({
 
 export const handler = createHandler(route, async (context) => {
     const json = context.req.valid('json')
-    const feeds = await fetchAndDiscoverFeeds(json.url)
+    const feeds = await fetchAndFindFeeds(json.url)
 
     return context.json(feeds, 200)
 })

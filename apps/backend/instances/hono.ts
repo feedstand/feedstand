@@ -11,7 +11,7 @@ import { openapiPath, swaggerPath } from '../constants/openapi'
 import { routeHandler as bullBoardRouteHandler } from '../instances/bullboard'
 import { sentry } from '../instances/sentry'
 import * as showChannel from '../routes/channels/show'
-import * as discoverFeeds from '../routes/feeds/discover'
+import * as findFeeds from '../routes/feeds/find'
 import * as previewFeed from '../routes/feeds/preview'
 import * as index from '../routes/index/index'
 import * as listItems from '../routes/items/list'
@@ -73,4 +73,4 @@ export const openapi = hono
     .openapi(createSource.route, createSource.handler)
     .openapi(updateSource.route, updateSource.handler)
     .openapi(previewFeed.route, previewFeed.handler)
-    .openapi(discoverFeeds.route, discoverFeeds.handler)
+    .openapi(findFeeds.route, findFeeds.handler)
