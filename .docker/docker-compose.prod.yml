@@ -61,7 +61,7 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - ./data/database:/var/lib/postgresql/data
+      - database_data:/var/lib/postgresql/data
     healthcheck:
       <<: *common-healthcheck
       test: ["CMD-SHELL", "pg_isready -U ${BACKEND_DATABASE_USER}"]
@@ -73,7 +73,11 @@ services:
     ports:
       - 6379:6379
     volumes:
-      - ./data/queue:/data
+      - queue_data:/data
     healthcheck:
       <<: *common-healthcheck
       test: ["CMD", "redis-cli", "ping"]
+
+volumes:
+  database_data:
+  queue_data:
