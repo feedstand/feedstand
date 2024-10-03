@@ -6,7 +6,7 @@ import { newItem } from '../../schemas/newItem'
 
 export const route = createRoute({
     method: 'post',
-    path: '/preview',
+    path: '/feeds/preview',
     request: {
         body: {
             content: { 'application/json': { schema: z.object({ url: z.string().url() }) } },
