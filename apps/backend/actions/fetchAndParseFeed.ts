@@ -1,19 +1,14 @@
 import { HTTPException } from 'hono/http-exception'
+import { jsonFeedContentTypes, xmlFeedContentTypes } from '../constants/scrapers'
 import {
     mapJsonFeedToNewChannel,
     mapJsonFeedToNewItems,
     mapXmlFeedToNewChannel,
     mapXmlFeedToNewItems,
 } from '../helpers/feeds'
+import { isOneOfContentTypes } from '../helpers/scrapers'
 import { rssParser } from '../instances/rssParser'
 import { NewChannel, NewItem } from '../types/schemas'
-
-const xmlContentTypes = [
-    'application/atom+xml',
-    'application/rss+xml',
-    'application/xml',
-    'text/xml',
-]
 
 type FetchAndParseFeed = (url: string) => Promise<{
     channel: NewChannel
@@ -23,12 +18,12 @@ type FetchAndParseFeed = (url: string) => Promise<{
 // TODO: To optimize the function use cases, add options parameter that will give control whether
 // to return channel/items or not. This could be useful in fetchAndDiscoverFeeds action where we
 // only need the Channel details and do not care about Items.
-export const fetchAndParseFeed: FetchAndParseFeed = async (url) => {
+export const fetchAndParseFeed: FetchAndParseFeed = async (feedUrl) => {
     // TODO: Enable caching of requests based on headers in the response.
-    const response = await fetch(url)
+    const response = await fetch(feedUrl)
     const contentType = response.headers.get('content-type')
 
-    if (contentType?.includes('application/json')) {
+    if (isOneOfContentTypes(contentType, jsonFeedContentTypes)) {
         // TODO: Validate if the JSON file is actually a JSON Feed.
         const feed = await response.json()
 
@@ -38,7 +33,7 @@ export const fetchAndParseFeed: FetchAndParseFeed = async (url) => {
         }
     }
 
-    if (contentType && xmlContentTypes.some((type) => contentType.includes(type))) {
+    if (isOneOfContentTypes(contentType, xmlFeedContentTypes)) {
         const xml = await response.text()
         const feed = await rssParser.parseString(xml)
 
