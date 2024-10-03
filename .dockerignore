@@ -1,0 +1,16 @@
+# System
+**/Thumbs.db
+**/.DS_Store
+
+# Environment
+**/.env*
+
+# Development
+**/.docker
+!**/.docker/entrypoint.sh
+!**/.docker/nginx.conf
+!**/.docker/.env.production
+**/lint-staged.config.js
+**/prettier.config.js
+**/vite.config.js
+**/node_modules
