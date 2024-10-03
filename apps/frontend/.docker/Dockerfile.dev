@@ -8,6 +8,6 @@ COPY tsconfig.json .
 COPY apps/frontend/package.json apps/frontend/
 RUN npm ci -w apps/frontend --ignore-scripts
 
-COPY apps/frontend apps/frontend/
+COPY . .
 EXPOSE 4000
 CMD ["npm", "run", "dev", "-w", "apps/frontend"]

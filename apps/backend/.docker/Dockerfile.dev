@@ -8,6 +8,6 @@ COPY tsconfig.json .
 COPY apps/backend/package.json apps/backend/
 RUN npm ci -w apps/backend --ignore-scripts
 
-COPY apps/backend apps/backend/
+COPY . .
 EXPOSE 4001
 CMD ["npm", "run", "dev", "-w", "apps/backend"]
