@@ -3,7 +3,8 @@
 **/.DS_Store
 
 # Environment
-**/.env*
+# TODO: Only ignore .env files when running docker-compose.prod.yml.
+# **/.env*
 
 # Development
 **/.docker
