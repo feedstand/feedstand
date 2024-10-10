@@ -11,8 +11,8 @@ services:
     ports:
       - 4000:4000
     volumes:
-      - ..:/feedstand
-      - /feedstand/node_modules
+      - ..:/home/node
+      - /home/node/node_modules
     restart: always
 
   backend:
@@ -25,8 +25,8 @@ services:
     ports:
       - 4001:4001
     volumes:
-      - ..:/feedstand
-      - /feedstand/node_modules
+      - ..:/home/node
+      - /home/node/node_modules
     depends_on:
       - database
       - queue
