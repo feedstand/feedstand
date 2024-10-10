@@ -8,12 +8,9 @@ import {
 } from '../helpers/feeds'
 import { isOneOfContentTypes } from '../helpers/scrapers'
 import { rssParser } from '../instances/rssParser'
-import { FeedChannel, FeedItem } from '../types/schemas'
+import { FeedData } from '../types/schemas'
 
-type ParseFeed = (response: Response) => Promise<{
-    channel: FeedChannel
-    items: Array<FeedItem>
-}>
+type ParseFeed = (response: Response) => Promise<FeedData>
 
 // TODO: To optimize the function use cases, add options parameter that will give control whether
 // to return channel/items or not. This could be useful in fetchAndDiscoverFeeds action where we

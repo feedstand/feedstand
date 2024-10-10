@@ -2,8 +2,7 @@ import { createRoute, z } from '@hono/zod-openapi'
 import { fetchExternalUrl } from '../../actions/fetchExternalUrl'
 import { parseFeed } from '../../actions/parseFeed'
 import { createHandler } from '../../helpers/hono'
-import { feedItem } from '../../schemas/feedItem'
-import { newChannel } from '../../schemas/newChannel'
+import { feedData } from '../../schemas/feedData'
 
 export const route = createRoute({
     method: 'post',
@@ -16,14 +15,7 @@ export const route = createRoute({
     },
     responses: {
         200: {
-            content: {
-                'application/json': {
-                    schema: z.object({
-                        channel: newChannel,
-                        items: z.array(feedItem),
-                    }),
-                },
-            },
+            content: { 'application/json': { schema: feedData } },
             description: '',
         },
     },
@@ -35,7 +27,7 @@ export const handler = createHandler(route, async (context) => {
 
     const { url } = context.req.valid('json')
     const response = await fetchExternalUrl(url)
-    const feed = await parseFeed(response)
+    const feedData = await parseFeed(response)
 
-    return context.json(feed, 200)
+    return context.json(feedData, 200)
 })
