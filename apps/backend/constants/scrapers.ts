@@ -15,3 +15,5 @@ export const xmlFeedContentTypes = [
     'application/xml',
     'text/xml',
 ]
+
+export const anyFeedContentTypes = [...jsonFeedContentTypes, ...xmlFeedContentTypes]
