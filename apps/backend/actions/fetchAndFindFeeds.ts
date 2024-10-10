@@ -11,9 +11,8 @@ import { fetchAndParseFeed } from './fetchAndParseFeed'
 export const fetchAndFindFeeds = async (pageUrl: string): Promise<Array<FeedInfo>> => {
     // TODO: Enable caching of requests based on headers in the response.
     const response = await fetch(pageUrl)
-    const contentType = response.headers.get('content-type')
 
-    if (!isOneOfContentTypes(contentType, htmlContentTypes)) {
+    if (!isOneOfContentTypes(response, htmlContentTypes)) {
         throw new HTTPException(422)
     }
 

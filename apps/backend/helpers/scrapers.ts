@@ -1,6 +1,3 @@
-export const isOneOfContentTypes = (
-    contentType: string | null | undefined,
-    contentTypesToCheck: Array<string>,
-) => {
-    return contentType && contentTypesToCheck.some((type) => contentType.includes(type))
+export const isOneOfContentTypes = (response: Response, contentTypesToCheck: Array<string>) => {
+    return contentTypesToCheck.some((type) => response.headers.get('content-type')?.includes(type))
 }

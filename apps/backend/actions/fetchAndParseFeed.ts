@@ -21,9 +21,8 @@ type FetchAndParseFeed = (url: string) => Promise<{
 export const fetchAndParseFeed: FetchAndParseFeed = async (feedUrl) => {
     // TODO: Enable caching of requests based on headers in the response.
     const response = await fetch(feedUrl)
-    const contentType = response.headers.get('content-type')
 
-    if (isOneOfContentTypes(contentType, jsonFeedContentTypes)) {
+    if (isOneOfContentTypes(response, jsonFeedContentTypes)) {
         // TODO: Validate if the JSON file is actually a JSON Feed.
         const feed = await response.json()
 
@@ -33,7 +32,7 @@ export const fetchAndParseFeed: FetchAndParseFeed = async (feedUrl) => {
         }
     }
 
-    if (isOneOfContentTypes(contentType, xmlFeedContentTypes)) {
+    if (isOneOfContentTypes(response, xmlFeedContentTypes)) {
         const xml = await response.text()
         const feed = await rssParser.parseString(xml)
 
