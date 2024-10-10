@@ -7,7 +7,7 @@ export const feedLinkSelectors = [
 
 export const htmlContentTypes = ['text/html', 'application/xhtml+xml']
 
-export const jsonFeedContentTypes = ['text/html', 'application/xhtml+xml']
+export const jsonFeedContentTypes = ['application/json']
 
 export const xmlFeedContentTypes = [
     'application/atom+xml',
