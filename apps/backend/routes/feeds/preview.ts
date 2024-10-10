@@ -1,5 +1,5 @@
 import { createRoute, z } from '@hono/zod-openapi'
-import { fetchPageOrFeed } from '../../actions/fetchPageOrFeed'
+import { fetchExternalUrl } from '../../actions/fetchExternalUrl'
 import { parseFeed } from '../../actions/parseFeed'
 import { createHandler } from '../../helpers/hono'
 import { feedItem } from '../../schemas/feedItem'
@@ -34,8 +34,8 @@ export const handler = createHandler(route, async (context) => {
     // instead of fetching feed data directly.
 
     const { url } = context.req.valid('json')
-    const pageOrFeed = await fetchPageOrFeed(url)
-    const feed = await parseFeed(pageOrFeed)
+    const response = await fetchExternalUrl(url)
+    const feed = await parseFeed(response)
 
     return context.json(feed, 200)
 })

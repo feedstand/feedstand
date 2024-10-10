@@ -3,7 +3,7 @@ import { JSDOM } from 'jsdom'
 import { anyFeedContentTypes, feedLinkSelectors, htmlContentTypes } from '../constants/scrapers'
 import { isOneOfContentTypes } from '../helpers/scrapers'
 import { FeedInfo } from '../types/schemas'
-import { fetchPageOrFeed } from './fetchPageOrFeed'
+import { fetchExternalUrl } from './fetchExternalUrl'
 import { parseFeed } from './parseFeed'
 
 type FindFeeds = (response: Response, pageOrFeedUrl: string) => Promise<Array<FeedInfo>>
@@ -43,8 +43,8 @@ export const findFeeds: FindFeeds = async (response, pageOrFeedUrl) => {
             continue
         }
 
-        const feedResponse = await fetchPageOrFeed(feedUrl)
-        const { channel } = await parseFeed(feedResponse)
+        const response = await fetchExternalUrl(feedUrl)
+        const { channel } = await parseFeed(response)
         feedInfos.push({ url: feedUrl, title: channel.title })
     }
 

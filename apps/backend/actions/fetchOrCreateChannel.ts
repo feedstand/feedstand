@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm'
 import { tables } from '../database/tables'
 import { db } from '../instances/database'
 import { Channel } from '../types/schemas'
-import { fetchPageOrFeed } from './fetchPageOrFeed'
+import { fetchExternalUrl } from './fetchExternalUrl'
 import { parseFeed } from './parseFeed'
 import { scanExistingChannel } from './scanExistingChannel'
 
@@ -21,8 +21,8 @@ export const fetchOrCreateChannel = async (url: string): Promise<Channel> => {
         return existingChannel
     }
 
-    const pageOrFeed = await fetchPageOrFeed(url)
-    const feed = await parseFeed(pageOrFeed)
+    const response = await fetchExternalUrl(url)
+    const feed = await parseFeed(response)
     const [newChannel] = await db.insert(tables.channels).values(feed.channel).returning()
 
     // TODO: Do we scan for new items right away? Or perform scanning for new items when the user
