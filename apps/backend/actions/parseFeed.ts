@@ -8,20 +8,17 @@ import {
 } from '../helpers/feeds'
 import { isOneOfContentTypes } from '../helpers/scrapers'
 import { rssParser } from '../instances/rssParser'
-import { FeedItem, NewChannel } from '../types/schemas'
+import { FeedChannel, FeedItem } from '../types/schemas'
 
-type FetchAndParseFeed = (url: string) => Promise<{
-    channel: NewChannel
+type ParseFeed = (response: Response) => Promise<{
+    channel: FeedChannel
     items: Array<FeedItem>
 }>
 
 // TODO: To optimize the function use cases, add options parameter that will give control whether
 // to return channel/items or not. This could be useful in fetchAndDiscoverFeeds action where we
 // only need the Channel details and do not care about Items.
-export const fetchAndParseFeed: FetchAndParseFeed = async (feedUrl) => {
-    // TODO: Enable caching of requests based on headers in the response.
-    const response = await fetch(feedUrl)
-
+export const parseFeed: ParseFeed = async (response) => {
     if (isOneOfContentTypes(response, jsonFeedContentTypes)) {
         // TODO: Validate if the JSON file is actually a JSON Feed.
         const feed = await response.json()
