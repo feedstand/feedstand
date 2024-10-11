@@ -1,5 +1,7 @@
+import { fetchExternalUrl } from '../actions/fetchExternalUrl'
+import { parseFeed } from '../actions/parseFeed'
 import { htmlContentTypes } from '../constants/scrapers'
-import { isOneOfContentTypes } from '../helpers/scrapers'
+import { extractValueByRegex, isOneOfContentTypes } from '../helpers/scrapers'
 import { BaseFeedFinder } from './BaseFeedFinder'
 
 export class YouTubeFeedFinder extends BaseFeedFinder {
@@ -7,8 +9,18 @@ export class YouTubeFeedFinder extends BaseFeedFinder {
         return url.includes('youtube.com') && isOneOfContentTypes(response, htmlContentTypes)
     }
 
-    async findFeeds() {
-        return undefined // TODO: Implement the function.
+    async findFeeds(response: Response) {
+        const channelId = await extractValueByRegex(response, /"channelId":"([^"]+)"/, 1)
+
+        if (!channelId) {
+            return
+        }
+
+        const feedUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`
+        const feedResponse = await fetchExternalUrl(feedUrl)
+        const { channel } = await parseFeed(feedResponse)
+
+        return [{ url: feedUrl, title: channel.title }]
     }
 
     async hasServiceChanged() {

@@ -21,6 +21,9 @@ export const findFeeds: FindFeeds = async (response, externalUrl) => {
             if (feeds !== undefined) {
                 return feeds
             }
+
+            // TODO: Implement notifications about changed service. For every finder, it should be
+            // checked whether `hasServiceChanged` function returns true.
         }
     }
 
