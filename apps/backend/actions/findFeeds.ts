@@ -15,8 +15,8 @@ export const findFeeds: FindFeeds = async (response, externalUrl) => {
     ]
 
     for (const finder of finders) {
-        if (await finder.canHandle(response, externalUrl)) {
-            const feeds = await finder.findFeeds(response, externalUrl)
+        if (await finder.canHandle(response.clone(), externalUrl)) {
+            const feeds = await finder.findFeeds(response.clone(), externalUrl)
 
             if (feeds !== undefined) {
                 return feeds

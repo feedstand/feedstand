@@ -10,7 +10,10 @@ export class YouTubeFeedFinder extends BaseFeedFinder {
     }
 
     async findFeeds(response: Response) {
-        const channelId = await extractValueByRegex(response, /"channelId":"([^"]+)"/, 1)
+        const channelId = await extractValueByRegex(response, /"browseId":"([^"]+)"/, {
+            matchIndex: 1,
+            chunkOverlap: 100,
+        })
 
         if (!channelId) {
             return
