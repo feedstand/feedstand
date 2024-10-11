@@ -13,8 +13,4 @@ export class DirectFeedFinder extends BaseFeedFinder {
 
         return [{ title: channel.title, url: channel.url }]
     }
-
-    async hasServiceChanged() {
-        return false
-    }
 }

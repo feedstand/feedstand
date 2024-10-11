@@ -40,8 +40,4 @@ export class WebpageFeedFinder extends BaseFeedFinder {
 
         return feedInfos
     }
-
-    async hasServiceChanged() {
-        return false
-    }
 }

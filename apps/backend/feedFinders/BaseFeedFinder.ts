@@ -3,5 +3,8 @@ import { FeedInfo } from '../types/schemas'
 export abstract class BaseFeedFinder {
     abstract canHandle(response: Response, url: string): Promise<boolean>
     abstract findFeeds(response: Response, url: string): Promise<Array<FeedInfo> | undefined>
-    abstract hasServiceChanged(): Promise<boolean>
+
+    async hasServiceChanged() {
+        return false
+    }
 }
