@@ -1,6 +1,6 @@
-import { scanExistingChannel } from '../actions/scanExistingChannel'
 import { tables } from '../database/tables'
 import { db } from '../instances/database'
+import { channelQueue } from '../queues/channel'
 
 export const scanChannels = async () => {
     // TODO: Consider adding support for adjusting scanning frequency based on the actual new items
@@ -8,6 +8,6 @@ export const scanChannels = async () => {
     const channels = await db.select().from(tables.channels)
 
     for (const channel of channels) {
-        scanExistingChannel(channel)
+        channelQueue.add('scanChannel', channel)
     }
 }
