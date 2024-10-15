@@ -19,19 +19,19 @@ export class WebpageFeedFinder extends BaseFeedFinder {
 
         for (const feedLink of feedLinks) {
             const linkHref = feedLink.getAttribute('href')
-            const feedTitle = feedLink.getAttribute('title')
+            // const feedTitle = feedLink.getAttribute('title')
             const feedUrl = linkHref ? new URL(linkHref, url).href : undefined
 
             if (!feedUrl) {
                 continue
             }
 
-            // TODO: Maybe it's better to stick to the actual name of the feed stored in the feed
-            // URL? `title` attribute and the actual feed name can differ.
-            if (feedTitle) {
-                feedInfos.push({ url: feedUrl, title: feedTitle })
-                continue
-            }
+            // // TODO: Maybe it's better to stick to the actual name of the feed stored in the feed
+            // // URL? `title` attribute and the actual feed name can differ.
+            // if (feedTitle) {
+            //     feedInfos.push({ url: feedUrl, title: feedTitle })
+            //     continue
+            // }
 
             const response = await fetchExternalUrl(feedUrl)
             const { channel } = await parseFeed(response)
