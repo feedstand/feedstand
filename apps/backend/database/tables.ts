@@ -56,7 +56,7 @@ export const items = pgTable(
         description: varchar('description'),
         author: varchar('author'),
         guid: varchar('guid').notNull(),
-        content: text('content').notNull(),
+        content: text('content'),
         isReadabilitified: boolean('is_readabilitified').default(false),
         publishedAt: timestamp('published_at').notNull(),
         createdAt: timestamp('created_at').notNull().defaultNow(),
