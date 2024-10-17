@@ -1,16 +1,13 @@
 import { parseFeed } from '../actions/parseFeed'
 import { anyFeedContentTypes } from '../constants/parsers'
 import { isOneOfContentTypes } from '../helpers/finders'
-import { BaseFinder } from './BaseFinder'
 
-export class DirectFinder extends BaseFinder {
-    async canHandle(response: Response) {
-        return isOneOfContentTypes(response, anyFeedContentTypes)
+export const directFinder = async (response: Response, url: string) => {
+    if (!isOneOfContentTypes(response, anyFeedContentTypes)) {
+        return
     }
 
-    async findFeeds(response: Response, url: string) {
-        const { channel } = await parseFeed(response, url)
+    const { channel } = await parseFeed(response, url)
 
-        return [{ title: channel.title, url: channel.url }]
-    }
+    return [{ title: channel.title, url: channel.url }]
 }
