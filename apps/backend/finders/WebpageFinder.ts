@@ -1,12 +1,13 @@
 import { JSDOM } from 'jsdom'
 import { fetchExternalUrl } from '../actions/fetchExternalUrl'
 import { parseFeed } from '../actions/parseFeed'
-import { feedLinkSelectors, htmlContentTypes } from '../constants/scrapers'
-import { isOneOfContentTypes } from '../helpers/scrapers'
+import { feedLinkSelectors } from '../constants/finders'
+import { htmlContentTypes } from '../constants/parsers'
+import { isOneOfContentTypes } from '../helpers/finders'
 import { FeedInfo } from '../types/schemas'
-import { BaseFeedFinder } from './BaseFeedFinder'
+import { BaseFinder } from './BaseFinder'
 
-export class WebpageFeedFinder extends BaseFeedFinder {
+export class WebpageFinder extends BaseFinder {
     async canHandle(response: Response) {
         return isOneOfContentTypes(response, htmlContentTypes)
     }
@@ -34,7 +35,7 @@ export class WebpageFeedFinder extends BaseFeedFinder {
             // }
 
             const response = await fetchExternalUrl(feedUrl)
-            const { channel } = await parseFeed(response)
+            const { channel } = await parseFeed(response, feedUrl)
             feedInfos.push({ url: feedUrl, title: channel.title })
         }
 

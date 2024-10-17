@@ -3,6 +3,10 @@ import { db } from '../instances/database'
 import { Channel, FeedItem, NewItem } from '../types/schemas'
 
 export const createOrUpdateItems = async (channel: Channel, items: Array<FeedItem>) => {
+    if (items.length === 0) {
+        return
+    }
+
     const newItems: Array<NewItem> = []
 
     for (const newItem of items) {

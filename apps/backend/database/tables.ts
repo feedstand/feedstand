@@ -48,14 +48,14 @@ export const items = pgTable(
     'items',
     {
         id: serial('id').primaryKey(),
+        link: varchar('link').notNull(),
+        guid: varchar('guid').notNull(),
         channelId: integer('channel_id')
             .notNull()
             .references(() => channels.id, { onDelete: 'cascade' }),
-        title: varchar('title').notNull(),
-        link: varchar('link').notNull(),
+        title: varchar('title'),
         description: varchar('description'),
         author: varchar('author'),
-        guid: varchar('guid').notNull(),
         content: text('content'),
         isReadabilitified: boolean('is_readabilitified').default(false),
         publishedAt: timestamp('published_at').notNull(),

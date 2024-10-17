@@ -1,22 +1,20 @@
 import { HTTPException } from 'hono/http-exception'
-import { BaseFeedFinder } from '../feedFinders/BaseFeedFinder'
-import { DirectFeedFinder } from '../feedFinders/DirectFeedFinder'
-import { WebpageFeedFinder } from '../feedFinders/WebpageFeedFinder'
-import { YouTubeFeedFinder } from '../feedFinders/YouTubeFeedFinder'
+import { BaseFinder } from '../finders/BaseFinder'
+import { DirectFinder } from '../finders/DirectFinder'
+import { WebpageFinder } from '../finders/WebpageFinder'
+import { YouTubeFinder } from '../finders/YouTubeFinder'
 import { FeedInfo } from '../types/schemas'
 
-type FindFeeds = (response: Response, externalUrl: string) => Promise<Array<FeedInfo>>
-
-export const findFeeds: FindFeeds = async (response, externalUrl) => {
-    const finders: Array<BaseFeedFinder> = [
-        new YouTubeFeedFinder(),
-        new DirectFeedFinder(),
-        new WebpageFeedFinder(),
+export const findFeeds = async (response: Response, url: string): Promise<Array<FeedInfo>> => {
+    const finders: Array<BaseFinder> = [
+        new YouTubeFinder(),
+        new DirectFinder(),
+        new WebpageFinder(),
     ]
 
     for (const finder of finders) {
-        if (await finder.canHandle(response.clone(), externalUrl)) {
-            const feeds = await finder.findFeeds(response.clone(), externalUrl)
+        if (await finder.canHandle(response.clone(), url)) {
+            const feeds = await finder.findFeeds(response.clone(), url)
 
             if (feeds !== undefined) {
                 return feeds

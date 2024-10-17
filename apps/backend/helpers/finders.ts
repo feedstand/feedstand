@@ -13,7 +13,9 @@ export const extractValueByRegex = async (
     const { matchIndex = 0, chunkOverlap = 1000 } = options
     const reader = response.body?.getReader()
 
-    if (!reader) return false
+    if (!reader) {
+        return false
+    }
 
     let buffer = ''
     const decoder = new TextDecoder()
@@ -22,13 +24,17 @@ export const extractValueByRegex = async (
         while (true) {
             const { done, value } = await reader.read()
 
-            if (done) break
+            if (done) {
+                break
+            }
 
             buffer += decoder.decode(value, { stream: true })
 
             const match = regex.exec(buffer)
 
-            if (match) return match[matchIndex] || false
+            if (match) {
+                return match[matchIndex] || false
+            }
 
             if (buffer.length > chunkOverlap) {
                 buffer = buffer.slice(-chunkOverlap)
@@ -37,6 +43,7 @@ export const extractValueByRegex = async (
         }
 
         const match = regex.exec(buffer)
+
         return match ? match[matchIndex] || false : false
     } finally {
         reader.releaseLock()

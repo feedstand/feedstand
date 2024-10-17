@@ -27,7 +27,7 @@ export const handler = createHandler(route, async (context) => {
 
     const { url } = context.req.valid('json')
     const response = await fetchExternalUrl(url)
-    const feedData = await parseFeed(response)
+    const feedData = await parseFeed(response, url)
 
     return context.json(feedData, 200)
 })

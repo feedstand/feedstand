@@ -1,4 +1,4 @@
-import { and, eq, inArray, isNull, lt } from 'drizzle-orm'
+import { and, eq, isNull, lt } from 'drizzle-orm'
 import { tables } from '../database/tables'
 import { db } from '../instances/database'
 import { dayjs } from '../instances/dayjs'
@@ -12,8 +12,8 @@ export const deleteOrphanChannels = async () => {
         .leftJoin(tables.sources, eq(tables.sources.channelId, tables.channels.id))
         .where(and(isNull(tables.sources.id), lt(tables.channels.createdAt, oneDayAgo)))
 
-    await db
-        .delete(tables.channels)
-        .where(inArray(tables.channels.id, orphanChannelsSubquery))
-        .returning()
+    // await db
+    //     .delete(tables.channels)
+    //     .where(inArray(tables.channels.id, orphanChannelsSubquery))
+    //     .returning()
 }
