@@ -25,6 +25,8 @@ export const handler = createHandler(route, async (context) => {
     // TODO: Check if there's already exsisting Channel with given URL. If so, return it's data
     // instead of fetching feed data directly.
 
+    // TODO: Only preview 20? latest posts. Example of very long feed: https://olagist.net/feed/.
+
     const { url } = context.req.valid('json')
     const response = await fetchExternalUrl(url)
     const feedData = await parseFeed(response, url)
