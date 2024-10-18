@@ -81,7 +81,7 @@ export const parseXmlFeedItems = (feed: XmlFeed): Array<FeedItem> => {
             return trimStrings({
                 link,
                 guid: parseValue(item.guid, [textStandard], link),
-                title: parseValue(item.text, [textStandard]),
+                title: parseValue(item.title, [textStandard]),
                 description: parseValue(item.summary, [textStandard]),
                 author: parseValue(item.creator, [textStandard, authorFromAtom]),
                 content: parseValue(item.content, [textStandard]),
