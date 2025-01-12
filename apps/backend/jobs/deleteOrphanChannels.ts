@@ -12,6 +12,7 @@ export const deleteOrphanChannels = async () => {
         .leftJoin(tables.sources, eq(tables.sources.channelId, tables.channels.id))
         .where(and(isNull(tables.sources.id), lt(tables.channels.createdAt, oneDayAgo)))
 
+    // TODO: Enable when he feed scanning and parsing is completed.
     // await db
     //     .delete(tables.channels)
     //     .where(inArray(tables.channels.id, orphanChannelsSubquery))
