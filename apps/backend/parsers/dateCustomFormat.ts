@@ -1,7 +1,6 @@
-import { isValid, Locale, parse } from 'date-fns'
-import { enUS } from 'date-fns/locale/en-US'
+import { TZDate } from '@date-fns/tz'
+import { Locale, isValid, parse } from 'date-fns'
 import { fr } from 'date-fns/locale/fr'
-import { extractTimezoneFromDateString, stripTimezoneFromDateString } from '../helpers/dates'
 
 type CustomFormatsReplace = {
     from: string | RegExp
@@ -17,14 +16,35 @@ type CustomFormats = Array<{
 
 const commonTzRegex: RegExp = /([A-Za-z\/_]+)$/
 
-const midnightReplace: CustomFormatsReplace = {
+const fixMidnight: CustomFormatsReplace = {
     from: /\b24:(\d{2}:\d{2})\b/,
     to: (match) => match.replace(/^24/, '00'),
 }
 
-const tzSpaceReplace: CustomFormatsReplace = {
+const fixTzSpace: CustomFormatsReplace = {
     from: /[+-]\s[0-9]{4}$/,
     to: (match) => match.replace(' ', () => ''),
+}
+
+const fixTzAbbreviation: CustomFormatsReplace = {
+    from: /[A-Z]{3,4}$/,
+    to: (match) => {
+        const tzMap: Record<string, string> = {
+            EST: '-0500',
+            EDT: '-0400',
+            CST: '-0600',
+            CDT: '-0500',
+            MST: '-0700',
+            MDT: '-0600',
+            PST: '-0800',
+            PDT: '-0700',
+            GMT: '+0000',
+            UTC: '+0000',
+            AEST: `+1000`,
+        }
+
+        return tzMap[match] || match
+    },
 }
 
 const customFormats: CustomFormats = [
@@ -32,22 +52,24 @@ const customFormats: CustomFormats = [
     //   Example: Tue, 15 Oct 2024 11:41:56 Europe/Dublin
     //   Example: Wed, 16 Oct 2024 24:00:00 Asia/Tokyo
     //   Example: Thu, 17 Oct 2024 00:15:01 America/New_York
-    //   Example: Fri, 18 Oct 2024 23:59:59 UTC
     //   Example: Sat, 19 Oct 2024 12:30:45 Australia/Sydney
     {
         format: 'EEE, d MMM yyyy HH:mm:ss',
         tzRegex: commonTzRegex,
-        replace: [midnightReplace],
+        replace: [fixMidnight],
     },
 
     // - Feed: https://www.news18.com/commonfeeds/v1/eng/rss/world.xml.
     //   Example: Tue, 15 Oct 2024 24:15:01 +0530.
-    { format: 'EEE, dd MMM yyyy HH:mm:ss xx', replace: [midnightReplace] },
+    {
+        format: "EEE, d MMM yyyy HH:mm:ss xx'.'",
+        replace: [fixMidnight],
+    },
 
     // - Feed: ?
     //   Example: mar., 22 juin 2021 18:14:45 +0000
     {
-        format: 'd MMM yyyy HH:mm:ss xxxx',
+        format: 'd MMM yyyy HH:mm:ss xx',
         locale: fr,
         replace: [{ from: /^\w+\.,\s/, to: () => '' }],
     },
@@ -55,15 +77,14 @@ const customFormats: CustomFormats = [
     // - Feed: ?
     //   Example: Mon, 24 Arp 2023 06:50:00 MDT
     {
-        format: 'EEE, d MMM yyyy HH:mm:ss',
-        locale: enUS,
+        format: 'EEE, d MMM yyyy HH:mm:ss xx',
         tzRegex: commonTzRegex,
-        replace: [{ from: ' Arp ', to: () => ' Apr ' }],
+        replace: [{ from: ' Arp ', to: () => ' Apr ' }, fixTzAbbreviation],
     },
 
     // - Feed: http://www.newsbusters.org/blog/feed
     //   Example: October 18th, 2024 10:32 PM
-    { format: 'MMMM do, yyyy h:mm a' },
+    { format: 'MMMM do, yyyy h:mm aa' },
 
     // - Feed: https://www.newarab.com/rss
     //   Example: 2024-10-18T23:05:21 +0100
@@ -71,12 +92,9 @@ const customFormats: CustomFormats = [
 
     // - Feed: http://commandlinefanatic.com/rss.xml
     //   Example: Thursday, April 30, 2015, 15:24 - 0700
-    //   Example: Wednesday, October 28, 2015, 15:24 -0700
-    //   Example: Thursday, April 26, 2012 18:31 +0000
-    //   Example: Sat, Apr 23 2011 15:39:00 +0000
     {
         format: 'EEEE, MMMM d, yyyy, HH:mm xx',
-        replace: [tzSpaceReplace],
+        replace: [fixTzSpace],
     },
 
     // - Feed: https://feeds.feedburner.com/Poultrymed
@@ -110,7 +128,11 @@ const customFormats: CustomFormats = [
 
     // - Feed: http://www.spacewar.com/Military_Technology.xml
     //   Example: Thu, 17 OCT 2024 22:40:13 AEST
-    { format: 'EEE, d MMM yyyy HH:mm:ss', tzRegex: commonTzRegex },
+    {
+        format: 'EEE, d MMM yyyy HH:mm:ss xx',
+        tzRegex: commonTzRegex,
+        replace: [fixTzAbbreviation],
+    },
 
     // - Feed: https://feeds.feedburner.com/Encodednadotcom/Feed
     //   Example: Mon, 24th Oct 2016 12:46:05 GMT
@@ -118,10 +140,8 @@ const customFormats: CustomFormats = [
     //   Example: Tue, 18th Oct 2016 11:29:10 GMT
     //   Example: Fri, 11th Nov 2016 11:37:58 GMT
     //   Example: Fri, 02nd Dec 2016 14:36:08 GMT
-    { format: 'EEE, do MMM yyyy HH:mm:ss', tzRegex: commonTzRegex },
     {
         format: 'EEE, do MMM yyyy HH:mm:ss',
-        locale: enUS,
         tzRegex: commonTzRegex,
         replace: [{ from: 'Thur,', to: () => 'Thu,' }],
     },
@@ -130,7 +150,10 @@ const customFormats: CustomFormats = [
     //   Example: <span class="date-display-single">2022-09-07</span>
     //   Example: <span class="date-display-single">2022-09-14</span>
     //   Example: <span class="date-display-single">2018-11-30</span>
-    { format: 'yyyy-MM-dd', replace: [{ from: /<[^>]*>/g, to: () => '' }] },
+    {
+        format: 'yyyy-MM-dd',
+        replace: [{ from: /<[^>]*>/g, to: () => '' }],
+    },
 
     // - Feed: http://www.tennisviewmag.com/rss.xml
     //   Example: Tuesday, October 15, 2024 - 12:07am
@@ -166,6 +189,19 @@ const customFormats: CustomFormats = [
     //   Example: July 20th, 2023
     { format: 'MMMM do, yyyy' },
 
+    // - Feed: ?
+    //   Example: Jan 9, 2025 10:41am
+    //   Example: Jan 11, 2025 10:44am
+    { format: 'MMM d, yyyy h:mmaaa' },
+
+    // - Feed: ?
+    //   Example: 20250115155121
+    //   Example: 20250115154125
+    //   Example: 20250115154112
+    //   Example: 20250115154058
+    //   Example: 20250115154044
+    { format: 'yyyyMMddHHmmss' },
+
     // Other not-handled formats:
     // - Feed: http://www.leisureopportunities.co.uk/rss/google_feed_SM.cfm
     //   Example: Wed, 26 May 2021 HH:05:ss GMT
@@ -185,13 +221,8 @@ export const dateCustomFormat = (value: unknown): Date | undefined => {
     }
 
     for (const { format, locale, tzRegex, replace: replacements } of customFormats) {
+        let extractedTimezone: string | undefined = '+0000'
         let customizedValue = value
-        let extractedTimezone: string | undefined
-
-        if (tzRegex) {
-            customizedValue = stripTimezoneFromDateString(customizedValue, tzRegex)
-            extractedTimezone = extractTimezoneFromDateString(customizedValue, tzRegex)
-        }
 
         if (replacements) {
             for (const { from, to } of replacements) {
@@ -202,14 +233,20 @@ export const dateCustomFormat = (value: unknown): Date | undefined => {
             }
         }
 
-        let parsedDate = parse(customizedValue.trim(), format, new Date(), { locale })
-
-        if (isValid(parsedDate) && extractedTimezone) {
-            // TODO: Attach timezone.
+        if (tzRegex) {
+            extractedTimezone = customizedValue.match(tzRegex)?.[1]
+            customizedValue = customizedValue.replace(tzRegex, '').trim()
         }
 
+        let parsedDate = parse(
+            customizedValue.trim(),
+            format,
+            new TZDate(new Date(), extractedTimezone),
+            { locale },
+        )
+
         if (isValid(parsedDate)) {
-            return parsedDate
+            return new Date(parsedDate.toISOString())
         }
     }
 }

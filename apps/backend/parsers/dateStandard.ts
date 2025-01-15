@@ -1,7 +1,11 @@
-import { dayjs } from '../instances/dayjs'
+import { DateArg, isValid, toDate } from 'date-fns'
 
-export const dateStandard = (value: dayjs.ConfigType) => {
-    const parsedDate = dayjs(value)
+export const dateStandard = (value: DateArg<Date> | null | undefined): Date | undefined => {
+    if (!value) {
+        return
+    }
 
-    return parsedDate.isValid() ? parsedDate.toDate() : undefined
+    const date = toDate(value)
+
+    return isValid(date) ? date : undefined
 }

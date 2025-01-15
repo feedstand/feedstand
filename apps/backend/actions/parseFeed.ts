@@ -14,6 +14,8 @@ import { FeedData } from '../types/schemas'
 // to return channel/items or not. This could be useful in fetchAndDiscoverFeeds action where we
 // only need the Channel details and do not care about Items.
 export const parseFeed = async (response: Response, url: string): Promise<FeedData> => {
+    // TODO: Add support for 404 http code.
+
     if (isOneOfContentTypes(response, jsonFeedContentTypes)) {
         // TODO: Validate if the JSON file is actually a JSON Feed.
         const feed = await response.json()

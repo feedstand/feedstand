@@ -2,15 +2,15 @@
     "name": "feedstand",
     "type": "module",
     "devDependencies": {
-        "husky": "^9.1.0",
-        "lint-staged": "^15.2.0",
-        "prettier": "^3.3.0",
-        "prettier-plugin-organize-imports": "^4.1.0",
-        "typescript": "^5.6.0"
+        "husky": "^9.0.0",
+        "lint-staged": "^15.0.0",
+        "prettier": "^3.0.0",
+        "prettier-plugin-organize-imports": "^4.0.0",
+        "typescript": "^5.0.0"
     },
     "engines": {
-        "node": ">=22.8.0",
-        "npm": ">=10.8.0"
+        "node": ">=22.0.0",
+        "npm": ">=10.0.0"
     },
     "scripts": {
         "prepare": "husky",
