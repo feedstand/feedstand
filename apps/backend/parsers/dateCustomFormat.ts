@@ -1,6 +1,7 @@
 import { TZDate } from '@date-fns/tz'
 import { Locale, isValid, parse } from 'date-fns'
 import { fr } from 'date-fns/locale/fr'
+import { zhTW } from 'date-fns/locale/zh-TW'
 
 type CustomFormatsReplace = {
     from: string | RegExp
@@ -26,25 +27,81 @@ const fixTzSpace: CustomFormatsReplace = {
     to: (match) => match.replace(' ', () => ''),
 }
 
-const fixTzAbbreviation: CustomFormatsReplace = {
-    from: /[A-Z]{3,4}$/,
-    to: (match) => {
-        const tzMap: Record<string, string> = {
-            EST: '-0500',
-            EDT: '-0400',
-            CST: '-0600',
-            CDT: '-0500',
-            MST: '-0700',
-            MDT: '-0600',
-            PST: '-0800',
-            PDT: '-0700',
-            GMT: '+0000',
-            UTC: '+0000',
-            AEST: `+1000`,
-        }
+const fixWords = (words: Record<string, string>): CustomFormatsReplace => ({
+    from: new RegExp(Object.keys(words).join('|'), 'g'),
+    to: (match) => words[match] || match,
+})
 
-        return tzMap[match] || match
-    },
+const fixTzAbbreviation: CustomFormatsReplace = fixWords({
+    EST: '-0500', // Eastern Standard Time
+    EDT: '-0400', // Eastern Daylight Time
+    CST: '-0600', // Central Standard Time
+    CDT: '-0500', // Central Daylight Time
+    MST: '-0700', // Mountain Standard Time
+    MDT: '-0600', // Mountain Daylight Time
+    PST: '-0800', // Pacific Standard Time
+    PDT: '-0700', // Pacific Daylight Time
+    GMT: '+0000', // Greenwich Mean Time
+    UTC: '+0000', // Coordinated Universal Time
+    BST: '+0100', // British Summer Time
+    CET: '+0100', // Central European Time
+    CEST: '+0200', // Central European Summer Time
+    EET: '+0200', // Eastern European Time
+    EEST: '+0300', // Eastern European Summer Time
+    IST: '+0530', // India Standard Time
+    IDT: '+0300', // Israel Daylight Time
+    SGT: '+0800', // Singapore Time
+    JST: '+0900', // Japan Standard Time
+    KST: '+0900', // Korea Standard Time
+    AEST: '+1000', // Australian Eastern Standard Time
+    AEDT: '+1100', // Australian Eastern Daylight Time
+    ACST: '+0930', // Australian Central Standard Time
+    ACDT: '+1030', // Australian Central Daylight Time
+    AWST: '+0800', // Australian Western Standard Time
+    NZST: '+1200', // New Zealand Standard Time
+    NZDT: '+1300', // New Zealand Daylight Time
+    BRT: '-0300', // Brasilia Time
+    ART: '-0300', // Argentina Time
+    CLT: '-0400', // Chile Standard Time
+    CLST: '-0300', // Chile Summer Time
+    HKT: '+0800', // Hong Kong Time
+    PHT: '+0800', // Philippine Time
+    ICT: '+0700', // Indochina Time
+})
+
+const fixUppercaseMonth: CustomFormatsReplace = fixWords({
+    JAN: 'Jan',
+    FEB: 'Feb',
+    MAR: 'Mar',
+    APR: 'Apr',
+    MAY: 'May',
+    JUN: 'Jun',
+    JUL: 'Jul',
+    AUG: 'Aug',
+    SEP: 'Sep',
+    OCT: 'Oct',
+    NOV: 'Nov',
+    DEC: 'Dec',
+})
+
+const fixChineseMonth: CustomFormatsReplace = fixWords({
+    一月: '01',
+    二月: '02',
+    三月: '03',
+    四月: '04',
+    五月: '05',
+    六月: '06',
+    七月: '07',
+    八月: '08',
+    九月: '09',
+    十月: '10',
+    十一月: '11',
+    十二月: '12',
+})
+
+const fixWhitespace: CustomFormatsReplace = {
+    from: /\s+/g,
+    to: () => ' ',
 }
 
 const customFormats: CustomFormats = [
@@ -78,8 +135,7 @@ const customFormats: CustomFormats = [
     //   Example: Mon, 24 Arp 2023 06:50:00 MDT
     {
         format: 'EEE, d MMM yyyy HH:mm:ss xx',
-        tzRegex: commonTzRegex,
-        replace: [{ from: ' Arp ', to: () => ' Apr ' }, fixTzAbbreviation],
+        replace: [fixTzAbbreviation, { from: ' Arp ', to: () => ' Apr ' }],
     },
 
     // - Feed: http://www.newsbusters.org/blog/feed
@@ -130,8 +186,7 @@ const customFormats: CustomFormats = [
     //   Example: Thu, 17 OCT 2024 22:40:13 AEST
     {
         format: 'EEE, d MMM yyyy HH:mm:ss xx',
-        tzRegex: commonTzRegex,
-        replace: [fixTzAbbreviation],
+        replace: [fixTzAbbreviation, fixUppercaseMonth],
     },
 
     // - Feed: https://feeds.feedburner.com/Encodednadotcom/Feed
@@ -141,9 +196,8 @@ const customFormats: CustomFormats = [
     //   Example: Fri, 11th Nov 2016 11:37:58 GMT
     //   Example: Fri, 02nd Dec 2016 14:36:08 GMT
     {
-        format: 'EEE, do MMM yyyy HH:mm:ss',
-        tzRegex: commonTzRegex,
-        replace: [{ from: 'Thur,', to: () => 'Thu,' }],
+        format: 'EEE, do MMM yyyy HH:mm:ss xx',
+        replace: [fixTzAbbreviation, { from: 'Thur,', to: () => 'Thu,' }],
     },
 
     // - Feed: https://www.princeedwardisland.ca/en/tender-feed/goods_and_services.xml
@@ -201,6 +255,79 @@ const customFormats: CustomFormats = [
     //   Example: 20250115154058
     //   Example: 20250115154044
     { format: 'yyyyMMddHHmmss' },
+
+    // - Feed: ?
+    // Example: 週六, 11 一月 2025 05:39:00 +0000
+    // Example: 週四, 2 一月 2025 09:12:00 +0000
+    // Example: 週二, 1 十月 2024 01:33:00 +0000
+    // Example: 週五, 27 九月 2024 03:08:00 +0000
+    // Example: 週三, 18 九月 2024 15:57:00 +0000
+    // Example: 週二, 10 九月 2024 14:25:00 +0000
+    {
+        format: 'EEEE, d MM yyyy HH:mm:ss xx',
+        locale: zhTW,
+        replace: [fixChineseMonth],
+    },
+
+    // - Feed: ?
+    //   Example: Thu Aug 14 11:22:50 CEST 2014
+    //   Example: Thu Jul 31 21:49:52 CEST 2014
+    //   Example: Tue Jul 22 08:59:54 CEST 2014
+    //   Example: Tue Aug 13 12:43:50 CEST 2013
+    //   Example: Thu Jan 31 08:15:56 CET 2013
+    //   Example: Mon Dec 31 19:04:54 CET 2012
+    //   Example: Thu Nov 22 15:23:09 CET 2012
+    //   Example: Sat Jun 23 20:25:03 CEST 2012
+    //   Example: Thu Aug  9 18:09:45 CEST 2012
+    //   Example: Thu May 24 10:42:33 CEST 2012
+    //   Example: Thu Apr 5 14:16:01 CEST 2012
+    //   Example: Sat Mar 10 19:09:17 CET 2012
+    {
+        format: 'EEE MMM d HH:mm:ss xx yyyy',
+        replace: [fixWhitespace, fixTzAbbreviation],
+    },
+
+    // - Feed: ?
+    //   Example: Thu 10 Apr 13:13:18 CEST 2014
+    //   Example: Sun  9 Mar 19:18:54 CET 2014
+    //   Example: Tue 25 Feb 13:34:33 CET 2014
+    {
+        format: 'EEE d MMM HH:mm:ss xx yyyy',
+        replace: [fixWhitespace, fixTzAbbreviation],
+    },
+
+    // - Feed: ?
+    // December 12:27:27 CEST 2016
+    {
+        format: 'MMMM HH:mm:ss xx yyyy',
+        replace: [fixTzAbbreviation],
+    },
+
+    // - Feed: ?
+    // Mon 21 April 15:11:43 CET 2020
+    {
+        format: 'EEE d MMMM HH:mm:ss xx yyyy',
+        replace: [fixWhitespace, fixTzAbbreviation],
+    },
+
+    // - Feed: ?
+    //   Example: 2024-01-16T17:37:00-0600\n
+    //   Example: 2023-11-16T07:40:40-0600\n
+    {
+        format: "yyyy-MM-dd'T'HH:mm:ssxx",
+        replace: [{ from: /\n$/, to: () => '' }],
+    },
+
+    // - Feed: ?
+    //   Example: ' Saturday, January 11th, 2025 '
+    //   Example: ' Saturday, January 4th, 2025 '
+    //   Example: ' Saturday, December 28th, 2024 '
+    //   Example: ' Saturday, December 14th, 2024 '
+    //   Example: ' Thursday, December 12th, 2024 '
+    //   Example: ' Wednesday, December 11th, 2024 '
+    {
+        format: 'EEEE, MMMM do, yyyy',
+    },
 
     // Other not-handled formats:
     // - Feed: http://www.leisureopportunities.co.uk/rss/google_feed_SM.cfm
