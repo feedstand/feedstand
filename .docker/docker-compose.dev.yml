@@ -15,7 +15,7 @@ services:
       - /home/node/node_modules
     restart: always
 
-  backend:
+  backend-server:
     image: feedstand/backend:dev
     build:
       context: ..
@@ -31,6 +31,23 @@ services:
       - database
       - queue
     restart: always
+
+  backend-queues:
+    image: feedstand/backend:dev
+    build:
+      context: ..
+      dockerfile: apps/backend/.docker/Dockerfile.dev
+    env_file:
+      - ../apps/frontend/.env
+    volumes:
+      - ..:/home/node
+      - /home/node/node_modules
+    depends_on:
+      - database
+      - queue
+    restart: always
+    deploy:
+      replicas: 5
 
   database:
     image: postgres:17-alpine
