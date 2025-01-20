@@ -42,10 +42,10 @@ jobs:
       - name: Build and push ${{ matrix.app }}
         run: |
           docker build \
-            -t {{ env.IMAGE_LATEST }} \
-            -t {{ env.IMAGE_COMMIT }} \
+            -t ${{ env.IMAGE_LATEST }} \
+            -t ${{ env.IMAGE_COMMIT }} \
             -f apps/${{ matrix.app }}/.docker/Dockerfile.prod \
             --build-arg VERSION_TAG=${{ github.sha }} \
             .
-          docker push {{ env.IMAGE_LATEST }}
-          docker push {{ env.IMAGE_COMMIT }}
+          docker push ${{ env.IMAGE_LATEST }}
+          docker push ${{ env.IMAGE_COMMIT }}
