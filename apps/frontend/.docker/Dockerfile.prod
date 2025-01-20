@@ -11,9 +11,9 @@ RUN npm ci -w apps/frontend --ignore-scripts
 COPY tsconfig.json .
 COPY apps/backend apps/backend/
 COPY apps/frontend apps/frontend/
-COPY apps/frontend/.docker/.env.production apps/frontend/
+COPY apps/frontend/.docker/.env.prod apps/frontend/
 RUN npm run build -w apps/frontend
-RUN awk -F'=' '{print $2}' apps/frontend/.docker/.env.production | sed 's/^\\//g' | tr -d '\r' | paste -sd ' ' - > /tmp/allowed_vars
+RUN awk -F'=' '{print $2}' apps/frontend/.docker/.env.prod | sed 's/^\\//g' | tr -d '\r' | paste -sd ' ' - > /tmp/allowed_vars
 
 FROM nginx:1-alpine
 

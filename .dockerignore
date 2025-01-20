@@ -9,7 +9,7 @@
 **/.docker
 !**/.docker/entrypoint.sh
 !**/.docker/nginx.conf
-!**/.docker/.env.production
+!**/.docker/.env.prod
 **/lint-staged.config.js
 **/prettier.config.js
 # **/vite.config.js # TODO: Only ignore when running docker-stack.prod.yml.
