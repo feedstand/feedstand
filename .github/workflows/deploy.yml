@@ -25,6 +25,9 @@ jobs:
     strategy:
       matrix:
         app: [frontend, backend]
+    env:
+      IMAGE_LATEST: ghcr.io/${{ github.repository_owner }}/feedstand/${{ matrix.app }}:latest
+      IMAGE_COMMIT: ghcr.io/${{ github.repository_owner }}/feedstand/${{ matrix.app }}:${{ github.sha }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -36,14 +39,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build the ${{ matrix.app }} image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: apps/${{ matrix.app }}/.docker/Dockerfile.prod
-          push: true
-          build-args: |
-            VERSION_TAG=${{ github.sha }}
-          tags: |
-            ghcr.io/${{ github.repository_owner }}/feedstand/${{ matrix.app }}:latest
-            ghcr.io/${{ github.repository_owner }}/feedstand/${{ matrix.app }}:${{ github.sha }}
+      - name: Build and push ${{ matrix.app }}
+        run: |
+          docker build \
+            -t {{ env.IMAGE_LATEST }} \
+            -t {{ env.IMAGE_COMMIT }} \
+            -f apps/${{ matrix.app }}/.docker/Dockerfile.prod \
+            --build-arg VERSION_TAG=${{ github.sha }} \
+            .
+          docker push {{ env.IMAGE_LATEST }}
+          docker push {{ env.IMAGE_COMMIT }}
