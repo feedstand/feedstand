@@ -15,7 +15,7 @@ x-common-healthcheck: &common-healthcheck
 
 services:
   frontend:
-    image: feedstand/frontend:${VERSION_TAG}
+    image: ghcr.io/feedstand/feedstand/frontend:${VERSION_TAG:-latest}
     environment:
       BACKEND_URL: ${FRONTEND_BACKEND_URL}
       SENTRY_DSN: ${FRONTEND_SENTRY_DSN}
@@ -29,7 +29,7 @@ services:
       test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:4000"]
 
   backend:
-    image: feedstand/backend:${VERSION_TAG}
+    image: ghcr.io/feedstand/feedstand/backend:${VERSION_TAG:-latest}
     environment:
       SERVER_HOST: ${BACKEND_SERVER_HOST}
       SERVER_PORT: ${BACKEND_SERVER_PORT}
