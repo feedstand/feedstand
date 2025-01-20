@@ -14,5 +14,5 @@ jobs:
 
       - name: Run tests for ${{ matrix.app }}
         run: |
-          docker build -t feedstand-${{ matrix.app }} -f apps/${{ matrix.app }}/.docker/Dockerfile.test .
-          docker run --rm feedstand-${{ matrix.app }}
+          docker build -t feedstand/${{ matrix.app }} -f apps/${{ matrix.app }}/.docker/Dockerfile.test .
+          docker run --rm feedstand/${{ matrix.app }}
