@@ -38,8 +38,8 @@ jobs:
       - name: Build the ${{ matrix.app }} image
         uses: docker/build-push-action@v6
         with:
-          context: ..
-          file: apps/${{ matrix.app }}/.docker/Dockerfile.prod
+          context: .
+          file: ./apps/${{ matrix.app }}/.docker/Dockerfile.prod
           push: true
           tags: |
             feedstand/${{ matrix.app }}:latest
