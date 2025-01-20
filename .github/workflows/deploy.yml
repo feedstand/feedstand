@@ -40,10 +40,10 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./apps/${{ matrix.app }}/.docker/Dockerfile.prod
+          file: apps/${{ matrix.app }}/.docker/Dockerfile.prod
           push: true
+          build-args: |
+            VERSION_TAG=${{ github.sha }}
           tags: |
             ghcr.io/${{ github.repository_owner }}/feedstand/${{ matrix.app }}:latest
             ghcr.io/${{ github.repository_owner }}/feedstand/${{ matrix.app }}:${{ github.sha }}
-          build-args: |
-            VERSION_TAG=${{ github.sha }}
