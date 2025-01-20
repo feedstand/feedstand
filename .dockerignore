@@ -3,7 +3,7 @@
 **/.DS_Store
 
 # Environment
-# **/.env* # TODO: Only ignore when running docker-compose.prod.yml.
+# **/.env* # TODO: Only ignore when running docker-stack.prod.yml.
 
 # Development
 **/.docker
@@ -12,5 +12,5 @@
 !**/.docker/.env.production
 **/lint-staged.config.js
 **/prettier.config.js
-# **/vite.config.js # TODO: Only ignore when running docker-compose.prod.yml.
+# **/vite.config.js # TODO: Only ignore when running docker-stack.prod.yml.
 **/node_modules
