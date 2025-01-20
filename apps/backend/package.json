@@ -3,7 +3,7 @@
     "type": "module",
     "scripts": {
         "dev": "tsx --watch index.ts",
-        "test": "vitest",
+        "test": "vitest run",
         "start": "tsx index.ts",
         "db:push": "drizzle-kit push --verbose",
         "db:seed": "tsx database/tasks/seed.ts",
