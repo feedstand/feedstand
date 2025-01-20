@@ -28,55 +28,21 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Build ${{ matrix.app }} image
-        run: |
-          docker build -t ${{ env.IMAGE_NAME }} -f apps/${{ matrix.app }}/.docker/Dockerfile.prod --build-arg VERSION_TAG=${{ github.sha }} .
-          docker save ${{ env.IMAGE_NAME }} | gzip > ${{ env.ZIP_NAME }}
-
-      - name: Store ${{ matrix.app }} image artifact
-        uses: actions/upload-artifact@v4
+      - name: Log in to the GitHub Container Registry
+        uses: docker/login-action@v3
         with:
-          name: ${{ env.ZIP_NAME }}
-          path: ${{ env.ZIP_NAME }}
+          registry: ${{ secrets.REGISTRY_HOST }}
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASS }}
 
-      - name: Store docker compose artifact
-        if: ${{ matrix.app == 'frontend' }}
-        uses: actions/upload-artifact@v4
+      - name: Build the ${{ matrix.app }} image
+        uses: docker/build-push-action@v6
         with:
-          name: docker-compose.prod.yml
-          path: .docker/docker-compose.prod.yml
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download image artifacts
-        uses: actions/download-artifact@v4
-        with:
-          pattern: "*"
-          path: .
-          merge-multiple: true
-
-      - name: Copy images and compose file to server
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USERNAME }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          source: feedstand-frontend.tar.gz,feedstand-backend.tar.gz,docker-compose.prod.yml
-          target: ${{ secrets.SERVER_PATH }}
-
-      - name: Deploy to server
-        uses: appleboy/ssh-action@v1.1.0
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USERNAME }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            cd ${{ secrets.SERVER_PATH }}
-            docker load < feedstand-frontend.tar.gz
-            docker load < feedstand-backend.tar.gz
-            echo "${{ secrets.ENV_FILE }}" > .env
-            echo "VERSION_TAG=${{ github.sha }}" >> .env
-            set -a; . ./.env; set +a
-            docker stack deploy -c docker-compose.prod.yml feedstand
+          context: ..
+          file: apps/${{ matrix.app }}/.docker/Dockerfile.prod
+          push: true=
+          tags: |
+            feedstand/${{ matrix.app }}:latest
+            feedstand/${{ matrix.app }}:${{ github.sha }}
+          build-args: |
+            VERSION_TAG=${{ github.sha }}
