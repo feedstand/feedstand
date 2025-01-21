@@ -26,6 +26,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Deploy the application
-        # TODO.
+      - name: Create env file
         run: |
+          echo "${{ secrets.ENV_FILE }}" > .env
+          echo "VERSION_TAG=${{ github.sha }}" >> .env
+
+      - name: Deploy the application
+        uses: cssnr/stack-deploy-action@v1
+        with:
+          file: .docker/docker-compose.prod.yml
+          name: ${{ secrets.SERVER_STACK }}
+          host: ${{ secrets.SERVER_HOST }}
+          user: ${{ secrets.SERVER_USER }}
+          ssh_key: ${{ secrets.SERVER_SSH_KEY }}
+          env_file: .env
