@@ -28,8 +28,14 @@ services:
       - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
       - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
     ports:
-      - 80:80
-      - 443:443
+      - mode: host
+        protocol: tcp
+        published: 80
+        target: 80
+      - mode: host
+        protocol: tcp
+        published: 443
+        target: 443
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - letsencrypt_data:/letsencrypt
@@ -44,19 +50,19 @@ services:
       BACKEND_URL: ${FRONTEND_BACKEND_URL}
       SENTRY_DSN: ${FRONTEND_SENTRY_DSN}
       SENTRY_ENVIRONMENT: ${FRONTEND_SENTRY_ENVIRONMENT}
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.frontend.rule=Host(`app.feedstand.com`)
-      - traefik.http.routers.frontend.entrypoints=websecure
-      - traefik.http.routers.frontend.tls=true
-      - traefik.http.routers.frontend.tls.certresolver=letsencrypt
-      - traefik.http.routers.frontend.middlewares=frontend-secure@swarm
-      - traefik.http.services.frontend.loadbalancer.server.port=4000
-      - traefik.http.middlewares.frontend-secure.headers.sslRedirect=true
-      - traefik.http.middlewares.frontend-secure.headers.stsSeconds=31536000
-      - traefik.http.middlewares.frontend-secure.headers.stsPreload=true
     deploy:
       <<: *common-deploy
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.frontend.rule=Host(`app.feedstand.com`)
+        - traefik.http.routers.frontend.entrypoints=websecure
+        - traefik.http.routers.frontend.tls=true
+        - traefik.http.routers.frontend.tls.certresolver=letsencrypt
+        - traefik.http.routers.frontend.middlewares=frontend-secure@swarm
+        - traefik.http.services.frontend.loadbalancer.server.port=4000
+        - traefik.http.middlewares.frontend-secure.headers.sslRedirect=true
+        - traefik.http.middlewares.frontend-secure.headers.stsSeconds=31536000
+        - traefik.http.middlewares.frontend-secure.headers.stsPreload=true
     healthcheck:
       <<: *common-healthcheck
       test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:4000"]
@@ -77,17 +83,17 @@ services:
       SENTRY_ENVIRONMENT: ${BACKEND_SENTRY_ENVIRONMENT}
     deploy:
       <<: *common-deploy
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.backend.rule=Host(`api.feedstand.com`)
-      - traefik.http.routers.backend.entrypoints=websecure
-      - traefik.http.routers.backend.tls=true
-      - traefik.http.routers.backend.tls.certresolver=letsencrypt
-      - traefik.http.routers.backend.middlewares=backend-secure@swarm
-      - traefik.http.services.backend.loadbalancer.server.port=4001
-      - traefik.http.middlewares.backend-secure.headers.sslRedirect=true
-      - traefik.http.middlewares.backend-secure.headers.stsSeconds=31536000
-      - traefik.http.middlewares.backend-secure.headers.stsPreload=true
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.backend.rule=Host(`api.feedstand.com`)
+        - traefik.http.routers.backend.entrypoints=websecure
+        - traefik.http.routers.backend.tls=true
+        - traefik.http.routers.backend.tls.certresolver=letsencrypt
+        - traefik.http.routers.backend.middlewares=backend-secure@swarm
+        - traefik.http.services.backend.loadbalancer.server.port=4001
+        - traefik.http.middlewares.backend-secure.headers.sslRedirect=true
+        - traefik.http.middlewares.backend-secure.headers.stsSeconds=31536000
+        - traefik.http.middlewares.backend-secure.headers.stsPreload=true
     healthcheck:
       <<: *common-healthcheck
       test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:4001"]
