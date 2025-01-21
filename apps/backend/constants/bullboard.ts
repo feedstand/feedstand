@@ -1,3 +1,3 @@
-import 'dotenv/config'
+// import 'dotenv/config'
 
 export const path = '/bullboard'
