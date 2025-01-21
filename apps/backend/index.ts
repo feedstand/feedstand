@@ -5,8 +5,6 @@ import { hono } from './instances/hono'
 
 await importFilesFromDirectory('./queues')
 
-console.log(process.env)
-
 serve({
     fetch: hono.fetch,
     hostname: serverConstants.host,
