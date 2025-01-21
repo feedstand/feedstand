@@ -23,7 +23,6 @@
         "@sentry/node": "^8.0.0",
         "bullmq": "^5.0.0",
         "date-fns": "^4.0.0",
-        "dotenv": "^16.0.0",
         "drizzle-orm": "^0.38.0",
         "drizzle-zod": "^0.6.0",
         "hono": "^4.0.0",
