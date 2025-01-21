@@ -21,7 +21,7 @@ services:
       context: ..
       dockerfile: apps/backend/.docker/Dockerfile.dev
     env_file:
-      - ../apps/frontend/.env
+      - ../apps/backend/.env
     ports:
       - 4001:4001
     volumes:
@@ -32,13 +32,15 @@ services:
       - queue
     restart: always
 
-  backend-queues:
+  backend-queue:
     image: feedstand/backend:dev
     build:
       context: ..
       dockerfile: apps/backend/.docker/Dockerfile.dev
     env_file:
-      - ../apps/frontend/.env
+      - ../apps/backend/.env
+    environment:
+      - QUEUE_ENABLED=true
     volumes:
       - ..:/home/node
       - /home/node/node_modules
