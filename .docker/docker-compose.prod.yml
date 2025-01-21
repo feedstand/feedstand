@@ -14,14 +14,47 @@ x-common-healthcheck: &common-healthcheck
   start_period: 30s
 
 services:
+  traefik:
+    image: traefik:3
+    command:
+      - --providers.docker=true
+      - --providers.docker.swarmMode=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.websecure.address=:443
+      - --certificatesresolvers.letsencrypt.acme.email=${TRAEFIK_ACME_EMAIL}
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+      - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - letsencrypt_data:/letsencrypt
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+
   frontend:
     image: ghcr.io/feedstand/frontend:${VERSION_TAG:-latest}
     environment:
       BACKEND_URL: ${FRONTEND_BACKEND_URL}
       SENTRY_DSN: ${FRONTEND_SENTRY_DSN}
       SENTRY_ENVIRONMENT: ${FRONTEND_SENTRY_ENVIRONMENT}
-    ports:
-      - 4000:4000
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.frontend.rule=Host(`app.feedstand.com`)
+      - traefik.http.routers.frontend.entrypoints=websecure
+      - traefik.http.routers.frontend.tls=true
+      - traefik.http.routers.frontend.tls.certresolver=letsencrypt
+      - traefik.http.routers.frontend.middlewares=frontend-secure@docker
+      - traefik.http.services.frontend.loadbalancer.server.port=4000
+      - traefik.http.middlewares.frontend-secure.headers.sslRedirect=true
+      - traefik.http.middlewares.frontend-secure.headers.stsSeconds=31536000
+      - traefik.http.middlewares.frontend-secure.headers.stsPreload=true
     deploy:
       <<: *common-deploy
     healthcheck:
@@ -42,10 +75,19 @@ services:
       QUEUE_PORT: ${BACKEND_QUEUE_PORT}
       SENTRY_DSN: ${BACKEND_SENTRY_DSN}
       SENTRY_ENVIRONMENT: ${BACKEND_SENTRY_ENVIRONMENT}
-    ports:
-      - 4001:4001
     deploy:
       <<: *common-deploy
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.backend.rule=Host(`api.feedstand.com`)
+      - traefik.http.routers.backend.entrypoints=websecure
+      - traefik.http.routers.backend.tls=true
+      - traefik.http.routers.backend.tls.certresolver=letsencrypt
+      - traefik.http.routers.backend.middlewares=backend-secure@docker
+      - traefik.http.services.backend.loadbalancer.server.port=4001
+      - traefik.http.middlewares.backend-secure.headers.sslRedirect=true
+      - traefik.http.middlewares.backend-secure.headers.stsSeconds=31536000
+      - traefik.http.middlewares.backend-secure.headers.stsPreload=true
     healthcheck:
       <<: *common-healthcheck
       test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:4001"]
@@ -81,3 +123,4 @@ services:
 volumes:
   database_data:
   queue_data:
+  letsencrypt_data:
