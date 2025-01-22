@@ -1,5 +1,6 @@
 import { withScope } from '@sentry/node'
 import { Processor, Queue, QueueOptions, Worker, WorkerOptions } from 'bullmq'
+import * as queueConstants from '../constants/queue'
 import { connection } from '../instances/queue'
 import { sentry } from '../instances/sentry'
 
@@ -9,6 +10,10 @@ export const createQueue = <Data, Result, Name extends string>(
     opts?: { queue?: Partial<QueueOptions>; worker?: Partial<WorkerOptions> },
 ) => {
     const queue: Queue<Data, Result, Name> = new Queue(name, { ...opts?.queue, connection })
+
+    if (!queueConstants.isWorker) {
+        return queue
+    }
 
     const processor: Processor<Data, Result, Name> = async (job) => {
         return await actions[job.name](job.data)

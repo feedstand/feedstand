@@ -40,7 +40,7 @@ services:
     env_file:
       - ../apps/backend/.env
     environment:
-      - QUEUE_ENABLED=true
+      - QUEUE_WORKER=true
     volumes:
       - ..:/home/node
       - /home/node/node_modules
