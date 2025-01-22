@@ -693,18 +693,6 @@ const customFormats: CustomFormats = [
             },
         ],
     },
-
-    // Other not-handled formats:
-    // - Feed: http://www.leisureopportunities.co.uk/rss/google_feed_SM.cfm
-    //   Example: Wed, 26 May 2021 HH:05:ss GMT
-    // - Feed: http://www.threewordphrase.com/rss.xml
-    //   Example: Wed, 23 2011 18:38:00 GMT
-    // - Feed: http://www.africapropertynews.com/feed
-    //   Example: D, d M Y H:i:s O
-    // - Feed: https://pankajtanwar.in/feed.xml
-    //   Example: Invalid Date
-    // - Feed: https://themunicheye.com/sitemap.rss
-    //   Example: Tue, 30 Nov -1 00:00:00
 ]
 
 export const dateCustomFormat = (value: unknown): Date | undefined => {
