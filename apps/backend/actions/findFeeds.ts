@@ -1,11 +1,14 @@
 import { HTTPException } from 'hono/http-exception'
 import { FeedInfo } from '../types/schemas'
+import { FeedFinder } from '../types/system'
 
-export const findFeeds = async (
+export type FindFeeds = (
     response: Response,
     url: string,
-    finders: Array<(response: Response, url: string) => Promise<Array<FeedInfo> | undefined>>,
-): Promise<Array<FeedInfo>> => {
+    finders: Array<FeedFinder>,
+) => Promise<Array<FeedInfo>>
+
+export const findFeeds: FindFeeds = async (response, url, finders) => {
     for (const finder of finders) {
         const feeds = await finder(response.clone(), url)
 
