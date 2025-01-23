@@ -1,6 +1,5 @@
-import { jsonFeedContentTypes } from '../../constants/parsers'
-import { isOneOfContentTypes } from '../../helpers/finders'
-import { parseJsonFeedChannel, parseJsonFeedItems } from '../../helpers/parsers'
+import { fetchExternalUrl } from '../../actions/fetchExternalUrl'
+import { parseFeed } from '../../actions/parseFeed'
 import { FeedParser } from '../../types/system'
 
 export const extractRedirectUrl = (text: string): string | undefined => {
@@ -19,21 +18,16 @@ export const soundCloudFeed: FeedParser = async (response, url) => {
     const text = await response.text()
     const redirectUrl = extractRedirectUrl(text)
 
-    console.log({ text, redirectUrl, response })
-
     if (!redirectUrl) {
         return
     }
 
-    if (!isOneOfContentTypes(response, jsonFeedContentTypes)) {
-        return
-    }
+    // TODO: Channels could be merged if channel with URL of the redirect already exists.
+    // This would mean that all references to current channel (the one with SoundCloud redirect)
+    // would need to be adjusted and assigned to the existing one.
 
-    // TODO: Validate if the JSON file is actually a JSON Feed.
-    const feed = await response.json()
+    const redirectResponse = await fetchExternalUrl(redirectUrl)
+    const redirectFeed = await parseFeed(redirectResponse, redirectUrl)
 
-    return {
-        channel: parseJsonFeedChannel(feed, url),
-        items: parseJsonFeedItems(feed),
-    }
+    return redirectFeed
 }
