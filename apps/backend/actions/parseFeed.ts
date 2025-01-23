@@ -1,38 +1,35 @@
 import { HTTPException } from 'hono/http-exception'
-import { jsonFeedContentTypes, xmlFeedContentTypes } from '../constants/parsers'
-import { isOneOfContentTypes } from '../helpers/finders'
-import {
-    parseJsonFeedChannel,
-    parseJsonFeedItems,
-    parseXmlFeedChannel,
-    parseXmlFeedItems,
-} from '../helpers/parsers'
-import { rssParser } from '../instances/rssParser'
+import { jsonFeed } from '../parsers/feeds/jsonFeed'
+import { notFoundFeed } from '../parsers/feeds/notFoundFeed'
+import { redirectFeed } from '../parsers/feeds/redirectFeed'
+import { soundCloudFeed } from '../parsers/feeds/soundCloudFeed'
+import { xmlFeed } from '../parsers/feeds/xmlFeed'
 import { FeedData } from '../types/schemas'
+import { FeedParser } from '../types/system'
+
+export type ParseFeed = (
+    response: Response,
+    url: string,
+    parsers?: Array<FeedParser>,
+) => Promise<FeedData>
+
+export const feedParsers: Array<FeedParser> = [
+    notFoundFeed,
+    redirectFeed,
+    soundCloudFeed,
+    jsonFeed,
+    xmlFeed,
+]
 
 // TODO: To optimize the function use cases, add options parameter that will give control whether
 // to return channel/items or not. This could be useful in fetchAndDiscoverFeeds action where we
 // only need the Channel details and do not care about Items.
-export const parseFeed = async (response: Response, url: string): Promise<FeedData> => {
-    // TODO: Add support for 404 http code.
+export const parseFeed: ParseFeed = async (response, url, parsers = feedParsers) => {
+    for (const parser of parsers) {
+        const feed = await parser(response.clone(), url)
 
-    if (isOneOfContentTypes(response, jsonFeedContentTypes)) {
-        // TODO: Validate if the JSON file is actually a JSON Feed.
-        const feed = await response.json()
-
-        return {
-            channel: parseJsonFeedChannel(feed, url),
-            items: parseJsonFeedItems(feed),
-        }
-    }
-
-    if (isOneOfContentTypes(response, xmlFeedContentTypes)) {
-        const xml = await response.text()
-        const feed = await rssParser.parseString(xml)
-
-        return {
-            channel: parseXmlFeedChannel(feed, url),
-            items: parseXmlFeedItems(feed),
+        if (feed !== undefined) {
+            return feed
         }
     }
 
