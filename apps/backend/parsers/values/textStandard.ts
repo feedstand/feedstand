@@ -1,4 +1,6 @@
-export const textStandard = (value: unknown): string | undefined => {
+import { ValueParser } from '../../types/system'
+
+export const textStandard: ValueParser<string> = (value) => {
     if (typeof value !== 'string') {
         return
     }

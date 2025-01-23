@@ -1,4 +1,6 @@
-export const dateAi = (value: unknown): Date | undefined => {
+import { ValueParser } from '../../types/system'
+
+export const dateAi: ValueParser<Date> = (value) => {
     if (typeof value !== 'string') {
         return
     }

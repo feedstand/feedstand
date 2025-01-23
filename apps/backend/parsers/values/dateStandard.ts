@@ -1,6 +1,7 @@
 import { DateArg, isValid, toDate } from 'date-fns'
+import { ValueParser } from '../../types/system'
 
-export const dateStandard = (value: DateArg<Date> | null | undefined): Date | undefined => {
+export const dateStandard: ValueParser<Date, DateArg<Date> | null | undefined> = (value) => {
     if (!value) {
         return
     }

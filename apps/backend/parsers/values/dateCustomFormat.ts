@@ -6,6 +6,7 @@ import { fr } from 'date-fns/locale/fr'
 import { ru } from 'date-fns/locale/ru'
 import { tr } from 'date-fns/locale/tr'
 import { zhTW } from 'date-fns/locale/zh-TW'
+import { ValueParser } from '../../types/system'
 
 type CustomFormatsReplace = {
     from: string | RegExp
@@ -29,11 +30,6 @@ const fixMidnight: CustomFormatsReplace = {
 const fixTzSpace: CustomFormatsReplace = {
     from: /[+-]\s[0-9]{4}$/,
     to: (match) => match.replace(' ', () => ''),
-}
-
-const stripFrontWeekday: CustomFormatsReplace = {
-    from: /[\p{L}]+,\s/u,
-    to: () => '',
 }
 
 const fixWords = (words: Record<string, string>): CustomFormatsReplace => ({
@@ -695,7 +691,7 @@ const customFormats: CustomFormats = [
     },
 ]
 
-export const dateCustomFormat = (value: unknown): Date | undefined => {
+export const dateCustomFormat: ValueParser<Date> = (value) => {
     if (typeof value !== 'string') {
         return
     }
