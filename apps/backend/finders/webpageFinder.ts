@@ -3,7 +3,7 @@ import { fetchExternalUrl } from '../actions/fetchExternalUrl'
 import { parseFeed } from '../actions/parseFeed'
 import { feedLinkSelectors } from '../constants/finders'
 import { htmlContentTypes } from '../constants/parsers'
-import { isOneOfContentTypes } from '../helpers/finders'
+import { isOneOfContentTypes } from '../helpers/responses'
 import { FeedInfo } from '../types/schemas'
 
 export const webpageFinder = async (response: Response, url: string) => {

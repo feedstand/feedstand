@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
 
+// TODO: Write tests for this function.
 export const importFilesFromDirectory = async (directory: string) => {
     try {
         const files = await fs.readdir(directory, { recursive: true })

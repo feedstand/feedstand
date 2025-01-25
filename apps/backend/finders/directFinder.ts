@@ -1,6 +1,6 @@
 import { parseFeed } from '../actions/parseFeed'
 import { anyFeedContentTypes } from '../constants/parsers'
-import { isOneOfContentTypes } from '../helpers/finders'
+import { isOneOfContentTypes } from '../helpers/responses'
 
 export const directFinder = async (response: Response, url: string) => {
     if (!isOneOfContentTypes(response, anyFeedContentTypes)) {

@@ -1,6 +1,6 @@
 import { xmlFeedContentTypes } from '../../constants/parsers'
-import { isOneOfContentTypes } from '../../helpers/finders'
 import { parseValue, trimStrings } from '../../helpers/parsers'
+import { isOneOfContentTypes } from '../../helpers/responses'
 import { rssParser } from '../../instances/rssParser'
 import { XmlFeed } from '../../types/feeds'
 import { FeedChannel, FeedItem } from '../../types/schemas'

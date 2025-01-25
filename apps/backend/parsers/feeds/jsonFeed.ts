@@ -1,6 +1,6 @@
 import { castArray, get } from 'lodash-es'
 import { jsonFeedContentTypes } from '../../constants/parsers'
-import { isOneOfContentTypes } from '../../helpers/finders'
+import { isOneOfContentTypes } from '../../helpers/responses'
 import { JsonFeed } from '../../types/feeds'
 import { FeedChannel, FeedItem } from '../../types/schemas'
 import { FeedParser } from '../../types/system'
