@@ -1,5 +1,6 @@
 import { castArray, get } from 'lodash-es'
 import { jsonFeedContentTypes } from '../../constants/parsers'
+import { trimStrings } from '../../helpers/parsers'
 import { isOneOfContentTypes } from '../../helpers/responses'
 import { JsonFeed } from '../../types/feeds'
 import { FeedChannel, FeedItem } from '../../types/schemas'
@@ -15,10 +16,19 @@ export const jsonFeedChannel = (feed: JsonFeed, url: string): FeedChannel => {
 }
 
 export const jsonFeedItems = (feed: JsonFeed): Array<FeedItem> => {
-    return castArray(feed.items)
-        .filter((item) => item.url)
-        .map((item) => {
-            return {
+    if (!feed.items?.length) {
+        return []
+    }
+
+    const items: Array<FeedItem> = []
+
+    for (const item of castArray(feed.items)) {
+        if (!item.url) {
+            continue
+        }
+
+        items.push(
+            trimStrings({
                 title: item.title,
                 link: item.url,
                 description: item.summary,
@@ -26,8 +36,11 @@ export const jsonFeedItems = (feed: JsonFeed): Array<FeedItem> => {
                 guid: item.id || item.url,
                 content: item.content_html || item.content_text,
                 publishedAt: item.date_published,
-            }
-        })
+            }),
+        )
+    }
+
+    return items
 }
 
 export const jsonFeed: FeedParser = async (response, url) => {

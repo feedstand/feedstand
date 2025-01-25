@@ -22,14 +22,23 @@ export const xmlFeedChannel = (feed: XmlFeed, url: string): FeedChannel => {
 }
 
 export const xmlFeedItems = (feed: XmlFeed): Array<FeedItem> => {
-    return feed.items
-        .filter((item) => item.link)
-        .map((item) => {
-            const link = parseValue(item.link, [textStandard], '')
+    if (!feed.items?.length) {
+        return []
+    }
 
-            return trimStrings({
-                link,
-                guid: parseValue(item.guid, [textStandard], link),
+    const items: Array<FeedItem> = []
+
+    for (const item of feed.items) {
+        if (!item.link) {
+            continue
+        }
+
+        const parsedLink = parseValue(item.link, [textStandard], '')
+
+        items.push(
+            trimStrings({
+                link: parsedLink,
+                guid: parseValue(item.guid, [textStandard], parsedLink),
                 title: parseValue(item.title, [textStandard]),
                 description: parseValue(item.summary, [textStandard]),
                 author: parseValue(item.creator, [textStandard, authorFromAtom]),
@@ -39,8 +48,11 @@ export const xmlFeedItems = (feed: XmlFeed): Array<FeedItem> => {
                     [dateStandard, dateCustomFormat, dateAi],
                     new Date(),
                 ),
-            })
-        })
+            }),
+        )
+    }
+
+    return items
 }
 
 export const xmlFeed: FeedParser = async (response, url) => {
