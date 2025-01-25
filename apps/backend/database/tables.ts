@@ -22,9 +22,7 @@ export const users = pgTable(
         createdAt: timestamp('created_at').notNull().defaultNow(),
         updatedAt: timestamp('updated_at').notNull().defaultNow(),
     },
-    (table) => ({
-        emailIdx: uniqueIndex('users_email_idx').on(table.email),
-    }),
+    (table) => [uniqueIndex('users_email_idx').on(table.email)],
 )
 
 export const channels = pgTable(
@@ -40,9 +38,7 @@ export const channels = pgTable(
         updatedAt: timestamp('updated_at').notNull().defaultNow(),
         lastScannedAt: timestamp('last_scanned_at'),
     },
-    (table) => ({
-        urlIdx: uniqueIndex('channels_url_idx').on(table.url),
-    }),
+    (table) => [uniqueIndex('channels_url_idx').on(table.url)],
 )
 
 export const items = pgTable(
@@ -64,15 +60,15 @@ export const items = pgTable(
         createdAt: timestamp('created_at').notNull().defaultNow(),
         updatedAt: timestamp('updated_at').notNull().defaultNow(),
     },
-    (table) => ({
-        guidIdx: index('items_guid_idx').on(table.guid),
-        channelIdFk: foreignKey({
+    (table) => [
+        index('items_guid_idx').on(table.guid),
+        foreignKey({
             columns: [table.channelId],
             foreignColumns: [channels.id],
         }).onDelete('cascade'),
-        channelIdGuidIdx: uniqueIndex('items_channel_id_guid').on(table.channelId, table.guid),
-        publishedAtIdx: index('items_published_at_idx').on(table.publishedAt),
-    }),
+        uniqueIndex('items_channel_id_guid').on(table.channelId, table.guid),
+        index('items_published_at_idx').on(table.publishedAt),
+    ],
 )
 
 export const sources = pgTable(
@@ -90,17 +86,17 @@ export const sources = pgTable(
         createdAt: timestamp('created_at').notNull().defaultNow(),
         updatedAt: timestamp('updated_at').notNull().defaultNow(),
     },
-    (table) => ({
-        userChannelIdx: uniqueIndex('sources_user_channel_idx').on(table.userId, table.channelId),
-        userIdFk: foreignKey({
+    (table) => [
+        uniqueIndex('sources_user_channel_idx').on(table.userId, table.channelId),
+        foreignKey({
             columns: [table.userId],
             foreignColumns: [users.id],
         }).onDelete('cascade'),
-        channelIdFk: foreignKey({
+        foreignKey({
             columns: [table.channelId],
             foreignColumns: [channels.id],
         }).onDelete('cascade'),
-    }),
+    ],
 )
 
 export const unreads = pgTable(
@@ -114,17 +110,17 @@ export const unreads = pgTable(
             .notNull()
             .references(() => items.id, { onDelete: 'cascade' }),
     },
-    (table) => ({
-        userItemIdx: uniqueIndex('unreads_user_item_idx').on(table.userId, table.itemId),
-        userIdFk: foreignKey({
+    (table) => [
+        uniqueIndex('unreads_user_item_idx').on(table.userId, table.itemId),
+        foreignKey({
             columns: [table.userId],
             foreignColumns: [users.id],
         }).onDelete('cascade'),
-        itemIdFk: foreignKey({
+        foreignKey({
             columns: [table.itemId],
             foreignColumns: [items.id],
         }).onDelete('cascade'),
-    }),
+    ],
 )
 
 export const tables = {
