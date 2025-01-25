@@ -10,6 +10,7 @@ import {
     uniqueIndex,
     varchar,
 } from 'drizzle-orm/pg-core'
+import { sanitizedText } from './types/sanitizedText'
 
 export const users = pgTable(
     'users',
@@ -33,7 +34,10 @@ export const channels = pgTable(
         title: varchar('title'),
         link: text('link'),
         description: varchar('description'),
-        error: text('error'),
+        // Extend the error capturing to store last captured error, response status and number of
+        // erroreous scans since last successful scan. This way, we can later downgrade or try to
+        // cure the channel which does not work for some period of time.
+        error: sanitizedText('error'),
         createdAt: timestamp('created_at').notNull().defaultNow(),
         updatedAt: timestamp('updated_at').notNull().defaultNow(),
         lastScannedAt: timestamp('last_scanned_at'),

@@ -1,4 +1,3 @@
-import { HTTPException } from 'hono/http-exception'
 import { jsonFeed } from '../parsers/feeds/jsonFeed'
 import { notFoundFeed } from '../parsers/feeds/notFoundFeed'
 import { redirectFeed } from '../parsers/feeds/redirectFeed'
@@ -33,5 +32,5 @@ export const parseFeed: ParseFeed = async (response, url, parsers = feedParsers)
         }
     }
 
-    throw new HTTPException(422)
+    throw new Error('No matching parser', { cause: response })
 }

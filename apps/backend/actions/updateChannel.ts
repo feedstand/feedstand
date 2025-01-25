@@ -11,6 +11,7 @@ export const updateChannel = async (channel: Channel, updates: FeedChannel) => {
             title: updates.title ?? channel.title,
             description: updates.description ?? channel.description,
             link: updates.link ?? channel.link,
+            error: null,
             lastScannedAt: new Date(),
         })
         .where(eq(tables.channels.id, channel.id))
