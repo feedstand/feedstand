@@ -1,5 +1,5 @@
 import { JSDOM } from 'jsdom'
-import { fetchExternalUrl } from '../actions/fetchExternalUrl'
+import { fetchFeed } from '../actions/fetchFeed'
 import { parseFeed } from '../actions/parseFeed'
 import { feedLinkSelectors } from '../constants/finders'
 import { htmlContentTypes } from '../constants/parsers'
@@ -33,7 +33,7 @@ export const webpageFinder = async (response: Response, url: string) => {
         //     continue
         // }
 
-        const response = await fetchExternalUrl(feedUrl)
+        const response = await fetchFeed(feedUrl)
         const { channel } = await parseFeed(response, feedUrl)
         feedInfos.push({ url: feedUrl, title: channel.title })
     }

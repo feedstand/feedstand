@@ -1,7 +1,8 @@
-import axios from 'axios'
+import axios, { AxiosRequestConfig } from 'axios'
 import axiosRetry from 'axios-retry'
+import { FeedFetcher } from '../types/system'
 
-export const instance = axios.create({
+const instance = axios.create({
     // TODO: Enable caching of requests based on headers in the response.
     timeout: 30 * 1000,
     // Enables lenient HTTP parsing for non-standard server responses where Content-Length or
@@ -26,3 +27,21 @@ axiosRetry(instance, {
         return false
     },
 })
+
+export const axiosFetch: FeedFetcher = async (url, { init }) => {
+    // TODO: Improve the conversion of RequestInit to AxiosRequestConfig.
+    const config: AxiosRequestConfig = {
+        method: init?.method?.toLowerCase(),
+        headers: init?.headers as Record<string, string>,
+        data: init?.body,
+        signal: init?.signal as AbortSignal,
+        withCredentials: init?.credentials === 'include',
+    }
+    const response = await axios(url, config)
+
+    return new Response(response.data, {
+        status: response.status,
+        statusText: response.statusText,
+        headers: new Headers(response.headers as Record<string, string>),
+    })
+}

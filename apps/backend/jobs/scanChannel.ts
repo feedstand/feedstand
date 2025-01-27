@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm'
 import { createOrUpdateItems } from '../actions/createOrUpdateItems'
-import { fetchExternalUrl } from '../actions/fetchExternalUrl'
+import { fetchFeed } from '../actions/fetchFeed'
 import { parseFeed } from '../actions/parseFeed'
 import { updateChannel } from '../actions/updateChannel'
 import { tables } from '../database/tables'
@@ -10,7 +10,7 @@ import { Channel } from '../types/schemas'
 
 export const scanChannel = async (channel: Channel) => {
     try {
-        const response = await fetchExternalUrl(channel.url)
+        const response = await fetchFeed(channel.url)
         const feed = await parseFeed(response, channel.url)
 
         createOrUpdateItems(channel, feed.items)

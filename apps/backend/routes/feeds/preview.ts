@@ -1,5 +1,5 @@
 import { createRoute, z } from '@hono/zod-openapi'
-import { fetchExternalUrl } from '../../actions/fetchExternalUrl'
+import { fetchFeed } from '../../actions/fetchFeed'
 import { parseFeed } from '../../actions/parseFeed'
 import { createHandler } from '../../helpers/hono'
 import { feedData } from '../../schemas/feedData'
@@ -28,7 +28,7 @@ export const handler = createHandler(route, async (context) => {
     // TODO: Only preview 20? latest posts. Example of very long feed: https://olagist.net/feed/.
 
     const { url } = context.req.valid('json')
-    const response = await fetchExternalUrl(url)
+    const response = await fetchFeed(url)
     const feedData = await parseFeed(response, url)
 
     return context.json(feedData, 200)

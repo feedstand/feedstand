@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm'
-import { fetchExternalUrl } from '../actions/fetchExternalUrl'
+import { fetchFeed } from '../actions/fetchFeed'
 import { parseFeed } from '../actions/parseFeed'
 import { tables } from '../database/tables'
 import { db } from '../instances/database'
@@ -17,7 +17,7 @@ export const fetchOrCreateChannel = async (url: string): Promise<Channel> => {
         return existingChannel
     }
 
-    const response = await fetchExternalUrl(url)
+    const response = await fetchFeed(url)
     const feed = await parseFeed(response, url)
     const [newChannel] = await db.insert(tables.channels).values(feed.channel).returning()
 

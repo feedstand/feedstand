@@ -1,4 +1,4 @@
-import { fetchExternalUrl } from '../actions/fetchExternalUrl'
+import { fetchFeed } from '../actions/fetchFeed'
 import { parseFeed } from '../actions/parseFeed'
 import { htmlContentTypes } from '../constants/parsers'
 import { extractValueByRegex, isOneOfContentTypes } from '../helpers/responses'
@@ -19,7 +19,7 @@ export const youTubeFinder = async (response: Response, url: string) => {
     }
 
     const feedUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`
-    const feedResponse = await fetchExternalUrl(feedUrl)
+    const feedResponse = await fetchFeed(feedUrl)
     const { channel } = await parseFeed(feedResponse, feedUrl)
 
     return [{ url: feedUrl, title: channel.title }]
