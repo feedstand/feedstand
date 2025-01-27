@@ -1,9 +1,6 @@
 import { createRoute, z } from '@hono/zod-openapi'
 import { fetchFeed } from '../../actions/fetchFeed'
 import { findFeeds } from '../../actions/findFeeds'
-import { directFinder } from '../../finders/directFinder'
-import { webpageFinder } from '../../finders/webpageFinder'
-import { youTubeFinder } from '../../finders/youTubeFinder'
 import { createHandler } from '../../helpers/hono'
 import { feedInfo } from '../../schemas/feedInfo'
 
@@ -27,7 +24,7 @@ export const route = createRoute({
 export const handler = createHandler(route, async (context) => {
     const { url } = context.req.valid('json')
     const response = await fetchFeed(url)
-    const feeds = await findFeeds(response, url, [youTubeFinder, directFinder, webpageFinder])
+    const feeds = await findFeeds(response)
 
     return context.json(feeds, 200)
 })

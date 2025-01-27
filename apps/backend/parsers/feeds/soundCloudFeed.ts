@@ -10,8 +10,8 @@ export const extractRedirectUrl = (text: string): string | undefined => {
     return match?.[1]
 }
 
-export const soundCloudFeed: FeedParser = async (response, url) => {
-    if (url.indexOf('soundcloud.com') === -1) {
+export const soundCloudFeed: FeedParser = async (response, options) => {
+    if (response.url.indexOf('soundcloud.com') === -1) {
         return
     }
 
@@ -26,8 +26,8 @@ export const soundCloudFeed: FeedParser = async (response, url) => {
     // This would mean that all references to current channel (the one with SoundCloud redirect)
     // would need to be adjusted and assigned to the existing one.
 
-    const redirectResponse = await fetchFeed(redirectUrl)
-    const redirectFeed = await parseFeed(redirectResponse, redirectUrl)
+    const redirectResponse = await fetchFeed(redirectUrl, options)
+    const redirectFeed = await parseFeed(redirectResponse, options)
 
     return redirectFeed
 }

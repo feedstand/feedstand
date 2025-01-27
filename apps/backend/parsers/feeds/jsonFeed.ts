@@ -43,7 +43,7 @@ export const jsonFeedItems = (feed: JsonFeed): Array<FeedItem> => {
     return items
 }
 
-export const jsonFeed: FeedParser = async (response, url) => {
+export const jsonFeed: FeedParser = async (response, options) => {
     if (!isOneOfContentTypes(response, jsonFeedContentTypes)) {
         return
     }
@@ -52,7 +52,7 @@ export const jsonFeed: FeedParser = async (response, url) => {
     const feed = await response.json()
 
     return {
-        channel: jsonFeedChannel(feed, url),
+        channel: jsonFeedChannel(feed, response.url),
         items: jsonFeedItems(feed),
     }
 }

@@ -3,13 +3,15 @@ import { notFoundFeed } from '../parsers/feeds/notFoundFeed'
 import { redirectFeed } from '../parsers/feeds/redirectFeed'
 import { soundCloudFeed } from '../parsers/feeds/soundCloudFeed'
 import { xmlFeed } from '../parsers/feeds/xmlFeed'
-import { FeedData } from '../types/schemas'
+import { Channel, FeedData } from '../types/schemas'
 import { FeedParser } from '../types/system'
 
 export type ParseFeed = (
     response: Response,
-    url: string,
-    parsers?: Array<FeedParser>,
+    options?: {
+        channel?: Channel
+        parsers?: Array<FeedParser>
+    },
 ) => Promise<FeedData>
 
 export const feedParsers: Array<FeedParser> = [
@@ -23,9 +25,13 @@ export const feedParsers: Array<FeedParser> = [
 // TODO: To optimize the function use cases, add options parameter that will give control whether
 // to return channel/items or not. This could be useful in fetchAndDiscoverFeeds action where we
 // only need the Channel details and do not care about Items.
-export const parseFeed: ParseFeed = async (response, url, parsers = feedParsers) => {
+export const parseFeed: ParseFeed = async (response, options) => {
+    const parsers = options?.parsers || feedParsers
+
     for (const parser of parsers) {
-        const feed = await parser(response.clone(), url)
+        const feed = await parser(response.clone(), {
+            channel: options?.channel,
+        })
 
         if (feed !== undefined) {
             return feed

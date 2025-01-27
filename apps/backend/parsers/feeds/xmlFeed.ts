@@ -55,7 +55,7 @@ export const xmlFeedItems = (feed: XmlFeed): Array<FeedItem> => {
     return items
 }
 
-export const xmlFeed: FeedParser = async (response, url) => {
+export const xmlFeed: FeedParser = async (response) => {
     if (!isOneOfContentTypes(response, xmlFeedContentTypes)) {
         return
     }
@@ -64,7 +64,7 @@ export const xmlFeed: FeedParser = async (response, url) => {
     const feed = await rssParser.parseString(xml)
 
     return {
-        channel: xmlFeedChannel(feed, url),
+        channel: xmlFeedChannel(feed, response.url),
         items: xmlFeedItems(feed),
     }
 }

@@ -10,8 +10,8 @@ import { Channel } from '../types/schemas'
 
 export const scanChannel = async (channel: Channel) => {
     try {
-        const response = await fetchFeed(channel.url)
-        const feed = await parseFeed(response, channel.url)
+        const response = await fetchFeed(channel.url, { channel })
+        const feed = await parseFeed(response, { channel })
 
         createOrUpdateItems(channel, feed.items)
         updateChannel(channel, feed.channel)

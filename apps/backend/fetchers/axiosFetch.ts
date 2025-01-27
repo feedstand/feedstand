@@ -29,14 +29,14 @@ axiosRetry(instance, {
     },
 })
 
-export const axiosFetch: FeedFetcher = async (url, { init }) => {
+export const axiosFetch: FeedFetcher = async (url, options) => {
     // TODO: Improve the conversion of RequestInit to AxiosRequestConfig.
     const config: AxiosRequestConfig = {
-        method: init?.method?.toLowerCase(),
-        headers: init?.headers as Record<string, string>,
-        data: init?.body,
-        signal: init?.signal as AbortSignal,
-        withCredentials: init?.credentials === 'include',
+        method: options?.init?.method?.toLowerCase(),
+        headers: options?.init?.headers as Record<string, string>,
+        data: options?.init?.body,
+        signal: options?.init?.signal as AbortSignal,
+        withCredentials: options?.init?.credentials === 'include',
     }
     const response = await axios(url, config)
 

@@ -5,20 +5,21 @@ import { feedLinkSelectors } from '../constants/finders'
 import { htmlContentTypes } from '../constants/parsers'
 import { isOneOfContentTypes } from '../helpers/responses'
 import { FeedInfo } from '../types/schemas'
+import { FeedFinder } from '../types/system'
 
-export const webpageFinder = async (response: Response, url: string) => {
+export const webpageFinder: FeedFinder = async (response, options) => {
     if (!isOneOfContentTypes(response, htmlContentTypes)) {
         return
     }
 
     const html = await response.text()
-    const jsdom = new JSDOM(html, { url })
+    const jsdom = new JSDOM(html, { url: response.url })
     const feedLinks = jsdom.window.document.querySelectorAll(feedLinkSelectors.join())
     const feedInfos: Array<FeedInfo> = []
 
     for (const feedLink of feedLinks) {
         const linkHref = feedLink.getAttribute('href')
-        const feedUrl = linkHref ? new URL(linkHref, url).href : undefined
+        const feedUrl = linkHref ? new URL(linkHref, response.url).href : undefined
 
         if (!feedUrl) {
             continue
@@ -33,9 +34,9 @@ export const webpageFinder = async (response: Response, url: string) => {
         //     continue
         // }
 
-        const response = await fetchFeed(feedUrl)
-        const { channel } = await parseFeed(response, feedUrl)
-        feedInfos.push({ url: feedUrl, title: channel.title })
+        const feedResponse = await fetchFeed(feedUrl, options)
+        const { channel } = await parseFeed(feedResponse, options)
+        feedInfos.push({ url: channel.url, title: channel.title })
     }
 
     return feedInfos
