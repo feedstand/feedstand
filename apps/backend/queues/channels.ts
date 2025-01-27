@@ -15,8 +15,8 @@ const repeatableJobOptions: JobsOptions = {
 }
 
 const addRepeatableJobs = () => {
-    channelsQueue.add('deleteOrphanChannels', undefined, repeatableJobOptions)
-    channelsQueue.add('scanChannels', undefined, repeatableJobOptions)
+    // channelsQueue.add('deleteOrphanChannels', undefined, repeatableJobOptions)
+    // channelsQueue.add('scanChannels', undefined, repeatableJobOptions)
 }
 
 setInterval(addRepeatableJobs, 5 * 60 * 1000)
