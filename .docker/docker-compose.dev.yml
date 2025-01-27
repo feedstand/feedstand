@@ -49,7 +49,7 @@ services:
       - queue
     restart: always
     deploy:
-      replicas: 5
+      replicas: 10
 
   database:
     image: postgres:17-alpine
