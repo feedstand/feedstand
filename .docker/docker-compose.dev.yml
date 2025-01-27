@@ -32,7 +32,7 @@ services:
       - queue
     restart: always
 
-  backend-queue:
+  backend-worker:
     image: feedstand/backend:dev
     build:
       context: ..
