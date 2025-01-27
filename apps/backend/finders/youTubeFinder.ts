@@ -4,9 +4,13 @@ import { htmlContentTypes } from '../constants/parsers'
 import { extractValueByRegex, isOneOfContentTypes } from '../helpers/responses'
 import { FeedFinder } from '../types/system'
 
+export const youTubeDomains = ['youtu.be', 'youtube.com']
+
 export const youTubeFinder: FeedFinder = async (response, options) => {
-    // TODO: What about youtu.be domain? I should be supported as well.
-    if (!response.url.includes('youtube.com') || !isOneOfContentTypes(response, htmlContentTypes)) {
+    if (
+        !youTubeDomains.some((domain) => response.url.includes(domain)) ||
+        !isOneOfContentTypes(response, htmlContentTypes)
+    ) {
         return
     }
 
