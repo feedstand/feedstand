@@ -1,8 +1,9 @@
+import { maxTimeout } from '../constants/fetchers'
 import { FeedFetcher } from '../types/system'
 
 export const nativeFetch: FeedFetcher = async (url, { init }) => {
     if (init) {
-        init.signal ||= AbortSignal.timeout(30 * 1000)
+        init.signal ||= AbortSignal.timeout(maxTimeout)
     }
 
     // TODO: Enable caching of requests based on headers in the response.

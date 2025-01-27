@@ -1,10 +1,11 @@
 import axios, { AxiosRequestConfig } from 'axios'
 import axiosRetry from 'axios-retry'
+import { maxTimeout } from '../constants/fetchers'
 import { FeedFetcher } from '../types/system'
 
 const instance = axios.create({
     // TODO: Enable caching of requests based on headers in the response.
-    timeout: 30 * 1000,
+    timeout: maxTimeout,
     // Enables lenient HTTP parsing for non-standard server responses where Content-Length or
     // Transfer-Encoding headers might be malformed (common with legacy RSS feeds and
     // misconfigured servers).
