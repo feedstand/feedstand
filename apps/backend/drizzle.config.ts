@@ -4,6 +4,10 @@ import * as databaseConstants from './constants/database'
 export default defineConfig({
     dialect: 'postgresql',
     schema: 'database/tables.ts',
+    migrations: {
+        table: 'migrations',
+    },
+    out: 'database/migrations',
     dbCredentials: {
         host: databaseConstants.host,
         port: databaseConstants.port,
@@ -11,4 +15,5 @@ export default defineConfig({
         user: databaseConstants.user,
         password: databaseConstants.password,
     },
+    verbose: true,
 })
