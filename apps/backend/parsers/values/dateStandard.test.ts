@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { datesInCustomFormat } from './dateCustomFormat.mock.json'
 import { dateStandard } from './dateStandard'
+import { datesInStandardFormat, datesInvalid } from './dateStandard.mock.json'
 
 describe('parsers/dateStandard', () => {
     it('should parse valid date string', () => {
@@ -53,9 +54,25 @@ describe('parsers/dateStandard', () => {
         expect(result).toBeUndefined()
     })
 
-    for (const dateInCustomFormat of Object.keys(datesInCustomFormat)) {
-        it(`should return undefined for ${dateInCustomFormat}`, () => {
-            const result = dateStandard(dateInCustomFormat)
+    for (const [input, output] of Object.entries(datesInStandardFormat)) {
+        it(`should parse standard date format ${input}`, () => {
+            const result = dateStandard(input)
+
+            expect(result?.toISOString()).equal(output)
+        })
+    }
+
+    for (const input of Object.keys(datesInvalid)) {
+        it(`should return undefined for invalid date ${input}`, () => {
+            const result = dateStandard(input)
+
+            expect(result).toBeUndefined()
+        })
+    }
+
+    for (const input of Object.keys(datesInCustomFormat)) {
+        it(`should return undefined for date in custom format ${input}`, () => {
+            const result = dateStandard(input)
 
             expect(result).toBeUndefined()
         })

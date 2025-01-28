@@ -8,5 +8,8 @@ export const dateStandard: ValueParser<Date, DateArg<Date> | null | undefined> =
 
     const date = toDate(value)
 
-    return isValid(date) ? date : undefined
+    const isDateValid = isValid(date)
+    const isYearValid = date.getFullYear() <= 9999
+
+    return isDateValid && isYearValid ? date : undefined
 }

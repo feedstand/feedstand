@@ -7,6 +7,7 @@ import { ru } from 'date-fns/locale/ru'
 import { tr } from 'date-fns/locale/tr'
 import { zhTW } from 'date-fns/locale/zh-TW'
 import { ValueParser } from '../../types/system'
+import { dateStandard } from './dateStandard'
 
 type CustomFormatsReplace = {
     from: string | RegExp
@@ -16,6 +17,7 @@ type CustomFormatsReplace = {
 type CustomFormats = Array<{
     format: string
     locale?: Locale
+    matchRegex?: RegExp
     tzRegex?: RegExp
     replace?: Array<CustomFormatsReplace>
 }>
@@ -288,16 +290,6 @@ const customFormats: CustomFormats = [
     { format: 'MMM d, yyyy h:mmaaa' },
 
     // - Feed: ?
-    //   Example: 20250115155121
-    //   Example: 20250115154125
-    { format: 'yyyyMMddHHmmss' },
-
-    // - Feed: ?
-    //   Example: 20250115
-    //   Example: 20250114
-    { format: 'yyyyMMdd' },
-
-    // - Feed: ?
     //    Example: Thu, 20 Jun 2024 20 +0000
     //    Example: Thu, 29 Feb 2024 23 +0000
     //    Example: Mon, 04 Dec 2023 15 +0000
@@ -364,6 +356,39 @@ const customFormats: CustomFormats = [
     // - Feed: ?
     //   Example: Mon, 25 Mar 2024  +0100
     { format: 'EEE, d MMM yyyy xx' },
+
+    // - Feed: ?
+    //   Example: 20250115155121
+    //   Example: 20250115154125
+    {
+        format: 'yyyyMMddHHmmss',
+        matchRegex: /\d{14}/,
+    },
+
+    // - Feed: ?
+    //   Example: 20250115
+    //   Example: 20250114
+    {
+        format: 'yyyyMMdd',
+        matchRegex: /\d{8}/,
+    },
+
+    // - Feed: ?
+    //   Example: 3710929503600
+    //   Example: 1500036879600
+    {
+        format: 'T',
+        matchRegex: /\d{13}/,
+    },
+
+    // - Feed: ?
+    //   Example: 1391618796
+    //   Example: 1391618277
+    //   Example: 1385216929
+    {
+        format: 't',
+        matchRegex: /\d{10}/,
+    },
 
     // - Feed: ?
     //   Example: Sun 25 Jun 2017 16:50:44 AM CDT
@@ -696,9 +721,13 @@ export const dateCustomFormat: ValueParser<Date> = (value) => {
         return
     }
 
-    for (const { format, locale, tzRegex, replace: replaces = [] } of customFormats) {
+    for (const { format, locale, tzRegex, matchRegex, replace: replaces = [] } of customFormats) {
         let extractedTimezone: string | undefined = '+0000'
         let customizedValue = value
+
+        if (matchRegex && !value.match(matchRegex)) {
+            continue
+        }
 
         for (const { from, to } of [...globalReplaces, ...replaces]) {
             customizedValue =
@@ -712,15 +741,16 @@ export const dateCustomFormat: ValueParser<Date> = (value) => {
             customizedValue = customizedValue.replace(tzRegex, '')
         }
 
-        let parsedDate = parse(
+        const parsedDate = parse(
             customizedValue.trim(),
             format,
             new TZDate(new Date(), extractedTimezone),
             { locale: locale || enUS },
         )
+        const validatedDate = dateStandard(parsedDate)
 
-        if (isValid(parsedDate)) {
-            return new Date(parsedDate.toISOString())
+        if (validatedDate && isValid(validatedDate)) {
+            return new Date(validatedDate?.toISOString())
         }
     }
 }
