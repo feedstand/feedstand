@@ -6,6 +6,7 @@ export default defineConfig({
     schema: 'database/tables.ts',
     migrations: {
         table: 'migrations',
+        schema: 'public',
     },
     out: 'database/migrations',
     dbCredentials: {
