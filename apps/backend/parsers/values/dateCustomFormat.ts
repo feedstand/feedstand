@@ -167,6 +167,53 @@ const fixSwedishWeekday: CustomFormatsReplace = fixWords({
     lör: 'Sat',
     sön: 'Sun',
 })
+
+const fixSpanishMonth: CustomFormatsReplace = fixWords({
+    enero: '01',
+    febrero: '02',
+    marzo: '03',
+    abril: '04',
+    mayo: '05',
+    junio: '06',
+    julio: '07',
+    agosto: '08',
+    septiembre: '09',
+    octubre: '10',
+    noviembre: '11',
+    diciembre: '12',
+    ene: '01',
+    feb: '02',
+    mar: '03',
+    abr: '04',
+    may: '05',
+    jun: '06',
+    jul: '07',
+    ago: '08',
+    sept: '09',
+    sep: '09',
+    oct: '10',
+    nov: '11',
+    dic: '12',
+})
+
+const fixSpanishWeekday: CustomFormatsReplace = fixWords({
+    lunes: 'Monday',
+    martes: 'Tuesday',
+    miércoles: 'Wednesday',
+    jueves: 'Thursday',
+    viernes: 'Friday',
+    sábado: 'Saturday',
+    domingo: 'Sunday',
+    lun: 'Mon',
+    mar: 'Tue',
+    mié: 'Wed',
+    mier: 'Wed',
+    jue: 'Thu',
+    vie: 'Fri',
+    sáb: 'Sat',
+    dom: 'Sun',
+})
+
 const fixGermanMonth: CustomFormatsReplace = fixWords({
     januar: '01',
     februar: '02',
@@ -191,6 +238,33 @@ const fixGermanMonth: CustomFormatsReplace = fixWords({
     aug: '08',
     sep: '09',
     okt: '10',
+    nov: '11',
+    dez: '12',
+})
+
+const fixPortugeseMonth: CustomFormatsReplace = fixWords({
+    janeiro: '01',
+    fevereiro: '02',
+    março: '03',
+    abril: '04',
+    maio: '05',
+    junho: '06',
+    julho: '07',
+    agosto: '08',
+    setembro: '09',
+    outubro: '10',
+    novembro: '11',
+    dezembro: '12',
+    jan: '01',
+    fev: '02',
+    mar: '03',
+    abr: '04',
+    mai: '05',
+    jun: '06',
+    jul: '07',
+    ago: '08',
+    set: '09',
+    out: '10',
     nov: '11',
     dez: '12',
 })
@@ -237,6 +311,33 @@ const fixDutchWeekday: CustomFormatsReplace = fixWords({
     vr: 'Fri',
     za: 'Sat',
     zo: 'Sun',
+})
+
+const fixRomanianMonth: CustomFormatsReplace = fixWords({
+    ianuarie: '01',
+    februarie: '02',
+    martie: '03',
+    aprilie: '04',
+    mai: '05',
+    iunie: '06',
+    iulie: '07',
+    august: '08',
+    septembrie: '09',
+    octombrie: '10',
+    noiembrie: '11',
+    decembrie: '12',
+    ian: '01',
+    feb: '02',
+    mar: '03',
+    apr: '04',
+    // 'mai': '05',
+    iun: '06',
+    iul: '07',
+    aug: '08',
+    sep: '09',
+    oct: '10',
+    noi: '11',
+    dec: '12',
 })
 
 const fixFrenchMonth: CustomFormatsReplace = fixWords({
@@ -291,26 +392,14 @@ const fixFrenchWeekday: CustomFormatsReplace = fixWords({
 })
 
 const globalReplaces: Array<CustomFormatsReplace> = [
+    // Removes leading/trailing whitespace in one go.
+    { from: /^\s+|\s+$/g, to: () => '' },
+    // Collapses all whitespace (spaces, tabs, newlines) to single space.
+    { from: /\s+/g, to: () => ' ' },
+    { from: '.,', to: () => ',' },
+    { from: '. ', to: () => ' ' },
+    // Convert full-width characters to regular ASCII.
     {
-        // Removes leading/trailing whitespace in one go.
-        from: /^\s+|\s+$/g,
-        to: () => '',
-    },
-    {
-        // Collapses all whitespace (spaces, tabs, newlines) to single space.
-        from: /\s+/g,
-        to: () => ' ',
-    },
-    {
-        from: '.,',
-        to: () => ',',
-    },
-    {
-        from: '. ',
-        to: () => ' ',
-    },
-    {
-        // Convert full-width characters to regular ASCII.
         from: /[Ａ-Ｚａ-ｚ０-９]/g,
         to: (match) => String.fromCharCode(match.charCodeAt(0) - 0xfee0),
     },
@@ -460,6 +549,11 @@ const customFormats: CustomFormats = [
     // Example: 31.05.2018
     { format: 'dd.MM.yyyy' },
 
+    // Example: 2020-29-01T21:42:18+00:00
+    // Example: 2020-19-01T19:42:22+00:00
+    // Example: 2020-14-01T09:34:44+00:00
+    { format: "yyyy-dd-MM'T'HH:mm:ssxxx" },
+
     // Example: 2025-01-27T00:11:27 1737936687
     // Example: 2025-01-27T08:22:41 1737966161
     // Example: 2025-01-26T23:13:01 1737933181
@@ -495,6 +589,18 @@ const customFormats: CustomFormats = [
     {
         format: 't',
         matchRegex: /\d{10}/,
+    },
+
+    // Example: Wed, 30 October 2024 11:00:10 - 0500
+    // Example: Wed, 25 September 2024 12:00:10 - 0500
+    {
+        format: 'EEE, dd MMMM yyyy HH:mm:ss xx',
+        replace: [
+            {
+                from: /\s+-\s(\d{4})$/,
+                to: (_, offset) => ` -${offset}`,
+            },
+        ],
     },
 
     // Example: Sun 25 Jun 2017 16:50:44 AM CDT
@@ -556,6 +662,42 @@ const customFormats: CustomFormats = [
     {
         format: 'EEE, dd MM yyyy HH:mm:ss xx',
         replace: [fixDutchWeekday, fixDutchMonth],
+    },
+
+    // Example: 12 Fev 2014 18:36:54 GMT
+    // Example: 15 Out 2012 18:36:54 GMT
+    {
+        format: 'd MM yyyy HH:mm:ss xx',
+        replace: [fixPortugeseMonth, fixTzAbbreviation],
+    },
+
+    // Example: Wed, 23 Ian 2013 21:00:00 +0200
+    // Example: Wed, 30 noiembrie 2011 19:00:00 +0200
+    // Example: Wed, 27 iulie 2011 19:00:00 +0200
+    {
+        format: 'EEE, dd MM yyyy HH:mm:ss xx',
+        replace: [fixRomanianMonth],
+    },
+
+    // Example: Jue, 27 Ene 2011 11:54:00 GMT
+    // Example: Jue, 12 Ago 2010 15:47:00 GMT
+    // Example: Lun, 03 Ago 2009 13:00:00 GMT
+    {
+        format: 'EEE, dd MM yyyy HH:mm:ss xx',
+        replace: [fixSpanishWeekday, fixSpanishMonth, fixTzAbbreviation],
+    },
+
+    //  Example: WED, 22 dic 2010 18:14:00 +0100
+    //  Example: WED, 1 dic 2010 18:14:00 +0100
+    {
+        format: 'EEE, d MM yyyy HH:mm:ss xx',
+        replace: [fixSpanishMonth],
+    },
+
+    //  Example: FRI 31 dic 2010 18:14:00 +0100
+    {
+        format: 'EEE d MM yyyy HH:mm:ss xx',
+        replace: [fixSpanishMonth],
     },
 
     // Example: 2 Oct 2024 09:36AM GMT
