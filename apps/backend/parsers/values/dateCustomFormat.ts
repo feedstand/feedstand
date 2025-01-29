@@ -292,10 +292,14 @@ const fixFrenchWeekday: CustomFormatsReplace = fixWords({
 
 const globalReplaces: Array<CustomFormatsReplace> = [
     {
-        // Collapses all whitespace (spaces, tabs, newlines) to single space
-        // and removes leading/trailing whitespace in one go
-        from: /^\s+|\s+$|\s+(?=\s)/g,
+        // Removes leading/trailing whitespace in one go.
+        from: /^\s+|\s+$/g,
         to: () => '',
+    },
+    {
+        // Collapses all whitespace (spaces, tabs, newlines) to single space.
+        from: /\s+/g,
+        to: () => ' ',
     },
     {
         from: '.,',
