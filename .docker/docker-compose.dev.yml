@@ -1,5 +1,26 @@
 name: feedstand
 
+x-common-healthcheck: &common-healthcheck
+  interval: 10s
+  timeout: 5s
+  retries: 3
+  start_period: 30s
+
+x-backend-config: &backend-config
+  image: feedstand/backend:dev
+  build:
+    context: ..
+    dockerfile: apps/backend/.docker/Dockerfile.dev
+  env_file:
+    - ../apps/backend/.env
+  volumes:
+    - ..:/home/node
+    - /home/node/node_modules
+  depends_on:
+    - database
+    - queue
+  restart: unless-stopped
+
 services:
   frontend:
     image: feedstand/frontend:dev
@@ -13,57 +34,59 @@ services:
     volumes:
       - ..:/home/node
       - /home/node/node_modules
-    restart: always
+    healthcheck:
+      <<: *common-healthcheck
+      test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:4000"]
+    restart: unless-stopped
 
-  backend-server:
-    image: feedstand/backend:dev
-    build:
-      context: ..
-      dockerfile: apps/backend/.docker/Dockerfile.dev
-    env_file:
-      - ../apps/backend/.env
+  backend-migration:
+    <<: *backend-config
+    command: ["npm", "run", "db:migrate", "-w", "apps/backend"]
     ports:
       - 4001:4001
-    volumes:
-      - ..:/home/node
-      - /home/node/node_modules
+    restart: no
     depends_on:
-      - database
-      - queue
-    restart: always
+      database:
+        condition: service_healthy
+
+  backend-server:
+    <<: *backend-config
+    ports:
+      - 4001:4001
+    healthcheck:
+      <<: *common-healthcheck
+      test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:4001"]
+    depends_on:
+      backend-migration:
+        condition: service_completed_successfully
 
   backend-worker:
-    image: feedstand/backend:dev
-    build:
-      context: ..
-      dockerfile: apps/backend/.docker/Dockerfile.dev
-    env_file:
-      - ../apps/backend/.env
+    <<: *backend-config
     environment:
       - QUEUE_WORKER=true
-    volumes:
-      - ..:/home/node
-      - /home/node/node_modules
-    depends_on:
-      - database
-      - queue
-    restart: always
     deploy:
       replicas: 10
+    healthcheck:
+      <<: *common-healthcheck
+      test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:4001"]
+    depends_on:
+      backend-migration:
+        condition: service_completed_successfully
 
   database:
     image: postgres:17-alpine
     ports:
       - 5432:5432
     environment:
-      TZ: UTC
-      PGTZ: UTC
       POSTGRES_DB: ${DATABASE_NAME}
       POSTGRES_USER: ${DATABASE_USER}
       POSTGRES_PASSWORD: ${DATABASE_PASS}
     volumes:
       - database_data:/var/lib/postgresql/data
-    restart: always
+    healthcheck:
+      <<: *common-healthcheck
+      test: ["CMD", "pg_isready", "-U", "${DATABASE_USER}"]
+    restart: unless-stopped
 
   queue:
     image: redis:7-alpine
@@ -71,7 +94,10 @@ services:
       - 6379:6379
     volumes:
       - queue_data:/data
-    restart: always
+    healthcheck:
+      <<: *common-healthcheck
+      test: ["CMD", "redis-cli", "ping"]
+    restart: unless-stopped
 
 volumes:
   database_data:

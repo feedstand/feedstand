@@ -13,6 +13,21 @@ x-common-healthcheck: &common-healthcheck
   retries: 3
   start_period: 30s
 
+x-backend-config: &backend-config
+  image: ghcr.io/feedstand/backend:${VERSION_TAG:-latest}
+  environment:
+    SERVER_HOST: ${BACKEND_SERVER_HOST}
+    SERVER_PORT: ${BACKEND_SERVER_PORT}
+    DATABASE_HOST: ${BACKEND_DATABASE_HOST}
+    DATABASE_PORT: ${BACKEND_DATABASE_PORT}
+    DATABASE_NAME: ${BACKEND_DATABASE_NAME}
+    DATABASE_USER: ${BACKEND_DATABASE_USER}
+    DATABASE_PASS: ${BACKEND_DATABASE_PASS}
+    QUEUE_HOST: ${BACKEND_QUEUE_HOST}
+    QUEUE_PORT: ${BACKEND_QUEUE_PORT}
+    SENTRY_DSN: ${BACKEND_SENTRY_DSN}
+    SENTRY_ENVIRONMENT: ${BACKEND_SENTRY_ENVIRONMENT}
+
 services:
   traefik:
     image: traefik:3
@@ -67,20 +82,21 @@ services:
       <<: *common-healthcheck
       test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:4000"]
 
-  backend:
-    image: ghcr.io/feedstand/backend:${VERSION_TAG:-latest}
-    environment:
-      SERVER_HOST: ${BACKEND_SERVER_HOST}
-      SERVER_PORT: ${BACKEND_SERVER_PORT}
-      DATABASE_HOST: ${BACKEND_DATABASE_HOST}
-      DATABASE_PORT: ${BACKEND_DATABASE_PORT}
-      DATABASE_NAME: ${BACKEND_DATABASE_NAME}
-      DATABASE_USER: ${BACKEND_DATABASE_USER}
-      DATABASE_PASS: ${BACKEND_DATABASE_PASS}
-      QUEUE_HOST: ${BACKEND_QUEUE_HOST}
-      QUEUE_PORT: ${BACKEND_QUEUE_PORT}
-      SENTRY_DSN: ${BACKEND_SENTRY_DSN}
-      SENTRY_ENVIRONMENT: ${BACKEND_SENTRY_ENVIRONMENT}
+  backend-migration:
+    <<: *backend-config
+    command: ["npm", "run", "db:migrate", "-w", "apps/backend"]
+    deploy:
+      restart_policy:
+        condition: none
+      placement:
+        constraints:
+          - node.role == manager
+    depends_on:
+      database:
+        condition: service_healthy
+
+  backend-server:
+    <<: *backend-config
     deploy:
       <<: *common-deploy
       labels:
@@ -97,12 +113,13 @@ services:
     healthcheck:
       <<: *common-healthcheck
       test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:4001"]
+    depends_on:
+      migrations:
+        condition: service_completed_successfully
 
   database:
     image: postgres:17-alpine
     environment:
-      TZ: UTC
-      PGTZ: UTC
       POSTGRES_DB: ${BACKEND_DATABASE_NAME}
       POSTGRES_USER: ${BACKEND_DATABASE_USER}
       POSTGRES_PASSWORD: ${BACKEND_DATABASE_PASS}
