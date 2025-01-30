@@ -94,8 +94,7 @@ services:
         constraints:
           - node.role == manager
     depends_on:
-      database:
-        condition: service_healthy
+      - database
 
   backend-server:
     <<: *backend-config
@@ -116,8 +115,7 @@ services:
       <<: *common-healthcheck
       test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:4001"]
     depends_on:
-      backend-migration:
-        condition: service_completed_successfully
+      - backend-migration
 
   database:
     image: postgres:17-alpine
