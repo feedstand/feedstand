@@ -41,7 +41,7 @@ services:
 
   backend-migration:
     <<: *backend-config
-    command: ["npm", "run", "db:migrate", "-w", "apps/backend"]
+    command: ["npm", "run", "db:push", "-w", "apps/backend"]
     ports:
       - 4001:4001
     restart: no
