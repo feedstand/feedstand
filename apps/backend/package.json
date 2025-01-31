@@ -27,6 +27,7 @@
         "axios": "^1.7.9",
         "bullmq": "^5.0.0",
         "date-fns": "^4.0.0",
+        "drizzle-kit": "^0.30.0",
         "drizzle-orm": "^0.38.0",
         "drizzle-zod": "^0.6.0",
         "hono": "^4.0.0",
@@ -44,7 +45,6 @@
         "@types/lodash-es": "^4.0.0",
         "@types/node": "^22.0.0",
         "axios-retry": "^4.5.0",
-        "drizzle-kit": "^0.30.0",
         "msw": "^2.7.0",
         "vitest": "^3.0.0"
     }

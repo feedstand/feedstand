@@ -146,7 +146,7 @@ services:
       - QUEUE_WORKER=true
     deploy:
       <<: *common-deploy
-      replicas: 10
+      replicas: 1
     depends_on:
       - backend-migration
 
