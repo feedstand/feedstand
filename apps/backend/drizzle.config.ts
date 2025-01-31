@@ -2,13 +2,13 @@ import { defineConfig } from 'drizzle-kit'
 import * as databaseConstants from './constants/database'
 
 export default defineConfig({
-    dialect: 'postgresql',
-    schema: 'database/tables.ts',
+    dialect: databaseConstants.dialect,
+    schema: databaseConstants.schema,
     migrations: {
-        table: 'migrations',
-        schema: 'public',
+        schema: databaseConstants.migrationsSchema,
+        table: databaseConstants.migrationsTable,
     },
-    out: 'database/migrations',
+    out: databaseConstants.migrationsFolder,
     dbCredentials: {
         host: databaseConstants.host,
         port: databaseConstants.port,

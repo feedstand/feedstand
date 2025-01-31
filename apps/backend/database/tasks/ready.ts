@@ -1,17 +1,13 @@
 import { count, inArray } from 'drizzle-orm'
 import { readMigrationFiles } from 'drizzle-orm/migrator'
 import { integer, pgTable, text, timestamp } from 'drizzle-orm/pg-core'
-import config from '../../drizzle.config'
+import * as databaseConstants from '../../constants/database'
 import { client, db } from '../../instances/database'
 
 export const checkMigrationsReady = async () => {
-    if (!config.out || !config.migrations?.table) {
-        return
-    }
-
     let exitCode = 1
 
-    const migrationsTable = pgTable(config.migrations?.table, {
+    const migrationsTable = pgTable(databaseConstants.migrationsTable, {
         id: integer('id').primaryKey(),
         hash: text('hash').notNull(),
         created_at: timestamp('created_at').notNull(),
@@ -19,9 +15,9 @@ export const checkMigrationsReady = async () => {
 
     try {
         const migrationHashes = readMigrationFiles({
-            migrationsSchema: config.migrations?.schema,
-            migrationsTable: config.migrations?.table,
-            migrationsFolder: config.out,
+            migrationsSchema: databaseConstants.migrationsSchema,
+            migrationsTable: databaseConstants.migrationsTable,
+            migrationsFolder: databaseConstants.migrationsFolder,
         }).map((migrationItem) => migrationItem.hash)
 
         const [{ migrationsCount }] = await db
