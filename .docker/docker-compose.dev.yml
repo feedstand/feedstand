@@ -66,9 +66,6 @@ services:
       - QUEUE_WORKER=true
     deploy:
       replicas: 10
-    healthcheck:
-      <<: *common-healthcheck
-      test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:4001"]
     depends_on:
       backend-migration:
         condition: service_completed_successfully

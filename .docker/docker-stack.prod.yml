@@ -1,3 +1,6 @@
+version: "3.7"
+name: feedstand
+
 x-common-deploy: &common-deploy
   replicas: 1
   update_config:
@@ -94,7 +97,8 @@ services:
         constraints:
           - node.role == manager
     depends_on:
-      - database
+      database:
+        condition: service_healthy
 
   backend-server:
     <<: *backend-config
@@ -115,7 +119,19 @@ services:
       <<: *common-healthcheck
       test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:4001"]
     depends_on:
-      - backend-migration
+      backend-migration:
+        condition: service_completed_successfully
+
+  backend-worker:
+    <<: *backend-config
+    environment:
+      - QUEUE_WORKER=true
+    deploy:
+      <<: *common-deploy
+      replicas: 10
+    depends_on:
+      backend-migration:
+        condition: service_completed_successfully
 
   database:
     image: postgres:17-alpine
