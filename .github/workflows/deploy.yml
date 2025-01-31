@@ -34,7 +34,7 @@ jobs:
       - name: Deploy the application
         uses: cssnr/stack-deploy-action@v1
         with:
-          file: .docker/docker-compose.prod.yml
+          file: .docker/docker-stack.prod.yml
           name: ${{ secrets.SERVER_STACK }}
           host: ${{ secrets.SERVER_HOST }}
           user: ${{ secrets.SERVER_USER }}
