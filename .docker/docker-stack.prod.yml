@@ -85,16 +85,14 @@ services:
 
   backend-migration:
     <<: *backend-config
-    command: ["npm", "run", "db:migrate", "-w", "apps/backend"]
     entrypoint: |
       sh -c '
         until getent hosts database | grep -q "database"; do
           echo "Waiting for database DNS resolution…"
           sleep 2
         done
-
-        exec "$@"
       '
+    command: ["npm", "run", "db:migrate", "-w", "apps/backend"]
     deploy:
       replicas: 1
       restart_policy:
@@ -110,12 +108,13 @@ services:
     entrypoint: |
       sh -c '
         until npm run db:ready -w apps/backend; do
-          # Waiting for migrations to complete…
+          echo "# Waiting for migrations to complete…"
           sleep 2
         done
 
         exec "$@"
       '
+    command: ["npm", "run", "start", "-w", "apps/backend"]
     deploy:
       <<: *common-deploy
       labels:
@@ -139,13 +138,12 @@ services:
     <<: *backend-config
     entrypoint: |
       sh -c '
-        until npm run db:ready -w apps/backend; do          echo "Waiting for migrations to complete..."
-          # Waiting for migrations to complete…
+        until npm run db:ready -w apps/backend; do
+          echo "# Waiting for migrations to complete…"
           sleep 2
         done
-
-        exec "$@"
       '
+    command: ["npm", "run", "start", "-w", "apps/backend"]
     environment:
       - QUEUE_WORKER=true
     deploy:
