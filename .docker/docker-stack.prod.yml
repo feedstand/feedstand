@@ -86,6 +86,15 @@ services:
   backend-migration:
     <<: *backend-config
     command: ["npm", "run", "db:migrate", "-w", "apps/backend"]
+    entrypoint: |
+      sh -c '
+        until getent hosts database | grep -q "database"; do
+          echo "Waiting for database DNS resolution…"
+          sleep 2
+        done
+
+        exec "$@"
+      '
     deploy:
       replicas: 1
       restart_policy:
@@ -94,11 +103,19 @@ services:
         constraints:
           - node.role == manager
     depends_on:
-      database:
-        condition: service_healthy
+      - database
 
   backend-server:
     <<: *backend-config
+    entrypoint: |
+      sh -c '
+        until npm run db:ready -w apps/backend; do
+          # Waiting for migrations to complete…
+          sleep 2
+        done
+
+        exec "$@"
+      '
     deploy:
       <<: *common-deploy
       labels:
@@ -116,19 +133,26 @@ services:
       <<: *common-healthcheck
       test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:4001"]
     depends_on:
-      backend-migration:
-        condition: service_completed_successfully
+      - backend-migration
 
   backend-worker:
     <<: *backend-config
+    entrypoint: |
+      sh -c '
+        until npm run db:ready -w apps/backend; do          echo "Waiting for migrations to complete..."
+          # Waiting for migrations to complete…
+          sleep 2
+        done
+
+        exec "$@"
+      '
     environment:
       - QUEUE_WORKER=true
     deploy:
       <<: *common-deploy
       replicas: 10
     depends_on:
-      backend-migration:
-        condition: service_completed_successfully
+      - backend-migration
 
   database:
     image: postgres:17-alpine
