@@ -127,10 +127,7 @@ services:
       DB_NAME: ${BACKEND_DATABASE_NAME}
       DB_USER: ${BACKEND_DATABASE_USER}
       DB_PASSWORD: ${BACKEND_DATABASE_PASS}
-      LISTEN_PORT: 6432
       POOL_MODE: transaction
-      MAX_CLIENT_CONN: 512
-      DEFAULT_POOL_SIZE: 50
     deploy:
       <<: *common-deploy
       placement:
@@ -138,7 +135,7 @@ services:
           - node.role == manager
     healthcheck:
       <<: *common-healthcheck
-      test: ["CMD", "pg_isready", "-p", "6432"]
+      test: ["CMD", "pg_isready", "-h", "localhost"]
     depends_on:
       - database
 
