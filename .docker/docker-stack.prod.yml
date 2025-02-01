@@ -39,6 +39,8 @@ services:
       - --entrypoints.web.http.redirections.entrypoint.to=websecure
       - --entrypoints.web.http.redirections.entrypoint.scheme=https
       - --entrypoints.websecure.address=:443
+      - --entrypoints.database.address=:5432
+      - --entrypoints.queue.address=:6379
       - --certificatesresolvers.letsencrypt.acme.email=${TRAEFIK_ACME_EMAIL}
       - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
       - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
@@ -134,14 +136,14 @@ services:
       AUTH_TYPE: "scram-sha-256"
     deploy:
       <<: *common-deploy
+      labels:
+        - traefik.enable=true
+        - traefik.tcp.routers.pgbouncer.rule=HostSNI(`*`)
+        - traefik.tcp.routers.pgbouncer.entrypoints=database
+        - traefik.tcp.services.pgbouncer.loadbalancer.server.port=5432
       placement:
         constraints:
           - node.role == manager
-    ports:
-      - target: 5432
-        published: ${BACKEND_DATABASE_PORT}
-        protocol: tcp
-        mode: host
     healthcheck:
       <<: *common-healthcheck
       test: ["CMD", "pg_isready", "-h", "localhost"]
@@ -169,14 +171,14 @@ services:
     image: redis:7-alpine
     deploy:
       <<: *common-deploy
+      labels:
+        - traefik.enable=true
+        - traefik.tcp.routers.pgbouncer.rule=HostSNI(`*`)
+        - traefik.tcp.routers.pgbouncer.entrypoints=queue
+        - traefik.tcp.services.pgbouncer.loadbalancer.server.port=6379
       placement:
         constraints:
           - node.role == manager
-    ports:
-      - target: 6379
-        published: ${BACKEND_QUEUE_PORT}
-        protocol: tcp
-        mode: host
     volumes:
       - queue_data:/data
     healthcheck:
