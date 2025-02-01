@@ -39,7 +39,7 @@ services:
       - --entrypoints.web.http.redirections.entrypoint.to=websecure
       - --entrypoints.web.http.redirections.entrypoint.scheme=https
       - --entrypoints.websecure.address=:443
-      - --entrypoints.database.address=:5432
+      - --entrypoints.pgbouncer.address=:5432
       - --entrypoints.queue.address=:6379
       - --certificatesresolvers.letsencrypt.acme.email=${TRAEFIK_ACME_EMAIL}
       - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
@@ -55,6 +55,14 @@ services:
         mode: host
       - target: 443
         published: 443
+        protocol: tcp
+        mode: host
+      - target: 5432
+        published: 5432
+        protocol: tcp
+        mode: host
+      - target: 6379
+        published: 6379
         protocol: tcp
         mode: host
     volumes:
@@ -139,7 +147,7 @@ services:
       labels:
         - traefik.enable=true
         - traefik.tcp.routers.pgbouncer.rule=HostSNI(`*`)
-        - traefik.tcp.routers.pgbouncer.entrypoints=database
+        - traefik.tcp.routers.pgbouncer.entrypoints=pgbouncer
         - traefik.tcp.services.pgbouncer.loadbalancer.server.port=5432
       placement:
         constraints:
@@ -173,9 +181,9 @@ services:
       <<: *common-deploy
       labels:
         - traefik.enable=true
-        - traefik.tcp.routers.pgbouncer.rule=HostSNI(`*`)
-        - traefik.tcp.routers.pgbouncer.entrypoints=queue
-        - traefik.tcp.services.pgbouncer.loadbalancer.server.port=6379
+        - traefik.tcp.routers.queue.rule=HostSNI(`*`)
+        - traefik.tcp.routers.queue.entrypoints=queue
+        - traefik.tcp.services.queue.loadbalancer.server.port=6379
       placement:
         constraints:
           - node.role == manager
