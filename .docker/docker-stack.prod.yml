@@ -44,6 +44,10 @@ services:
       - --certificatesresolvers.letsencrypt.acme.email=${TRAEFIK_ACME_EMAIL}
       - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
       - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
     ports:
       - target: 80
         published: 80
@@ -56,10 +60,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - letsencrypt_data:/letsencrypt
-    deploy:
-      placement:
-        constraints:
-          - node.role == manager
 
   frontend:
     image: ghcr.io/feedstand/frontend:${VERSION_TAG:-latest}
@@ -120,12 +120,7 @@ services:
         # delay: 10s # Delay between creating/starting new replicas.
 
   pgbouncer:
-    image: edoburu/pgbouncer:1
-    deploy:
-      <<: *common-deploy
-      placement:
-        constraints:
-          - node.role == manager
+    image: edoburu/pgbouncer
     environment:
       DB_HOST: database
       DB_PORT: 5432
@@ -135,6 +130,11 @@ services:
       POOL_MODE: transaction
       MAX_CLIENT_CONN: 512
       DEFAULT_POOL_SIZE: 50
+    deploy:
+      <<: *common-deploy
+      placement:
+        constraints:
+          - node.role == manager
     healthcheck:
       <<: *common-healthcheck
       test: ["CMD", "pg_isready", "-p", "6432", "-U", "${BACKEND_DATABASE_USER}"]
@@ -143,15 +143,15 @@ services:
 
   database:
     image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${BACKEND_DATABASE_NAME}
+      POSTGRES_USER: ${BACKEND_DATABASE_USER}
+      POSTGRES_PASSWORD: ${BACKEND_DATABASE_PASS}
     deploy:
       <<: *common-deploy
       placement:
         constraints:
           - node.role == manager
-    environment:
-      POSTGRES_DB: ${BACKEND_DATABASE_NAME}
-      POSTGRES_USER: ${BACKEND_DATABASE_USER}
-      POSTGRES_PASSWORD: ${BACKEND_DATABASE_PASS}
     ports:
       - target: 5432
         published: ${BACKEND_DATABASE_PORT}
