@@ -113,7 +113,7 @@ services:
       FEATURE_WORKER: "true"
     deploy:
       <<: *common-deploy
-      replicas: 1 # TODO: Increase up to 10 to speed up the channel scanning process.
+      replicas: 10 # TODO: Increase up to 10 to speed up the channel scanning process.
       update_config:
         parallelism: 2 # Creating/starting two replicas at a time.
         delay: 10s # Delay between creating/starting new replicas.
