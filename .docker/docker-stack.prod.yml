@@ -16,18 +16,21 @@ x-common-healthcheck: &common-healthcheck
 
 x-backend-config: &backend-config
   image: ghcr.io/feedstand/backend:${VERSION_TAG:-latest}
-  environment:
-    SERVER_HOST: ${BACKEND_SERVER_HOST}
-    SERVER_PORT: ${BACKEND_SERVER_PORT}
-    DATABASE_HOST: ${BACKEND_DATABASE_HOST}
-    DATABASE_PORT: ${BACKEND_DATABASE_PORT}
-    DATABASE_NAME: ${BACKEND_DATABASE_NAME}
-    DATABASE_USER: ${BACKEND_DATABASE_USER}
-    DATABASE_PASS: ${BACKEND_DATABASE_PASS}
-    QUEUE_HOST: ${BACKEND_QUEUE_HOST}
-    QUEUE_PORT: ${BACKEND_QUEUE_PORT}
-    SENTRY_DSN: ${BACKEND_SENTRY_DSN}
-    SENTRY_ENVIRONMENT: ${BACKEND_SENTRY_ENVIRONMENT}
+  depends_on:
+    - backend-migration
+
+x-backend-environment: &backend-environment
+  SERVER_HOST: ${BACKEND_SERVER_HOST}
+  SERVER_PORT: ${BACKEND_SERVER_PORT}
+  DATABASE_HOST: ${BACKEND_DATABASE_HOST}
+  DATABASE_PORT: ${BACKEND_DATABASE_PORT}
+  DATABASE_NAME: ${BACKEND_DATABASE_NAME}
+  DATABASE_USER: ${BACKEND_DATABASE_USER}
+  DATABASE_PASS: ${BACKEND_DATABASE_PASS}
+  QUEUE_HOST: ${BACKEND_QUEUE_HOST}
+  QUEUE_PORT: ${BACKEND_QUEUE_PORT}
+  SENTRY_DSN: ${BACKEND_SENTRY_DSN}
+  SENTRY_ENVIRONMENT: ${BACKEND_SENTRY_ENVIRONMENT}
 
 services:
   traefik:
@@ -86,8 +89,9 @@ services:
   backend-server:
     <<: *backend-config
     environment:
-      - FEATURE_MIGRATOR=true
-      - FEATURE_SERVER=true
+      <<: *backend-environment
+      FEATURE_MIGRATOR: true
+      FEATURE_SERVER: true
     deploy:
       <<: *common-deploy
       labels:
@@ -104,18 +108,15 @@ services:
     healthcheck:
       <<: *common-healthcheck
       test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:4001"]
-    depends_on:
-      - backend-migration
 
   backend-worker:
     <<: *backend-config
     environment:
-      - FEATURE_WORKER=true
+      <<: *backend-environment
+      FEATURE_WORKER: true
     deploy:
       <<: *common-deploy
       replicas: 1
-    depends_on:
-      - backend-migration
 
   database:
     image: postgres:17-alpine
