@@ -1,6 +1,6 @@
 import { withScope } from '@sentry/node'
 import { Processor, Queue, QueueOptions, Worker, WorkerOptions } from 'bullmq'
-import * as queueConstants from '../constants/queue'
+import { hasWorkerFeature } from '../constants/features'
 import { connection } from '../instances/queue'
 import { sentry } from '../instances/sentry'
 
@@ -11,7 +11,7 @@ export const createQueue = <Data, Result, Name extends string>(
 ) => {
     const queue: Queue<Data, Result, Name> = new Queue(name, { ...opts?.queue, connection })
 
-    if (!queueConstants.isWorker) {
+    if (!hasWorkerFeature) {
         return queue
     }
 

@@ -11,3 +11,4 @@ RUN npm ci -w apps/backend --ignore-scripts --only=production
 
 COPY apps/backend apps/backend/
 EXPOSE 4001
+CMD ["npm", "run", "start", "-w", "apps/backend"]

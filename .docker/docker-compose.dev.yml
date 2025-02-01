@@ -39,36 +39,28 @@ services:
       test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:4000"]
     restart: unless-stopped
 
-  backend-migration:
-    <<: *backend-config
-    command: ["npm", "run", "db:push", "-w", "apps/backend"]
-    ports:
-      - 4001:4001
-    restart: no
-    depends_on:
-      database:
-        condition: service_healthy
-
   backend-server:
     <<: *backend-config
+    environment:
+      - FEATURE_SERVER=true
     ports:
       - 4001:4001
     healthcheck:
       <<: *common-healthcheck
       test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:4001"]
     depends_on:
-      backend-migration:
-        condition: service_completed_successfully
+      database:
+        condition: service_healthy
 
   backend-worker:
     <<: *backend-config
     environment:
-      - QUEUE_WORKER=true
+      - FEATURE_WORKER=true
     deploy:
       replicas: 10
     depends_on:
-      backend-migration:
-        condition: service_completed_successfully
+      database:
+        condition: service_healthy
 
   database:
     image: postgres:17-alpine

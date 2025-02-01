@@ -83,36 +83,11 @@ services:
       <<: *common-healthcheck
       test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:4000"]
 
-  backend-migration:
-    <<: *backend-config
-    entrypoint: |
-      sh -c '
-        until getent hosts database | grep -q "database"; do
-          echo "Waiting for database DNS resolution…"
-          sleep 2
-        done
-      '
-    command: ["npm", "run", "db:migrate", "-w", "apps/backend"]
-    deploy:
-      replicas: 1
-      restart_policy:
-        condition: none
-      placement:
-        constraints:
-          - node.role == manager
-    depends_on:
-      - database
-
   backend-server:
     <<: *backend-config
-    entrypoint: |
-      sh -c '
-        until npm run db:ready -w apps/backend; do
-          echo "# Waiting for migrations to complete…"
-          sleep 2
-        done
-      '
-    command: ["npm", "run", "start", "-w", "apps/backend"]
+    environment:
+      - FEATURE_MIGRATOR=true
+      - FEATURE_SERVER=true
     deploy:
       <<: *common-deploy
       labels:
@@ -134,16 +109,8 @@ services:
 
   backend-worker:
     <<: *backend-config
-    entrypoint: |
-      sh -c '
-        until npm run db:ready -w apps/backend; do
-          echo "# Waiting for migrations to complete…"
-          sleep 2
-        done
-      '
-    command: ["npm", "run", "start", "-w", "apps/backend"]
     environment:
-      - QUEUE_WORKER=true
+      - FEATURE_WORKER=true
     deploy:
       <<: *common-deploy
       replicas: 1
