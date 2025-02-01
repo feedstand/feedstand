@@ -14,13 +14,14 @@ x-common-healthcheck: &common-healthcheck
 x-backend-config: &backend-config
   image: ghcr.io/feedstand/backend:${VERSION_TAG:-latest}
   depends_on:
-    - backend-migration
+    - pgbouncer
+    - database
 
 x-backend-environment: &backend-environment
   SERVER_HOST: ${BACKEND_SERVER_HOST}
   SERVER_PORT: ${BACKEND_SERVER_PORT}
-  DATABASE_HOST: ${BACKEND_DATABASE_HOST}
-  DATABASE_PORT: ${BACKEND_DATABASE_PORT}
+  DATABASE_HOST: ${BACKEND_PGBOUNCER_HOST}
+  DATABASE_PORT: ${BACKEND_PGBOUNCER_PORT}
   DATABASE_NAME: ${BACKEND_DATABASE_NAME}
   DATABASE_USER: ${BACKEND_DATABASE_USER}
   DATABASE_PASS: ${BACKEND_DATABASE_PASS}
@@ -118,6 +119,28 @@ services:
         parallelism: 2 # Creating/starting two replicas at a time.
         delay: 10s # Delay between creating/starting new replicas.
 
+  pgbouncer:
+    image: edoburu/pgbouncer:1
+    deploy:
+      <<: *common-deploy
+      placement:
+        constraints:
+          - node.role == manager
+    environment:
+      DB_HOST: ${BACKEND_DATABASE_HOST}
+      DB_PORT: ${BACKEND_DATABASE_PORT}
+      DB_NAME: ${BACKEND_DATABASE_NAME}
+      DB_USER: ${BACKEND_DATABASE_USER}
+      DB_PASSWORD: ${BACKEND_DATABASE_PASS}
+      POOL_MODE: transaction
+      MAX_CLIENT_CONN: 512
+      DEFAULT_POOL_SIZE: 50
+    ports:
+      - target: ${BACKEND_PGBOUNCER_PORT}
+        published: ${BACKEND_PGBOUNCER_PORT}
+        protocol: tcp
+        mode: host
+
   database:
     image: postgres:17-alpine
     deploy:
@@ -130,8 +153,8 @@ services:
       POSTGRES_USER: ${BACKEND_DATABASE_USER}
       POSTGRES_PASSWORD: ${BACKEND_DATABASE_PASS}
     ports:
-      - target: 5432
-        published: 5432
+      - target: ${BACKEND_DATABASE_PORT}
+        published: ${BACKEND_DATABASE_PORT}
         protocol: tcp
         mode: host
     volumes:
@@ -148,8 +171,8 @@ services:
         constraints:
           - node.role == manager
     ports:
-      - target: 6379
-        published: 6379
+      - target: ${BACKEND_QUEUE_PORT}
+        published: ${BACKEND_QUEUE_PORT}
         protocol: tcp
         mode: host
     volumes:
