@@ -18,15 +18,15 @@ x-backend-config: &backend-config
     - database
 
 x-backend-environment: &backend-environment
-  SERVER_HOST: ${BACKEND_SERVER_HOST}
-  SERVER_PORT: ${BACKEND_SERVER_PORT}
-  DATABASE_HOST: ${BACKEND_PGBOUNCER_HOST}
-  DATABASE_PORT: ${BACKEND_PGBOUNCER_PORT}
+  SERVER_HOST: 0.0.0.0
+  SERVER_PORT: 4001
+  DATABASE_HOST: pgbouncer
+  DATABASE_PORT: 6432
   DATABASE_NAME: ${BACKEND_DATABASE_NAME}
   DATABASE_USER: ${BACKEND_DATABASE_USER}
   DATABASE_PASS: ${BACKEND_DATABASE_PASS}
-  QUEUE_HOST: ${BACKEND_QUEUE_HOST}
-  QUEUE_PORT: ${BACKEND_QUEUE_PORT}
+  QUEUE_HOST: queue
+  QUEUE_PORT: 6379
   SENTRY_DSN: ${BACKEND_SENTRY_DSN}
   SENTRY_ENVIRONMENT: ${BACKEND_SENTRY_ENVIRONMENT}
 
@@ -114,10 +114,10 @@ services:
       FEATURE_WORKER: "true"
     deploy:
       <<: *common-deploy
-      replicas: 20 # TODO: Increase up to 10 to speed up the channel scanning process.
+      replicas: 20
       update_config:
-        parallelism: 2 # Creating/starting two replicas at a time.
-        delay: 10s # Delay between creating/starting new replicas.
+        parallelism: 2
+        # delay: 10s # Delay between creating/starting new replicas.
 
   pgbouncer:
     image: edoburu/pgbouncer:1
@@ -127,19 +127,19 @@ services:
         constraints:
           - node.role == manager
     environment:
-      DB_HOST: ${BACKEND_DATABASE_HOST}
-      DB_PORT: ${BACKEND_DATABASE_PORT}
+      DB_HOST: database
+      DB_PORT: 5432
       DB_NAME: ${BACKEND_DATABASE_NAME}
       DB_USER: ${BACKEND_DATABASE_USER}
       DB_PASSWORD: ${BACKEND_DATABASE_PASS}
       POOL_MODE: transaction
       MAX_CLIENT_CONN: 512
       DEFAULT_POOL_SIZE: 50
-    ports:
-      - target: ${BACKEND_PGBOUNCER_PORT}
-        published: ${BACKEND_PGBOUNCER_PORT}
-        protocol: tcp
-        mode: host
+    healthcheck:
+      <<: *common-healthcheck
+      test: ["CMD", "pg_isready", "-p", "6432", "-U", "${BACKEND_DATABASE_USER}"]
+    depends_on:
+      - database
 
   database:
     image: postgres:17-alpine
@@ -153,7 +153,7 @@ services:
       POSTGRES_USER: ${BACKEND_DATABASE_USER}
       POSTGRES_PASSWORD: ${BACKEND_DATABASE_PASS}
     ports:
-      - target: ${BACKEND_DATABASE_PORT}
+      - target: 5432
         published: ${BACKEND_DATABASE_PORT}
         protocol: tcp
         mode: host
@@ -161,7 +161,7 @@ services:
       - database_data:/var/lib/postgresql/data
     healthcheck:
       <<: *common-healthcheck
-      test: ["CMD", "pg_isready"]
+      test: ["CMD", "pg_isready", "-p", "5432", "-U", "${BACKEND_DATABASE_USER}"]
 
   queue:
     image: redis:7-alpine
@@ -171,7 +171,7 @@ services:
         constraints:
           - node.role == manager
     ports:
-      - target: ${BACKEND_QUEUE_PORT}
+      - target: 6379
         published: ${BACKEND_QUEUE_PORT}
         protocol: tcp
         mode: host
