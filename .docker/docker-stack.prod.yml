@@ -1,10 +1,7 @@
 x-common-deploy: &common-deploy
-  replicas: 1
   update_config:
-    parallelism: 1
     order: start-first
     failure_action: rollback
-    delay: 10s
   restart_policy:
     condition: on-failure
 
@@ -116,7 +113,10 @@ services:
       FEATURE_WORKER: "true"
     deploy:
       <<: *common-deploy
-      replicas: 1
+      replicas: 1 # TODO: Increase up to 10 to speed up the channel scanning process.
+      update_config:
+        parallelism: 2 # Creating/starting two replicas at a time.
+        delay: 10s # Delay between creating/starting new replicas.
 
   database:
     image: postgres:17-alpine
