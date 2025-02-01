@@ -117,7 +117,7 @@ services:
       replicas: 20
       update_config:
         parallelism: 2
-        # delay: 10s # Delay between creating/starting new replicas.
+        delay: 10s # Delay between creating/starting new replicas.
 
   pgbouncer:
     image: edoburu/pgbouncer
@@ -127,6 +127,7 @@ services:
       DB_NAME: ${BACKEND_DATABASE_NAME}
       DB_USER: ${BACKEND_DATABASE_USER}
       DB_PASSWORD: ${BACKEND_DATABASE_PASS}
+      LISTEN_PORT: 6432
       POOL_MODE: transaction
       MAX_CLIENT_CONN: 512
       DEFAULT_POOL_SIZE: 50
@@ -137,7 +138,7 @@ services:
           - node.role == manager
     healthcheck:
       <<: *common-healthcheck
-      test: ["CMD", "pg_isready", "-p", "6432", "-U", "${BACKEND_DATABASE_USER}"]
+      test: ["CMD", "pg_isready", "-p", "6432"]
     depends_on:
       - database
 
@@ -161,7 +162,7 @@ services:
       - database_data:/var/lib/postgresql/data
     healthcheck:
       <<: *common-healthcheck
-      test: ["CMD", "pg_isready", "-p", "5432", "-U", "${BACKEND_DATABASE_USER}"]
+      test: ["CMD", "pg_isready"]
 
   queue:
     image: redis:7-alpine
