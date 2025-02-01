@@ -125,6 +125,8 @@ services:
       DB_USER: ${BACKEND_DATABASE_USER}
       DB_PASSWORD: ${BACKEND_DATABASE_PASS}
       POOL_MODE: transaction
+      ADMIN_USERS: ${BACKEND_DATABASE_USER}
+      AUTH_TYPE: "scram-sha-256"
     deploy:
       <<: *common-deploy
       placement:
