@@ -21,12 +21,10 @@ x-backend-environment: &backend-environment
   SERVER_HOST: 0.0.0.0
   SERVER_PORT: 4001
   DATABASE_HOST: pgbouncer
-  DATABASE_PORT: 6432
   DATABASE_NAME: ${BACKEND_DATABASE_NAME}
   DATABASE_USER: ${BACKEND_DATABASE_USER}
   DATABASE_PASS: ${BACKEND_DATABASE_PASS}
   QUEUE_HOST: queue
-  QUEUE_PORT: 6379
   SENTRY_DSN: ${BACKEND_SENTRY_DSN}
   SENTRY_ENVIRONMENT: ${BACKEND_SENTRY_ENVIRONMENT}
 
@@ -123,7 +121,6 @@ services:
     image: edoburu/pgbouncer
     environment:
       DB_HOST: database
-      DB_PORT: 5432
       DB_NAME: ${BACKEND_DATABASE_NAME}
       DB_USER: ${BACKEND_DATABASE_USER}
       DB_PASSWORD: ${BACKEND_DATABASE_PASS}
@@ -133,6 +130,11 @@ services:
       placement:
         constraints:
           - node.role == manager
+    ports:
+      - target: 5432
+        published: ${BACKEND_DATABASE_PORT}
+        protocol: tcp
+        mode: host
     healthcheck:
       <<: *common-healthcheck
       test: ["CMD", "pg_isready", "-h", "localhost"]
@@ -150,11 +152,6 @@ services:
       placement:
         constraints:
           - node.role == manager
-    ports:
-      - target: 5432
-        published: ${BACKEND_DATABASE_PORT}
-        protocol: tcp
-        mode: host
     volumes:
       - database_data:/var/lib/postgresql/data
     healthcheck:
