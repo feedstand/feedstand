@@ -68,7 +68,7 @@ services:
       QUEUE_HOST: queue
     restart: unless-stopped
     deploy:
-      replicas: 30
+      replicas: 10
     depends_on:
       pgbouncer:
         condition: service_healthy
