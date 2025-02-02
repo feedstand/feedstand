@@ -122,10 +122,10 @@ services:
       FEATURE_WORKER: "true"
     deploy:
       <<: *common-deploy
-      replicas: 20
+      replicas: 10
       update_config:
         parallelism: 2
-        delay: 10s # Delay between creating/starting new replicas.
+        delay: 10s
 
   pgbouncer:
     image: edoburu/pgbouncer
@@ -141,7 +141,7 @@ services:
       RESERVE_POOL_SIZE: 25
       RESERVE_POOL_TIMEOUT: 5
       ADMIN_USERS: ${BACKEND_DATABASE_USER}
-      AUTH_TYPE: "scram-sha-256"
+      AUTH_TYPE: scram-sha-256
     deploy:
       <<: *common-deploy
       labels:
@@ -154,7 +154,7 @@ services:
           - node.role == manager
     healthcheck:
       <<: *common-healthcheck
-      test: ["CMD", "pg_isready", "-h", "localhost"]
+      test: ["CMD", "pg_isready", "-h", "localhost", "-U", "${DATABASE_USER}"]
     depends_on:
       - database
 
@@ -173,7 +173,7 @@ services:
       - database_data:/var/lib/postgresql/data
     healthcheck:
       <<: *common-healthcheck
-      test: ["CMD", "pg_isready"]
+      test: ["CMD", "pg_isready", "-h", "localhost", "-U", "${DATABASE_USER}"]
 
   queue:
     image: redis:7-alpine

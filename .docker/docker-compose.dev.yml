@@ -38,34 +38,68 @@ services:
       <<: *common-healthcheck
       test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:4000"]
     restart: unless-stopped
+    depends_on:
+      backend-server:
+        condition: service_healthy
 
   backend-server:
     <<: *backend-config
     environment:
-      - FEATURE_SERVER=true
+      FEATURE_SERVER: "true"
+      SERVER_HOST: 0.0.0.0
+      SERVER_PORT: 4001
+      DATABASE_HOST: pgbouncer
+      QUEUE_HOST: queue
     ports:
       - 4001:4001
     healthcheck:
       <<: *common-healthcheck
       test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:4001"]
+    restart: unless-stopped
     depends_on:
-      database:
+      pgbouncer:
         condition: service_healthy
 
   backend-worker:
     <<: *backend-config
     environment:
-      - FEATURE_WORKER=true
+      FEATURE_WORKER: "true"
+      DATABASE_HOST: pgbouncer
+      QUEUE_HOST: queue
+    restart: unless-stopped
     deploy:
-      replicas: 10
+      replicas: 30
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
+
+  pgbouncer:
+    image: edoburu/pgbouncer
+    ports:
+      - 5432:5432
+    environment:
+      DB_HOST: database
+      DB_NAME: ${DATABASE_NAME}
+      DB_USER: ${DATABASE_USER}
+      DB_PASSWORD: ${DATABASE_PASS}
+      POOL_MODE: transaction
+      MAX_CLIENT_CONN: 500
+      DEFAULT_POOL_SIZE: 50
+      MAX_DB_CONNECTIONS: 100
+      RESERVE_POOL_SIZE: 25
+      RESERVE_POOL_TIMEOUT: 5
+      ADMIN_USERS: ${DATABASE_USER}
+      AUTH_TYPE: scram-sha-256
+    healthcheck:
+      <<: *common-healthcheck
+      test: ["CMD", "pg_isready", "-h", "localhost", "-U", "${DATABASE_USER}"]
+    restart: unless-stopped
     depends_on:
       database:
         condition: service_healthy
 
   database:
     image: postgres:17-alpine
-    ports:
-      - 5432:5432
     environment:
       POSTGRES_DB: ${DATABASE_NAME}
       POSTGRES_USER: ${DATABASE_USER}
@@ -74,7 +108,7 @@ services:
       - database_data:/var/lib/postgresql/data
     healthcheck:
       <<: *common-healthcheck
-      test: ["CMD", "pg_isready", "-U", "${DATABASE_USER}"]
+      test: ["CMD", "pg_isready", "-h", "localhost", "-U", "${DATABASE_USER}"]
     restart: unless-stopped
 
   queue:
