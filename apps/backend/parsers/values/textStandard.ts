@@ -1,4 +1,3 @@
-import { removeNullBytes } from '../../helpers/strings'
 import { ValueParser } from '../../types/system'
 
 export const textStandard: ValueParser<string> = (value) => {
@@ -6,5 +5,5 @@ export const textStandard: ValueParser<string> = (value) => {
         return
     }
 
-    return removeNullBytes(value)
+    return value
 }

@@ -5,19 +5,19 @@ import {
     integer,
     pgTable,
     serial,
-    text,
     timestamp,
     uniqueIndex,
-    varchar,
 } from 'drizzle-orm/pg-core'
+import { safeText } from './types/safeText'
+import { safeVarchar } from './types/safeVarchar'
 
 export const users = pgTable(
     'users',
     {
         id: serial('id').primaryKey(),
-        name: varchar('name').notNull(),
-        email: varchar('email').notNull(),
-        password: varchar('password').notNull(),
+        name: safeVarchar('name').notNull(),
+        email: safeVarchar('email').notNull(),
+        password: safeVarchar('password').notNull(),
         emailVerifiedAt: timestamp('email_verified_at'),
         createdAt: timestamp('created_at').notNull().defaultNow(),
         updatedAt: timestamp('updated_at').notNull().defaultNow(),
@@ -29,14 +29,14 @@ export const channels = pgTable(
     'channels',
     {
         id: serial('id').primaryKey(),
-        url: text('url').notNull(),
-        title: varchar('title'),
-        link: text('link'),
-        description: varchar('description'),
-        // Extend the error capturing to store last captured error, response status and number of
-        // erroreous scans since last successful scan. This way, we can later downgrade or try to
-        // cure the channel which does not work for some period of time.
-        error: text('error'),
+        url: safeText('url').notNull(),
+        title: safeVarchar('title'),
+        link: safeText('link'),
+        description: safeVarchar('description'),
+        // TODO: Extend the error capturing to store last captured error, response status and
+        // number of erroreous scans since last successful scan. This way, we can later downgrade
+        // or try to cure the channel which does not work for some period of time.
+        error: safeText('error'),
         createdAt: timestamp('created_at').notNull().defaultNow(),
         updatedAt: timestamp('updated_at').notNull().defaultNow(),
         lastScannedAt: timestamp('last_scanned_at'),
@@ -48,17 +48,17 @@ export const items = pgTable(
     'items',
     {
         id: serial('id').primaryKey(),
-        link: varchar('link').notNull(),
-        guid: varchar('guid').notNull(),
+        link: safeVarchar('link').notNull(),
+        guid: safeVarchar('guid').notNull(),
         channelId: integer('channel_id')
             .notNull()
             .references(() => channels.id, { onDelete: 'cascade' }),
-        title: varchar('title'),
-        description: varchar('description'),
-        author: varchar('author'),
-        content: text('content'),
+        title: safeVarchar('title'),
+        description: safeVarchar('description'),
+        author: safeVarchar('author'),
+        content: safeText('content'),
         isReadabilitified: boolean('is_readabilitified').default(false),
-        error: text('error'),
+        error: safeText('error'),
         publishedAt: timestamp('published_at').notNull(),
         createdAt: timestamp('created_at').notNull().defaultNow(),
         updatedAt: timestamp('updated_at').notNull().defaultNow(),
@@ -84,7 +84,7 @@ export const sources = pgTable(
         channelId: integer('channel_id')
             .notNull()
             .references(() => channels.id, { onDelete: 'cascade' }),
-        name: varchar('name').notNull(),
+        name: safeVarchar('name').notNull(),
         isReadabilitified: boolean('is_readabilitified').default(false),
         createdAt: timestamp('created_at').notNull().defaultNow(),
         updatedAt: timestamp('updated_at').notNull().defaultNow(),
