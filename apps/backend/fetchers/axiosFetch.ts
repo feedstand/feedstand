@@ -1,16 +1,10 @@
+import https from 'node:https'
 import axios, { AxiosRequestConfig } from 'axios'
 import axiosRetry from 'axios-retry'
 import { maxTimeout } from '../constants/fetchers'
 import { FeedFetcher } from '../types/system'
 
-const instance = axios.create({
-    // TODO: Enable caching of requests based on headers in the response.
-    timeout: maxTimeout,
-    // Enables lenient HTTP parsing for non-standard server responses where Content-Length or
-    // Transfer-Encoding headers might be malformed (common with legacy RSS feeds and
-    // misconfigured servers).
-    insecureHTTPParser: true,
-})
+const instance = axios.create()
 
 axiosRetry(instance, {
     retries: 2,
@@ -32,6 +26,14 @@ axiosRetry(instance, {
 export const axiosFetch: FeedFetcher = async (url, options) => {
     // TODO: Improve the conversion of RequestInit to AxiosRequestConfig.
     const config: AxiosRequestConfig = {
+        // TODO: Enable caching of requests based on headers in the response.
+        timeout: maxTimeout,
+        // Enables lenient HTTP parsing for non-standard server responses where Content-Length or
+        // Transfer-Encoding headers might be malformed (common with legacy RSS feeds and
+        // misconfigured servers).
+        insecureHTTPParser: true,
+        // Allows getting RSS feed from URLs with unverified certificate.
+        httpsAgent: new https.Agent({ rejectUnauthorized: false }),
         method: options?.init?.method?.toLowerCase(),
         headers: options?.init?.headers as Record<string, string>,
         data: options?.init?.body,
