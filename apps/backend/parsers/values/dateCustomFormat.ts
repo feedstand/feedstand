@@ -554,6 +554,14 @@ const customFormats: CustomFormats = [
     // Example: 2020-14-01T09:34:44+00:00
     { format: "yyyy-dd-MM'T'HH:mm:ssxxx" },
 
+    // Example: 2020年3月16日 02:00
+    // Example: 2019年10月31日 06:37
+    // Example: 2019年6月 3日 04:00
+    {
+        format: 'yyyy年M月d日 HH:mm',
+        replace: [{ from: '月 ', to: () => '月' }],
+    },
+
     // Example: 2025-01-27T00:11:27 1737936687
     // Example: 2025-01-27T08:22:41 1737966161
     // Example: 2025-01-26T23:13:01 1737933181
