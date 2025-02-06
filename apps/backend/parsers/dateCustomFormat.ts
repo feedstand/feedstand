@@ -9,7 +9,7 @@ import { ru } from 'date-fns/locale/ru'
 import { sv } from 'date-fns/locale/sv'
 import { tr } from 'date-fns/locale/tr'
 import { zhTW } from 'date-fns/locale/zh-TW'
-import { ValueParser } from '../../types/system'
+import { ValueParser } from '../types/system'
 import { dateStandard } from './dateStandard'
 
 type CustomFormatsReplace = {

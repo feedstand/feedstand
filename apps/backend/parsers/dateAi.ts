@@ -1,4 +1,4 @@
-import { ValueParser } from '../../types/system'
+import { ValueParser } from '../types/system'
 
 export const dateAi: ValueParser<Date> = (value) => {
     if (typeof value !== 'string') {

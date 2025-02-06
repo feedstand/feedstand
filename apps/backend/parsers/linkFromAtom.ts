@@ -1,5 +1,5 @@
 import { get } from 'lodash-es'
-import { ValueParser } from '../../types/system'
+import { ValueParser } from '../types/system'
 
 // Example value: {
 //   value: [Object: null prototype] {

@@ -1,5 +1,5 @@
 import { get } from 'lodash-es'
-import { ValueParser } from '../../types/system'
+import { ValueParser } from '../types/system'
 
 // Example value:
 // <author xmlns:author="http://www.w3.org/2005/Atom">
