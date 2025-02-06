@@ -1,14 +1,12 @@
 import { castArray, get } from 'lodash-es'
-import { jsonFeedContentTypes } from '../../constants/parsers'
-import { parseValue, trimStrings } from '../../helpers/parsers'
-import { isOneOfContentTypes } from '../../helpers/responses'
-import { JsonFeed } from '../../types/feeds'
-import { FeedChannel, FeedItem } from '../../types/schemas'
-import { FeedParser } from '../../types/system'
-import { dateAi } from '../values/dateAi'
-import { dateCustomFormat } from '../values/dateCustomFormat'
-import { dateStandard } from '../values/dateStandard'
-import { textStandard } from '../values/textStandard'
+import { FetchFeedFetcher } from '../actions/fetchFeed'
+import { parseValue, trimStrings } from '../helpers/parsers'
+import { dateAi } from '../parsers/values/dateAi'
+import { dateCustomFormat } from '../parsers/values/dateCustomFormat'
+import { dateStandard } from '../parsers/values/dateStandard'
+import { textStandard } from '../parsers/values/textStandard'
+import { JsonFeed } from '../types/feeds'
+import { FeedChannel, FeedItem } from '../types/schemas'
 
 export const jsonFeedChannel = (feed: JsonFeed, url: string): FeedChannel => {
     return trimStrings({
@@ -53,16 +51,30 @@ export const jsonFeedItems = (feed: JsonFeed): Array<FeedItem> => {
     return items
 }
 
-export const jsonFeed: FeedParser = async (response) => {
-    if (!isOneOfContentTypes(response, jsonFeedContentTypes)) {
-        return
+export const jsonFeed: FetchFeedFetcher = async (context, next) => {
+    if (!context.response?.ok) {
+        return await next()
     }
 
-    // TODO: Validate if the JSON file is actually a JSON Feed.
-    const feed = await response.json()
+    const response = context.response?.clone()
 
-    return {
-        channel: jsonFeedChannel(feed, response.url),
-        items: jsonFeedItems(feed),
+    // TODO: Should content type check be skipped? In the real world, feeds do not always set the
+    // correct content type indicating XML which result in some feeds not being correctly scanned.
+    // if !isOneOfContentTypes(response, jsonFeedContentTypes)) {
+    //     return await next()
+    // }
+
+    try {
+        // TODO: Validate if the JSON file is actually a JSON Feed.
+        const out = await response.json()
+
+        context.feed = {
+            channel: jsonFeedChannel(out, response.url),
+            items: jsonFeedItems(out),
+        }
+    } catch (error) {
+        context.error = error
     }
+
+    await next()
 }

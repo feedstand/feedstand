@@ -38,6 +38,7 @@
         "postgres": "^3.0.0",
         "rss-parser": "^3.0.0",
         "tsx": "^4.0.2",
+        "undici": "^7.3.0",
         "zod": "^3.0.0"
     },
     "devDependencies": {

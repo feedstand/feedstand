@@ -1,8 +1,8 @@
-import https from 'node:https'
 import axios, { AxiosRequestConfig } from 'axios'
 import axiosRetry from 'axios-retry'
+import https from 'node:https'
+import { FetchFeedFetcher } from '../actions/fetchFeed'
 import { maxTimeout } from '../constants/fetchers'
-import { FeedFetcher } from '../types/system'
 
 const instance = axios.create()
 
@@ -23,8 +23,11 @@ axiosRetry(instance, {
     },
 })
 
-export const axiosFetch: FeedFetcher = async (url, options) => {
-    // TODO: Improve the conversion of RequestInit to AxiosRequestConfig.
+export const axiosFetch: FetchFeedFetcher = async (context, next) => {
+    if (context.response?.ok) {
+        return await next()
+    }
+
     const config: AxiosRequestConfig = {
         // TODO: Enable caching of requests based on headers in the response.
         timeout: maxTimeout,
@@ -34,17 +37,22 @@ export const axiosFetch: FeedFetcher = async (url, options) => {
         insecureHTTPParser: true,
         // Allows getting RSS feed from URLs with unverified certificate.
         httpsAgent: new https.Agent({ rejectUnauthorized: false }),
-        method: options?.init?.method?.toLowerCase(),
-        headers: options?.init?.headers as Record<string, string>,
-        data: options?.init?.body,
-        signal: options?.init?.signal as AbortSignal,
-        withCredentials: options?.init?.credentials === 'include',
+        // Always return a response instead of throwing an exception. This allows for later use
+        // of the erroneous response to detect the type of error in parsing middlewares.
+        validateStatus: () => true,
     }
-    const response = await axios(url, config)
 
-    return new Response(response.data, {
-        status: response.status,
-        statusText: response.statusText,
-        headers: new Headers(response.headers as Record<string, string>),
-    })
+    try {
+        const response = await axios(context.url, config)
+
+        context.response = new Response(response.data, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: new Headers(response.headers as Record<string, string>),
+        })
+    } catch (error) {
+        context.error = error
+    }
+
+    await next()
 }

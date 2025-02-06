@@ -6,6 +6,7 @@ export const xmlFeedContentTypes = [
     'application/atom+xml',
     'application/rss+xml',
     'application/xml',
+    'text/rss+xml',
     'text/xml',
 ]
 

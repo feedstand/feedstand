@@ -1,5 +1,4 @@
 import { fetchFeed } from '../actions/fetchFeed'
-import { parseFeed } from '../actions/parseFeed'
 import { htmlContentTypes } from '../constants/parsers'
 import { extractValueByRegex, isOneOfContentTypes } from '../helpers/responses'
 import { FeedFinder } from '../types/system'
@@ -24,8 +23,7 @@ export const youTubeFinder: FeedFinder = async (response, options) => {
     }
 
     const feedUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`
-    const feedResponse = await fetchFeed(feedUrl, options)
-    const feed = await parseFeed(feedResponse, options)
+    const feed = await fetchFeed(feedUrl, { channel: options?.channel })
 
     return [{ url: feedUrl, title: feed.channel.title }]
 }

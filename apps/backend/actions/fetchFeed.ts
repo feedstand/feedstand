@@ -1,36 +1,68 @@
 import { axiosFetch } from '../fetchers/axiosFetch'
-import { cloudflareFetch } from '../fetchers/cloudflareFetch'
-import { nativeFetch } from '../fetchers/nativeFetch'
-import { Channel } from '../types/schemas'
-import { FeedFetcher } from '../types/system'
+import { failedFeed } from '../fetchers/failedFeed'
+import { guardedFeed } from '../fetchers/guardedFeed'
+import { invalidFeed } from '../fetchers/invalidFeed'
+import { jsonFeed } from '../fetchers/jsonFeed'
+import { nativeFetchUncompressed } from '../fetchers/nativeFetchUncompressed'
+import { soundCloudFeed } from '../fetchers/soundCloudFeed'
+import { xmlFeed } from '../fetchers/xmlFeed'
+import { Channel, FeedData } from '../types/schemas'
+
+export type FetchFeedContext = {
+    url: string
+    channel?: Channel
+    error?: unknown
+    response?: Response
+    feed?: FeedData
+}
 
 export type FetchFeed = (
     url: string,
-    options?: {
-        channel?: Channel
-        init?: RequestInit
-        fetchers?: Array<FeedFetcher>
-    },
-) => Promise<Response>
+    initialContext?: Omit<FetchFeedContext, 'url' | 'feed'>,
+) => Promise<FeedData>
 
-export const feedFetchers: Array<FeedFetcher> = [nativeFetch, axiosFetch, cloudflareFetch]
+export type FetchFeedNextFunction = () => Promise<void>
 
-export const fetchFeed: FetchFeed = async (url, options) => {
-    const fetchers = options?.fetchers || feedFetchers
+export type FetchFeedFetcher = (
+    context: FetchFeedContext,
+    next: FetchFeedNextFunction,
+) => Promise<void>
 
-    let lastError: unknown = undefined
+export const middlewares: Array<FetchFeedFetcher> = [
+    nativeFetchUncompressed,
+    axiosFetch,
+    soundCloudFeed,
+    jsonFeed,
+    xmlFeed,
+    guardedFeed,
+    invalidFeed,
+    failedFeed,
+]
 
-    for (const fetcher of fetchers) {
-        try {
-            return await fetcher(url, {
-                channel: options?.channel,
-                init: options?.init,
-                lastError,
-            })
-        } catch (error) {
-            lastError = error
+export const fetchFeed: FetchFeed = async (url, initialContext): Promise<FeedData> => {
+    const context: FetchFeedContext = { ...initialContext, url }
+
+    let index = 0
+
+    const next: FetchFeedNextFunction = async () => {
+        const middleware = middlewares[index++]
+
+        if (!middleware) {
+            return
         }
+
+        await middleware(context, next)
     }
 
-    throw lastError
+    await next()
+
+    if (context.feed) {
+        return context.feed
+    }
+
+    if (context.error) {
+        throw context.error
+    }
+
+    throw new Error(`Unprocessable response, HTTP code: ${context.response?.status || 'Unknown'}`)
 }

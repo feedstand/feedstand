@@ -1,17 +1,15 @@
+import { FetchFeedFetcher } from '../actions/fetchFeed'
 import { maxTimeout } from '../constants/fetchers'
-import { FeedFetcher } from '../types/system'
 
-export const nativeFetch: FeedFetcher = async (url, options) => {
-    if (options?.init) {
-        options.init.signal ||= AbortSignal.timeout(maxTimeout)
+export const nativeFetch: FetchFeedFetcher = async (context, next) => {
+    if (context.response?.ok) {
+        return await next()
     }
 
     // TODO: Enable caching of requests based on headers in the response.
-    const response = await fetch(url, options?.init)
+    context.response = await fetch(context.url, {
+        signal: AbortSignal.timeout(maxTimeout),
+    })
 
-    if (!response.ok) {
-        throw Error(`HTTP status code ${response.status}`)
-    }
-
-    return response
+    await next()
 }

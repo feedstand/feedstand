@@ -1,8 +1,6 @@
 import { eq } from 'drizzle-orm'
 import { createOrUpdateItems } from '../actions/createOrUpdateItems'
 import { fetchFeed } from '../actions/fetchFeed'
-import { parseFeed } from '../actions/parseFeed'
-import { updateChannel } from '../actions/updateChannel'
 import { tables } from '../database/tables'
 import { convertErrorToString } from '../helpers/errors'
 import { db } from '../instances/database'
@@ -10,11 +8,20 @@ import { Channel } from '../types/schemas'
 
 export const scanChannel = async (channel: Channel) => {
     try {
-        const response = await fetchFeed(channel.url, { channel })
-        const feed = await parseFeed(response, { channel })
+        const feed = await fetchFeed(channel.url, { channel })
+
+        await db
+            .update(tables.channels)
+            .set({
+                title: feed.channel.title ?? channel.title,
+                description: feed.channel.description ?? channel.description,
+                link: feed.channel.link ?? channel.link,
+                error: null,
+                lastScannedAt: new Date(),
+            })
+            .where(eq(tables.channels.id, channel.id))
 
         createOrUpdateItems(channel, feed.items)
-        updateChannel(channel, feed.channel)
     } catch (error) {
         // TODO: Store more error details for further debug proces. Things to consider storing:
         // Whole Response object, body, status code, number of errors since last successful scan.

@@ -1,6 +1,5 @@
 import { JSDOM } from 'jsdom'
 import { fetchFeed } from '../actions/fetchFeed'
-import { parseFeed } from '../actions/parseFeed'
 import { feedLinkSelectors } from '../constants/finders'
 import { htmlContentTypes } from '../constants/parsers'
 import { isOneOfContentTypes } from '../helpers/responses'
@@ -34,8 +33,7 @@ export const webpageFinder: FeedFinder = async (response, options) => {
         //     continue
         // }
 
-        const feedResponse = await fetchFeed(feedUrl, options)
-        const { channel } = await parseFeed(feedResponse, options)
+        const { channel } = await fetchFeed(feedUrl, { channel: options?.channel })
         feedInfos.push({ url: channel.url, title: channel.title })
     }
 
