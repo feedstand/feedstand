@@ -58,8 +58,6 @@ export const xmlFeed: FetchFeedFetcher = async (context, next) => {
         return await next()
     }
 
-    const response = context.response?.clone()
-
     // TODO: Should content type check be skipped? In the real world, feeds do not always set the
     // correct content type indicating XML which result in some feeds not being correctly scanned.
     // if (!isOneOfContentTypes(response, xmlFeedContentTypes)) {
@@ -67,11 +65,11 @@ export const xmlFeed: FetchFeedFetcher = async (context, next) => {
     // }
 
     try {
-        const xml = await response.text()
+        const xml = await context.response.clone().text()
         const out = await new RSSParser().parseString(xml)
 
         context.feed = {
-            channel: xmlFeedChannel(out, response.url),
+            channel: xmlFeedChannel(out, context.response.url),
             items: xmlFeedItems(out),
         }
     } catch (error) {
