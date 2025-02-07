@@ -17,6 +17,19 @@ import { maxTimeout } from '../constants/fetchers'
 
 const instance = axios.create()
 
+// The CustomResponse class is necessary to simulate the native Response object behavior.
+// When creating a Response object from AxiosObject manually, it is necessary to also store the
+// URL of fetched page so that it can be referenced later. The native Response object has it out
+// of the box when performing fetch(), but when creating it manually, there's no way to set it.
+class CustomResponse extends Response {
+    public readonly url: string
+
+    constructor(body: BodyInit | null, init: ResponseInit & { url: string }) {
+        super(body, init)
+        this.url = init.url
+    }
+}
+
 axiosRetry(instance, {
     retries: 2,
     // Some servers have misconfigured IPv6 setup (AAAA DNS records exist but no actual IPv6
@@ -51,7 +64,8 @@ export const fetchUrl = async (url: string): Promise<Response> => {
 
     const response = await axios(url, config)
 
-    return new Response(response.data, {
+    return new CustomResponse(response.data, {
+        url: response.request?.res?.responseUrl || url,
         status: response.status,
         statusText: response.statusText,
         headers: new Headers(response.headers as Record<string, string>),
