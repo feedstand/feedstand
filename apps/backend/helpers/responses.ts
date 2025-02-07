@@ -1,5 +1,5 @@
-export const isOneOfContentTypes = (response: Response, contentTypesToCheck: Array<string>) => {
-    return contentTypesToCheck.some((type) => response.headers.get('content-type')?.includes(type))
+export const isOneOfContentTypes = (response: Response, contentTypes: Array<string>) => {
+    return contentTypes.some((type) => response.headers.get('content-type')?.includes(type))
 }
 
 export const extractValueByRegex = async (
