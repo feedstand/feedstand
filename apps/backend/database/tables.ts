@@ -1,6 +1,5 @@
 import {
     boolean,
-    foreignKey,
     index,
     integer,
     pgTable,
@@ -33,15 +32,28 @@ export const channels = pgTable(
         title: safeVarchar('title'),
         link: safeText('link'),
         description: safeVarchar('description'),
-        // TODO: Extend the error capturing to store last captured error, response status and
-        // number of erroreous scans since last successful scan. This way, we can later downgrade
-        // or try to cure the channel which does not work for some period of time.
-        error: safeText('error'),
         createdAt: timestamp('created_at').notNull().defaultNow(),
         updatedAt: timestamp('updated_at').notNull().defaultNow(),
         lastScannedAt: timestamp('last_scanned_at'),
+        lastScanError: safeText('last_scan_error'),
+        lastFixCheckedAt: timestamp('last_fix_checked_at'),
+        lastFixCheckCount: integer('last_fix_check_count').default(0),
+        lastFixCheckError: safeText('last_fix_check_error'),
     },
     (table) => [uniqueIndex('channels_url_idx').on(table.url)],
+)
+
+export const fixables = pgTable(
+    'fixables',
+    {
+        id: serial('id').primaryKey(),
+        channelId: integer('channel_id')
+            .notNull()
+            .references(() => channels.id, { onDelete: 'cascade' }),
+        title: safeVarchar('title'),
+        feedUrl: safeText('feed_url').notNull(),
+    },
+    (table) => [uniqueIndex('fixables_channel_id_feed_url_idx').on(table.channelId, table.feedUrl)],
 )
 
 export const items = pgTable(
@@ -65,10 +77,6 @@ export const items = pgTable(
     },
     (table) => [
         index('items_guid_idx').on(table.guid),
-        foreignKey({
-            columns: [table.channelId],
-            foreignColumns: [channels.id],
-        }).onDelete('cascade'),
         uniqueIndex('items_channel_id_guid').on(table.channelId, table.guid),
         index('items_published_at_idx').on(table.publishedAt),
     ],
@@ -89,17 +97,7 @@ export const sources = pgTable(
         createdAt: timestamp('created_at').notNull().defaultNow(),
         updatedAt: timestamp('updated_at').notNull().defaultNow(),
     },
-    (table) => [
-        uniqueIndex('sources_user_channel_idx').on(table.userId, table.channelId),
-        foreignKey({
-            columns: [table.userId],
-            foreignColumns: [users.id],
-        }).onDelete('cascade'),
-        foreignKey({
-            columns: [table.channelId],
-            foreignColumns: [channels.id],
-        }).onDelete('cascade'),
-    ],
+    (table) => [uniqueIndex('sources_user_channel_idx').on(table.userId, table.channelId)],
 )
 
 export const unreads = pgTable(
@@ -113,22 +111,13 @@ export const unreads = pgTable(
             .notNull()
             .references(() => items.id, { onDelete: 'cascade' }),
     },
-    (table) => [
-        uniqueIndex('unreads_user_item_idx').on(table.userId, table.itemId),
-        foreignKey({
-            columns: [table.userId],
-            foreignColumns: [users.id],
-        }).onDelete('cascade'),
-        foreignKey({
-            columns: [table.itemId],
-            foreignColumns: [items.id],
-        }).onDelete('cascade'),
-    ],
+    (table) => [uniqueIndex('unreads_user_item_idx').on(table.userId, table.itemId)],
 )
 
 export const tables = {
     users,
     channels,
+    fixables,
     items,
     sources,
     unreads,

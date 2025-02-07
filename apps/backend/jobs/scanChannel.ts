@@ -16,18 +16,22 @@ export const scanChannel = async (channel: Channel) => {
                 title: feed.channel.title ?? channel.title,
                 description: feed.channel.description ?? channel.description,
                 link: feed.channel.link ?? channel.link,
-                error: null,
                 lastScannedAt: new Date(),
+                lastScanError: null,
             })
             .where(eq(tables.channels.id, channel.id))
 
         createOrUpdateItems(channel, feed.items)
     } catch (error) {
-        // TODO: Store more error details for further debug proces. Things to consider storing:
-        // Whole Response object, body, status code, number of errors since last successful scan.
         await db
             .update(tables.channels)
-            .set({ error: convertErrorToString(error, { showNestedErrors: true }) })
+            .set({
+                lastScannedAt: new Date(),
+                // TODO: Extend the error capturing to store last captured error, response status
+                // and number of erroreous scans since last successful scan. This way, we can later
+                // downgrade or try to cure the channel which does not work for some period of time.
+                lastScanError: convertErrorToString(error, { showNestedErrors: true }),
+            })
             .where(eq(tables.channels.id, channel.id))
     }
 }
