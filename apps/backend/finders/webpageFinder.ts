@@ -1,24 +1,28 @@
 import { JSDOM } from 'jsdom'
 import { fetchFeed } from '../actions/fetchFeed'
+import { FindFeedsMiddleware } from '../actions/findFeeds'
 import { feedLinkSelectors } from '../constants/finders'
-import { htmlContentTypes } from '../constants/parsers'
-import { isOneOfContentTypes } from '../helpers/responses'
 import { FeedInfo } from '../types/schemas'
-import { FeedFinder } from '../types/system'
 
-export const webpageFinder: FeedFinder = async (response, options) => {
-    if (!isOneOfContentTypes(response, htmlContentTypes)) {
-        return
+export const webpageFinder: FindFeedsMiddleware = async (context, next) => {
+    if (!context.response?.ok) {
+        return await next()
     }
 
-    const html = await response.text()
-    const jsdom = new JSDOM(html, { url: response.url })
+    // TODO: Should content type check be skipped? In the real world, feeds do not always set the
+    // correct content type indicating XML which result in some feeds not being correctly scanned.
+    // if (!isOneOfContentTypes(context.response, htmlContentTypes)) {
+    //     return
+    // }
+
+    const html = await context.response.clone().text()
+    const jsdom = new JSDOM(html, { url: context.response.url })
     const feedLinks = jsdom.window.document.querySelectorAll(feedLinkSelectors.join())
     const feedInfos: Array<FeedInfo> = []
 
     for (const feedLink of feedLinks) {
         const linkHref = feedLink.getAttribute('href')
-        const feedUrl = linkHref ? new URL(linkHref, response.url).href : undefined
+        const feedUrl = linkHref ? new URL(linkHref, context.response.url).href : undefined
 
         if (!feedUrl) {
             continue
@@ -33,9 +37,14 @@ export const webpageFinder: FeedFinder = async (response, options) => {
         //     continue
         // }
 
-        const { channel } = await fetchFeed(feedUrl, { channel: options?.channel })
+        const { channel } = await fetchFeed(feedUrl, { channel: context?.channel })
+
         feedInfos.push({ url: channel.url, title: channel.title })
     }
 
-    return feedInfos
+    if (feedInfos.length) {
+        context.feedInfos = feedInfos
+    }
+
+    await next()
 }

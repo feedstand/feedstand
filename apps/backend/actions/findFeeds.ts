@@ -1,30 +1,49 @@
-import { HTTPException } from 'hono/http-exception'
 import { directFinder } from '../finders/directFinder'
 import { webpageFinder } from '../finders/webpageFinder'
 import { youTubeFinder } from '../finders/youTubeFinder'
 import { Channel, FeedInfo } from '../types/schemas'
-import { FeedFinder } from '../types/system'
+
+export type FindFeedsContext = {
+    response: Response
+    channel?: Channel
+    error?: unknown
+    feedInfos?: Array<FeedInfo>
+}
 
 export type FindFeeds = (
-    response: Response,
-    options?: {
-        channel?: Channel
-        finders?: Array<FeedFinder>
-    },
+    initialContext: Omit<FindFeedsContext, 'feeds'>,
 ) => Promise<Array<FeedInfo>>
 
-const feedFinders = [youTubeFinder, directFinder, webpageFinder]
+export type FindFeedsNext = () => Promise<void>
 
-export const findFeeds: FindFeeds = async (response, options) => {
-    const finders = options?.finders || feedFinders
+export type FindFeedsMiddleware = (context: FindFeedsContext, next: FindFeedsNext) => Promise<void>
 
-    for (const finder of finders) {
-        const feeds = await finder(response.clone())
+export const middlewares: Array<FindFeedsMiddleware> = [youTubeFinder, directFinder, webpageFinder]
 
-        if (feeds !== undefined) {
-            return feeds
+export const findFeeds: FindFeeds = async (initialContext) => {
+    const context: FindFeedsContext = { ...initialContext }
+
+    let index = 0
+
+    const next: FindFeedsNext = async () => {
+        const middleware = middlewares[index++]
+
+        if (!middleware) {
+            return
         }
+
+        await middleware(context, next)
     }
 
-    throw new HTTPException(422)
+    await next()
+
+    if (context.feedInfos) {
+        return context.feedInfos
+    }
+
+    if (context.error) {
+        throw context.error
+    }
+
+    throw new Error(`Unprocessable response, HTTP code: ${context.response?.status || 'Unknown'}`)
 }

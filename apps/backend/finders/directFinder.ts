@@ -1,17 +1,21 @@
 import { fetchFeed } from '../actions/fetchFeed'
-import { anyFeedContentTypes } from '../constants/parsers'
-import { isOneOfContentTypes } from '../helpers/responses'
-import { FeedFinder } from '../types/system'
+import { FindFeedsMiddleware } from '../actions/findFeeds'
 
-export const directFinder: FeedFinder = async (response, options) => {
-    if (!isOneOfContentTypes(response, anyFeedContentTypes)) {
-        return
+export const directFinder: FindFeedsMiddleware = async (context, next) => {
+    if (!context.response?.ok) {
+        return await next()
     }
 
-    const { channel } = await fetchFeed(response.url, {
-        response,
-        channel: options?.channel,
-    })
+    try {
+        const feed = await fetchFeed(context.response.url, {
+            response: context.response,
+            channel: context.channel,
+        })
 
-    return [{ title: channel.title, url: channel.url }]
+        context.feedInfos = [{ title: feed.channel.title, url: feed.channel.url }]
+    } catch (error) {
+        context.error = error
+    }
+
+    await next()
 }

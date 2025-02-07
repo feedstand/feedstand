@@ -24,7 +24,7 @@ export const route = createRoute({
 export const handler = createHandler(route, async (context) => {
     const { url } = context.req.valid('json')
     const response = await fetchUrl(url)
-    const feeds = await findFeeds(response)
+    const feeds = await findFeeds({ response })
 
     return context.json(feeds, 200)
 })
