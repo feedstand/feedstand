@@ -3,7 +3,6 @@ import { failedFeed } from '../fetchers/failedFeed'
 import { guardedFeed } from '../fetchers/guardedFeed'
 import { invalidFeed } from '../fetchers/invalidFeed'
 import { jsonFeed } from '../fetchers/jsonFeed'
-import { nativeFetchUncompressed } from '../fetchers/nativeFetchUncompressed'
 import { soundCloudFeed } from '../fetchers/soundCloudFeed'
 import { xmlFeed } from '../fetchers/xmlFeed'
 import { Channel, FeedData } from '../types/schemas'
@@ -29,7 +28,6 @@ export type FetchFeedFetcher = (
 ) => Promise<void>
 
 export const middlewares: Array<FetchFeedFetcher> = [
-    nativeFetchUncompressed,
     axiosFetch,
     soundCloudFeed,
     jsonFeed,
