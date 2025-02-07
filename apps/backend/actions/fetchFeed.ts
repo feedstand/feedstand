@@ -9,9 +9,9 @@ import { Channel, FeedData } from '../types/schemas'
 
 export type FetchFeedContext = {
     url: string
+    response?: Response
     channel?: Channel
     error?: unknown
-    response?: Response
     feed?: FeedData
 }
 
@@ -37,7 +37,7 @@ export const middlewares: Array<FetchFeedFetcher> = [
     failedFeed,
 ]
 
-export const fetchFeed: FetchFeed = async (url, initialContext): Promise<FeedData> => {
+export const fetchFeed: FetchFeed = async (url, initialContext) => {
     const context: FetchFeedContext = { ...initialContext, url }
 
     let index = 0
