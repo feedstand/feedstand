@@ -1,4 +1,4 @@
-import { JSDOM } from 'jsdom'
+import { load } from 'cheerio'
 import { fetchFeed } from '../actions/fetchFeed'
 import { FindFeedsMiddleware } from '../actions/findFeeds'
 import { feedLinkSelectors } from '../constants/finders'
@@ -16,12 +16,12 @@ export const webpageFinder: FindFeedsMiddleware = async (context, next) => {
     // }
 
     const html = await context.response.clone().text()
-    const jsdom = new JSDOM(html, { url: context.response.url })
-    const feedLinks = jsdom.window.document.querySelectorAll(feedLinkSelectors.join())
+    const $ = load(html)
+    const feedLinks = $(feedLinkSelectors.join())
     const feedInfos: Array<FeedInfo> = []
 
     for (const feedLink of feedLinks) {
-        const linkHref = feedLink.getAttribute('href')
+        const linkHref = $(feedLink).attr('href')
         const feedUrl = linkHref ? new URL(linkHref, context.response.url).href : undefined
 
         if (!feedUrl) {
