@@ -12,7 +12,10 @@ import { FeedChannel, FeedItem } from '../types/schemas'
 
 export const xmlFeedChannel = (feed: XmlFeed, url: string): FeedChannel => {
     return trimStrings({
-        url: parseValue(feed.feedUrl, [textStandard], url),
+        // TODO: Consider using feed.feedUrl. The only problem is that it might be a relative
+        // URL instead of absolute. What to do in such cases?
+        // url: parseValue(feed.feedUrl, [textStandard], url),
+        url,
         title: parseValue(feed.title, [textStandard]),
         link: parseValue(feed.link, [textStandard, linkFromAtom]),
         description: parseValue(feed.description, [textStandard]),
