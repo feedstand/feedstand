@@ -10,6 +10,10 @@ import { maxTimeout } from '../constants/fetchers'
 //   wrongly say they the response is gzipped where in reality it's not.
 //   Solution: set 'Accept-Encoding': 'identity'.
 //   Example page: ?
+// - At some point, consider replacing Axios with native fetch (or Unidici) for more low-level
+//   control and better performance and less dependencies on external packages. It might be
+//   a challenge as a lot of stuff that Axios provides out of the box would need to be written
+//   from scratch, but maybe it's worth it. Alternatively consider using Got or Ky packages.
 
 const instance = axios.create()
 
