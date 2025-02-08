@@ -1,4 +1,4 @@
-import { axiosFetch } from '../fetchers/axiosFetch'
+import { downloadFeed } from '../fetchers/downloadFeed'
 import { failedFeed } from '../fetchers/failedFeed'
 import { guardedFeed } from '../fetchers/guardedFeed'
 import { invalidFeed } from '../fetchers/invalidFeed'
@@ -26,7 +26,7 @@ export type FetchFeedFetcher = (
 ) => Promise<void>
 
 export const middlewares: Array<FetchFeedFetcher> = [
-    axiosFetch,
+    downloadFeed,
     soundCloudFeed,
     jsonFeed,
     xmlFeed,
