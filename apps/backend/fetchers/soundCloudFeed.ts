@@ -26,7 +26,7 @@ export const soundCloudFeed: FetchFeedFetcher = async (context, next) => {
     // This would mean that all references to current channel (the one with SoundCloud redirect)
     // would need to be adjusted and assigned to the existing one.
 
-    context.feed = await fetchFeed(redirectUrl, { channel: context.channel })
+    context.feed = await fetchFeed({ url: redirectUrl, channel: context.channel })
 
     await next()
 }

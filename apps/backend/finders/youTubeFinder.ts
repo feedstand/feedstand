@@ -26,10 +26,10 @@ export const youTubeFinder: FindFeedsMiddleware = async (context, next) => {
         return await next()
     }
 
-    const feedUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`
-    const feed = await fetchFeed(feedUrl, { channel: context?.channel })
+    const url = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`
+    const feed = await fetchFeed({ url, channel: context?.channel })
 
-    context.feedInfos = [{ url: feedUrl, title: feed.channel.title }]
+    context.feedInfos = [{ url, title: feed.channel.title }]
 
     await next()
 }

@@ -27,7 +27,7 @@ export const handler = createHandler(route, async (context) => {
     // TODO: Only preview 20? latest posts. Example of very long feed: https://olagist.net/feed/.
 
     const { url } = context.req.valid('json')
-    const feedData = await fetchFeed(url)
+    const feedData = await fetchFeed({ url })
 
     return context.json(feedData, 200)
 })

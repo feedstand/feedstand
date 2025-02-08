@@ -16,7 +16,7 @@ export const fetchOrCreateChannel = async (url: string): Promise<Channel> => {
         return existingChannel
     }
 
-    const feed = await fetchFeed(url, existingChannel)
+    const feed = await fetchFeed({ url })
     const [newChannel] = await db.insert(tables.channels).values(feed.channel).returning()
 
     createOrUpdateItems(newChannel, feed.items)

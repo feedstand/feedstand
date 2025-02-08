@@ -8,7 +8,7 @@ import { Channel } from '../types/schemas'
 
 export const scanChannel = async (channel: Channel) => {
     try {
-        const feed = await fetchFeed(channel.url, { channel })
+        const feed = await fetchFeed({ url: channel.url, channel })
 
         await db
             .update(tables.channels)
