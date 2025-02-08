@@ -6,7 +6,7 @@ import { db } from '../instances/database'
 import { channelQueue } from '../queues/channel'
 
 const CHANNELS_CHUNK_SIZE = 5000
-const CHANNELS_CHUNK_DELAY = 1000
+const CHANNELS_CHUNK_DELAY = 100
 
 export const fixChannels = async () => {
     let lastId = 0
