@@ -23,10 +23,12 @@ const instance = axios.create()
 // of the box when performing fetch(), but when creating it manually, there's no way to set it.
 class CustomResponse extends Response {
     public readonly url: string
+    public readonly status: number
 
-    constructor(body: BodyInit | null, init: ResponseInit & { url: string }) {
-        super(body, init)
+    constructor(body: BodyInit | null, init: ResponseInit & { url: string; status: number }) {
+        super(body, { ...init, status: undefined })
         this.url = init.url
+        this.status = init.status
     }
 }
 
@@ -47,8 +49,8 @@ axiosRetry(instance, {
     },
 })
 
-export const fetchUrl = async (url: string): Promise<Response> => {
-    const config: AxiosRequestConfig = {
+export const fetchUrl = async (url: string, config?: AxiosRequestConfig): Promise<Response> => {
+    const response = await axios(url, {
         // TODO: Enable caching of requests based on headers in the response.
         timeout: maxTimeout,
         // Enables lenient HTTP parsing for non-standard server responses where Content-Length or
@@ -60,9 +62,9 @@ export const fetchUrl = async (url: string): Promise<Response> => {
         // Always return a response instead of throwing an exception. This allows for later use
         // of the erroneous response to detect the type of error in parsing middlewares.
         validateStatus: () => true,
-    }
-
-    const response = await axios(url, config)
+        // Append any custom configuration at the end.
+        ...config,
+    })
 
     return new CustomResponse(response.data, {
         url: response.request?.res?.responseUrl || url,
