@@ -30,6 +30,10 @@ class CustomResponse extends Response {
         this.url = init.url
         this.status = init.status
     }
+
+    get ok(): boolean {
+        return this.status >= 200 && this.status < 300
+    }
 }
 
 axiosRetry(instance, {
