@@ -15,7 +15,7 @@ export const redirectFeed: FetchFeedFetcher = async (context, next) => {
     if (url) {
         context.url = url
         context.response = undefined
-        context.feed = await fetchFeed(context)
+        context.feedData = await fetchFeed(context)
     }
 
     await next()

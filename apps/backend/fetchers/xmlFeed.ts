@@ -71,7 +71,8 @@ export const xmlFeed: FetchFeedFetcher = async (context, next) => {
         const xml = await context.response.clone().text()
         const out = await new RSSParser().parseString(xml)
 
-        context.feed = {
+        context.feedData = {
+            etag: context.response.headers.get('etag'),
             channel: xmlFeedChannel(out, context.response.url),
             items: xmlFeedItems(out),
         }

@@ -3,6 +3,7 @@ import { failedFeed } from '../fetchers/failedFeed'
 import { guardedFeed } from '../fetchers/guardedFeed'
 import { invalidFeed } from '../fetchers/invalidFeed'
 import { jsonFeed } from '../fetchers/jsonFeed'
+import { preflightFeed } from '../fetchers/preflightFeed'
 import { redirectFeed } from '../fetchers/redirectFeed'
 import { soundCloudFeed } from '../fetchers/soundCloudFeed'
 import { xmlFeed } from '../fetchers/xmlFeed'
@@ -13,7 +14,7 @@ export type FetchFeedContext = {
     response?: Response
     channel?: Channel
     error?: unknown
-    feed?: FeedData
+    feedData?: FeedData
 }
 
 export type FetchFeed = (context: FetchFeedContext) => Promise<FeedData>
@@ -26,6 +27,7 @@ export type FetchFeedFetcher = (
 ) => Promise<void>
 
 export const middlewares: Array<FetchFeedFetcher> = [
+    preflightFeed,
     downloadFeed,
     soundCloudFeed,
     jsonFeed,
@@ -51,8 +53,8 @@ export const fetchFeed: FetchFeed = async (context) => {
 
     await next()
 
-    if (context.feed) {
-        return context.feed
+    if (context.feedData) {
+        return context.feedData
     }
 
     if (context.error) {

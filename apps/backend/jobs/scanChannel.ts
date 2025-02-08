@@ -8,21 +8,25 @@ import { Channel } from '../types/schemas'
 
 export const scanChannel = async (channel: Channel) => {
     try {
-        const feed = await fetchFeed({ url: channel.url, channel })
+        const feedData = await fetchFeed({ url: channel.url, channel })
 
         await db
             .update(tables.channels)
             .set({
-                title: feed.channel.title ?? channel.title,
-                description: feed.channel.description ?? channel.description,
-                link: feed.channel.link ?? channel.link,
+                title: feedData.channel.title ?? channel.title,
+                description: feedData.channel.description ?? channel.description,
+                link: feedData.channel.link ?? channel.link,
                 lastScannedAt: new Date(),
+                lastScanEtag: feedData.etag,
                 lastScanError: null,
             })
             .where(eq(tables.channels.id, channel.id))
 
-        createOrUpdateItems(channel, feed.items)
+        createOrUpdateItems(channel, feedData.items)
     } catch (error) {
+        // TODO: Consider storing info about the 304 Not Modified status differently.
+        // At this moment it's stored as an error but this is not semantically correct.
+
         await db
             .update(tables.channels)
             .set({

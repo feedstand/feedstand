@@ -7,13 +7,13 @@ export const directFinder: FindFeedsMiddleware = async (context, next) => {
     }
 
     try {
-        const feed = await fetchFeed({
+        const feedData = await fetchFeed({
             url: context.response.url,
             response: context.response,
             channel: context.channel,
         })
 
-        context.feedInfos = [{ title: feed.channel.title, url: feed.channel.url }]
+        context.feedInfos = [{ title: feedData.channel.title, url: feedData.channel.url }]
     } catch (error) {
         context.error = error
     }

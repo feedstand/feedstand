@@ -56,8 +56,6 @@ export const jsonFeed: FetchFeedFetcher = async (context, next) => {
         return await next()
     }
 
-    const response = context.response?.clone()
-
     // TODO: Should content type check be skipped? In the real world, feeds do not always set the
     // correct content type indicating XML which result in some feeds not being correctly scanned.
     // if !isOneOfContentTypes(response, jsonFeedContentTypes)) {
@@ -66,10 +64,11 @@ export const jsonFeed: FetchFeedFetcher = async (context, next) => {
 
     try {
         // TODO: Validate if the JSON file is actually a JSON Feed.
-        const out = await response.json()
+        const out = await context.response?.clone().json()
 
-        context.feed = {
-            channel: jsonFeedChannel(out, response.url),
+        context.feedData = {
+            etag: context.response.headers.get('etag'),
+            channel: jsonFeedChannel(out, context.response.url),
             items: jsonFeedItems(out),
         }
     } catch (error) {

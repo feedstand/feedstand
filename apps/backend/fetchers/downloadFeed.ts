@@ -2,7 +2,7 @@ import { FetchFeedFetcher } from '../actions/fetchFeed'
 import { fetchUrl } from '../actions/fetchUrl'
 
 export const downloadFeed: FetchFeedFetcher = async (context, next) => {
-    if (context.response?.ok) {
+    if (context.response) {
         return await next()
     }
 
