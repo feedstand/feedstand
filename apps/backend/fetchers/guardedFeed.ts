@@ -20,14 +20,12 @@ const signatures = [
 ]
 
 export const guardedFeed: FetchFeedFetcher = async (context, next) => {
-    const response = context.response?.clone()
-
-    if (!response) {
+    if (!context.response) {
         return await next()
     }
 
-    const text = await response.text()
-    const status = response.status
+    const text = await context.response.clone().text()
+    const status = context.response.status
 
     for (const signature of signatures) {
         if (text.includes(signature.text) && status === signature.status) {
