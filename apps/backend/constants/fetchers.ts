@@ -13,6 +13,7 @@ export const xmlFeedContentTypes = [
     'text/rss+xml', // Legacy, for supporting very old websites only.
     'text/atom+xml', // Legacy, for supporting very old websites only.
     'text/xml', // Legacy, for supporting very old websites only.
+    'application/rss+xml+xml', // Some sites have this incorrect format, unfortunately.
 ]
 
 export const anyFeedContentTypes = [...jsonFeedContentTypes, ...xmlFeedContentTypes]
