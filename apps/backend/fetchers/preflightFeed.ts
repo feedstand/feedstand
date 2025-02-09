@@ -1,5 +1,5 @@
 import { FetchFeedMiddleware } from '../actions/fetchFeed'
-import { fetchUrl } from '../actions/fetchUrl'
+import { isUrlFresh } from '../actions/isUrlFresh'
 
 export const preflightFeed: FetchFeedMiddleware = async (context, next) => {
     if (context.response?.ok || !context.channel?.lastScanEtag || !context.channel?.lastScannedAt) {
@@ -7,19 +7,14 @@ export const preflightFeed: FetchFeedMiddleware = async (context, next) => {
     }
 
     try {
-        const response = await fetchUrl(context.url, {
-            method: 'head',
-            headers: {
-                // TODO: Consider adding support for Cache-Control and Age headers to detect if
-                // the content is still fresh.
-                'If-None-Match': context.channel?.lastScanEtag,
-                'If-Modified-Since': context.channel?.lastScannedAt
-                    ? new Date(context.channel?.lastScannedAt)?.toUTCString()
-                    : undefined,
-            },
+        const { isFresh, response } = await isUrlFresh(context.url, {
+            etag: context.channel?.lastScanEtag,
+            date: context.channel?.lastScannedAt
+                ? new Date(context.channel?.lastScannedAt)
+                : undefined,
         })
 
-        if (response.status === 304) {
+        if (isFresh) {
             context.response = response
         }
     } catch (error) {
