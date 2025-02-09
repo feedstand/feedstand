@@ -10,8 +10,12 @@ export const preflightFeed: FetchFeedFetcher = async (context, next) => {
         const response = await fetchUrl(context.url, {
             method: 'head',
             headers: {
+                // TODO: Consider adding support for Cache-Control and Age headers to detect if
+                // the content is still fresh.
                 'If-None-Match': context.channel?.lastScanEtag,
-                'If-Modified-Since': context.channel?.lastScannedAt?.toUTCString(),
+                'If-Modified-Since': context.channel?.lastScannedAt
+                    ? new Date(context.channel?.lastScannedAt)?.toUTCString()
+                    : undefined,
             },
         })
 
