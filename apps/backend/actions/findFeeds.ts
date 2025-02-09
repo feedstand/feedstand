@@ -10,9 +10,7 @@ export type FindFeedsContext = {
     feedInfos?: Array<FeedInfo>
 }
 
-export type FindFeeds = (
-    initialContext: Omit<FindFeedsContext, 'feeds'>,
-) => Promise<Array<FeedInfo>>
+export type FindFeeds = (context: FindFeedsContext) => Promise<Array<FeedInfo>>
 
 export type FindFeedsNext = () => Promise<void>
 
@@ -20,9 +18,7 @@ export type FindFeedsMiddleware = (context: FindFeedsContext, next: FindFeedsNex
 
 export const middlewares: Array<FindFeedsMiddleware> = [youTubeFinder, directFinder, webpageFinder]
 
-export const findFeeds: FindFeeds = async (initialContext) => {
-    const context: FindFeedsContext = { ...initialContext }
-
+export const findFeeds: FindFeeds = async (context) => {
     let index = 0
 
     const next: FindFeedsNext = async () => {

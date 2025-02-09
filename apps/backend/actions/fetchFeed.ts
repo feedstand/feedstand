@@ -19,12 +19,9 @@ export type FetchFeedContext = {
 
 export type FetchFeed = (context: FetchFeedContext) => Promise<FeedData>
 
-export type FetchFeedNextFunction = () => Promise<void>
+export type FetchFeedNext = () => Promise<void>
 
-export type FetchFeedMiddleware = (
-    context: FetchFeedContext,
-    next: FetchFeedNextFunction,
-) => Promise<void>
+export type FetchFeedMiddleware = (context: FetchFeedContext, next: FetchFeedNext) => Promise<void>
 
 export const middlewares: Array<FetchFeedMiddleware> = [
     preflightFeed,
@@ -41,7 +38,7 @@ export const middlewares: Array<FetchFeedMiddleware> = [
 export const fetchFeed: FetchFeed = async (context) => {
     let index = 0
 
-    const next: FetchFeedNextFunction = async () => {
+    const next: FetchFeedNext = async () => {
         const middleware = middlewares[index++]
 
         if (!middleware) {
