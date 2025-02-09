@@ -1,5 +1,5 @@
 import { castArray, get } from 'lodash-es'
-import { FetchFeedFetcher } from '../actions/fetchFeed'
+import { FetchFeedMiddleware } from '../actions/fetchFeed'
 import { parseValue, trimStrings } from '../helpers/parsers'
 import { dateAi } from '../parsers/dateAi'
 import { dateCustomFormat } from '../parsers/dateCustomFormat'
@@ -51,7 +51,7 @@ export const jsonFeedItems = (feed: JsonFeed): Array<FeedItem> => {
     return items
 }
 
-export const jsonFeed: FetchFeedFetcher = async (context, next) => {
+export const jsonFeed: FetchFeedMiddleware = async (context, next) => {
     if (!context.response?.ok) {
         return await next()
     }

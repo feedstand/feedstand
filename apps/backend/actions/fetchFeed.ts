@@ -21,12 +21,12 @@ export type FetchFeed = (context: FetchFeedContext) => Promise<FeedData>
 
 export type FetchFeedNextFunction = () => Promise<void>
 
-export type FetchFeedFetcher = (
+export type FetchFeedMiddleware = (
     context: FetchFeedContext,
     next: FetchFeedNextFunction,
 ) => Promise<void>
 
-export const middlewares: Array<FetchFeedFetcher> = [
+export const middlewares: Array<FetchFeedMiddleware> = [
     preflightFeed,
     downloadFeed,
     soundCloudFeed,

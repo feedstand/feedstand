@@ -1,7 +1,7 @@
-import { FetchFeedFetcher } from '../actions/fetchFeed'
+import { FetchFeedMiddleware } from '../actions/fetchFeed'
 import { fetchUrl } from '../actions/fetchUrl'
 
-export const downloadFeed: FetchFeedFetcher = async (context, next) => {
+export const downloadFeed: FetchFeedMiddleware = async (context, next) => {
     if (context.response) {
         return await next()
     }

@@ -1,5 +1,5 @@
 import RSSParser from 'rss-parser'
-import { FetchFeedFetcher } from '../actions/fetchFeed'
+import { FetchFeedMiddleware } from '../actions/fetchFeed'
 import { parseValue, trimStrings } from '../helpers/parsers'
 import { authorFromAtom } from '../parsers/authorFromAtom'
 import { dateAi } from '../parsers/dateAi'
@@ -56,7 +56,7 @@ export const xmlFeedItems = (feed: XmlFeed): Array<FeedItem> => {
     return items
 }
 
-export const xmlFeed: FetchFeedFetcher = async (context, next) => {
+export const xmlFeed: FetchFeedMiddleware = async (context, next) => {
     if (!context.response?.ok) {
         return await next()
     }

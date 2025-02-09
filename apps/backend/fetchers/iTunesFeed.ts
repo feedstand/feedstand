@@ -1,6 +1,6 @@
-import { FetchFeedFetcher } from '../actions/fetchFeed'
+import { FetchFeedMiddleware } from '../actions/fetchFeed'
 
-export const iTunesFeed: FetchFeedFetcher = async (_, next) => {
+export const iTunesFeed: FetchFeedMiddleware = async (_, next) => {
     // TODO: Implement extracting the new feed URL.
     // Example: https://feeds.feedburner.com/potentialchurchpodcastaudio
     // Returns: <itunes:https://potentialaudio.podbean.com/feed/>

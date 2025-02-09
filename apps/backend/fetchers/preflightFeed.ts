@@ -1,7 +1,7 @@
-import { FetchFeedFetcher } from '../actions/fetchFeed'
+import { FetchFeedMiddleware } from '../actions/fetchFeed'
 import { fetchUrl } from '../actions/fetchUrl'
 
-export const preflightFeed: FetchFeedFetcher = async (context, next) => {
+export const preflightFeed: FetchFeedMiddleware = async (context, next) => {
     if (context.response?.ok || !context.channel?.lastScanEtag || !context.channel?.lastScannedAt) {
         return await next()
     }

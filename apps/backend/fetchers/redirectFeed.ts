@@ -1,8 +1,8 @@
 import { load } from 'cheerio'
-import { fetchFeed, FetchFeedFetcher } from '../actions/fetchFeed'
+import { fetchFeed, FetchFeedMiddleware } from '../actions/fetchFeed'
 
 // Example: https://www.juhaliikala.com/rss.
-export const redirectFeed: FetchFeedFetcher = async (context, next) => {
+export const redirectFeed: FetchFeedMiddleware = async (context, next) => {
     if (!context.response?.ok) {
         return await next()
     }

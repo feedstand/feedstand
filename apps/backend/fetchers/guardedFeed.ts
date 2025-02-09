@@ -1,4 +1,4 @@
-import { FetchFeedFetcher } from '../actions/fetchFeed'
+import { FetchFeedMiddleware } from '../actions/fetchFeed'
 
 const signatures = [
     // Example: https://dogbiscuitphotos.com/feed/
@@ -23,7 +23,7 @@ const signatures = [
     { text: 'Verifying that you are not a robot...', status: 200, name: 'Unknown' },
 ]
 
-export const guardedFeed: FetchFeedFetcher = async (context, next) => {
+export const guardedFeed: FetchFeedMiddleware = async (context, next) => {
     if (!context.response) {
         return await next()
     }

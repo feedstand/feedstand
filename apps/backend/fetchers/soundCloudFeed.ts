@@ -1,4 +1,4 @@
-import { fetchFeed, FetchFeedFetcher } from '../actions/fetchFeed'
+import { fetchFeed, FetchFeedMiddleware } from '../actions/fetchFeed'
 
 export const extractRedirectUrl = (text: string): string | undefined => {
     const pattern =
@@ -8,7 +8,7 @@ export const extractRedirectUrl = (text: string): string | undefined => {
     return match?.[1]
 }
 
-export const soundCloudFeed: FetchFeedFetcher = async (context, next) => {
+export const soundCloudFeed: FetchFeedMiddleware = async (context, next) => {
     if (!context.response?.ok || context.response.url.indexOf('soundcloud.com') === -1) {
         return await next()
     }

@@ -1,4 +1,4 @@
-import { FetchFeedFetcher } from '../actions/fetchFeed'
+import { FetchFeedMiddleware } from '../actions/fetchFeed'
 
 type Signature = {
     test: (response: string) => boolean
@@ -24,7 +24,7 @@ const signatures: Array<Signature> = [
     },
 ]
 
-export const invalidFeed: FetchFeedFetcher = async (context, next) => {
+export const invalidFeed: FetchFeedMiddleware = async (context, next) => {
     if (!context.response?.ok) {
         return await next()
     }
