@@ -11,9 +11,13 @@ const signatures = [
     // Related: https://openrss.org/issue/144
     // Related: https://developers.cloudflare.com/bots/reference/verified-bots-policy/
     // Related: https://radar.cloudflare.com/traffic/verified-bots
+    // Header: "server: cloudflare"
     { text: '<title>Just a moment...</title>', status: 403, name: 'Cloudflare' },
 
     // Example: https://medzpills.com/feed/
+    // Header: "panel: hpanel"
+    // Header: "platform: hostinger"
+    // Header: "server: LiteSpeed"
     { text: '.lsrecap/recaptcha', status: 200, name: 'Unknown' },
     { text: 'https://www.recaptcha.net', status: 200, name: 'Unknown' },
     { text: 'Verifying that you are not a robot...', status: 200, name: 'Unknown' },
