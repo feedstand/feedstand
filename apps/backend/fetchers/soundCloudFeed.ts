@@ -1,5 +1,6 @@
 import { fetchFeed, FetchFeedMiddleware } from '../actions/fetchFeed'
 
+// Details: https://help.soundcloud.com/hc/en-us/articles/115003564088.
 export const extractRedirectUrl = (text: string): string | undefined => {
     const pattern =
         /^This RSS feed has been redirected, and SoundCloud cannot guarantee the safety of external links\. If you would like to continue, you can navigate to ['"]([^'"]+)['"]\.?\s*RSS Readers and Podcasting apps will be redirected automatically\.?$/i

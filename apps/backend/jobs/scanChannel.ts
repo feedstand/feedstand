@@ -8,14 +8,15 @@ import { Channel } from '../types/schemas'
 
 export const scanChannel = async (channel: Channel) => {
     try {
-        const feedData = await fetchFeed({ url: channel.url, channel })
+        const feedData = await fetchFeed({ url: channel.feedUrl, channel })
 
         await db
             .update(tables.channels)
             .set({
                 title: feedData.channel.title ?? channel.title,
                 description: feedData.channel.description ?? channel.description,
-                link: feedData.channel.link ?? channel.link,
+                siteUrl: feedData.channel.siteUrl ?? channel.siteUrl,
+                feedType: feedData.type || channel.feedType,
                 lastScannedAt: new Date(),
                 lastScanEtag: feedData.etag,
                 lastScanError: null,

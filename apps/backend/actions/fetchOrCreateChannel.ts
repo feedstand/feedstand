@@ -9,7 +9,7 @@ export const fetchOrCreateChannel = async (url: string): Promise<Channel> => {
     const [existingChannel] = await db
         .select()
         .from(tables.channels)
-        .where(eq(tables.channels.url, url))
+        .where(eq(tables.channels.feedUrl, url))
         .limit(1)
 
     if (existingChannel) {

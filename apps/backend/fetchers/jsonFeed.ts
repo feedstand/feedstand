@@ -10,10 +10,10 @@ import { FeedChannel, FeedItem } from '../types/schemas'
 
 export const jsonFeedChannel = (feed: JsonFeed, url: string): FeedChannel => {
     return trimStrings({
-        url: parseValue(feed.feed_url, [textStandard], url),
         title: parseValue(feed.title, [textStandard]),
-        link: parseValue(feed.home_page_url, [textStandard]),
         description: parseValue(feed.description, [textStandard]),
+        siteUrl: parseValue(feed.home_page_url, [textStandard]),
+        feedUrl: parseValue(feed.feed_url, [textStandard], url),
     })
 }
 
@@ -68,6 +68,7 @@ export const jsonFeed: FetchFeedMiddleware = async (context, next) => {
 
         context.feedData = {
             etag: context.response.headers.get('etag'),
+            type: 'json',
             channel: jsonFeedChannel(out, context.response.url),
             items: jsonFeedItems(out),
         }

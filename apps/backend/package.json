@@ -2,8 +2,8 @@
     "name": "@feedstand/backend",
     "type": "module",
     "scripts": {
-        "dev": "tsx --watch index.ts",
-        "play": "tsx --watch play.ts",
+        "dev": "tsx --env-file=.env --watch index.ts",
+        "play": "tsx --env-file=.env --watch play.ts",
         "test": "vitest run",
         "start": "tsx index.ts",
         "db:seed": "tsx database/tasks/seed.ts",

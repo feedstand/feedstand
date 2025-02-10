@@ -13,7 +13,7 @@ export const directFinder: FindFeedsMiddleware = async (context, next) => {
             channel: context.channel,
         })
 
-        context.feedInfos = [{ title: feedData.channel.title, url: feedData.channel.url }]
+        context.feedInfos = [{ title: feedData.channel.title, url: feedData.channel.feedUrl }]
     } catch (error) {
         context.error = error
     }

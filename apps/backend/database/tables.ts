@@ -2,6 +2,7 @@ import {
     boolean,
     index,
     integer,
+    pgEnum,
     pgTable,
     serial,
     timestamp,
@@ -24,25 +25,36 @@ export const users = pgTable(
     (table) => [uniqueIndex('users_email_idx').on(table.email)],
 )
 
+export const channelType = pgEnum('channel_types', ['xml', 'json'])
+export const channelScanStatus = pgEnum('channel_scan_statuses', ['updated', 'unchanged', 'failed'])
+export const channelFixCheckStatus = pgEnum('channel_fix_check_statuses', [
+    'fixable',
+    'unfixable',
+    'failed',
+])
+
 export const channels = pgTable(
     'channels',
     {
         id: serial('id').primaryKey(),
-        url: safeText('url').notNull(),
         title: safeVarchar('title'),
-        link: safeText('link'),
         description: safeVarchar('description'),
+        siteUrl: safeText('site_url'),
+        feedUrl: safeText('feed_url').notNull(),
+        feedType: channelType('feed_type'),
         createdAt: timestamp('created_at').notNull().defaultNow(),
         updatedAt: timestamp('updated_at').notNull().defaultNow(),
         lastScannedAt: timestamp('last_scanned_at'),
+        lastScanStatus: channelScanStatus('last_scan_status'),
         lastScanEtag: safeVarchar('last_scan_etag'),
         lastScanError: safeText('last_scan_error'),
         lastFixCheckedAt: timestamp('last_fix_checked_at'),
+        lastFixCheckStatus: channelFixCheckStatus('last_fix_check_status'),
         lastFixCheckEtag: safeVarchar('last_fix_check_etag'),
         lastFixCheckCount: integer('last_fix_check_count').default(0),
         lastFixCheckError: safeText('last_fix_check_error'),
     },
-    (table) => [uniqueIndex('channels_url_idx').on(table.url)],
+    (table) => [uniqueIndex('channels_feed_url_idx').on(table.feedUrl)],
 )
 
 export const fixables = pgTable(
@@ -123,4 +135,10 @@ export const tables = {
     items,
     sources,
     unreads,
+}
+
+export const enums = {
+    channelType,
+    channelScanStatus,
+    channelFixCheckStatus,
 }

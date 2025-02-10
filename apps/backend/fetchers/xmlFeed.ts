@@ -12,13 +12,13 @@ import { FeedChannel, FeedItem } from '../types/schemas'
 
 export const xmlFeedChannel = (feed: XmlFeed, url: string): FeedChannel => {
     return trimStrings({
+        title: parseValue(feed.title, [textStandard]),
+        description: parseValue(feed.description, [textStandard]),
+        siteUrl: parseValue(feed.link, [textStandard, linkFromAtom]),
         // TODO: Consider using feed.feedUrl. The only problem is that it might be a relative
         // URL instead of absolute. What to do in such cases?
         // url: parseValue(feed.feedUrl, [textStandard], url),
-        url,
-        title: parseValue(feed.title, [textStandard]),
-        link: parseValue(feed.link, [textStandard, linkFromAtom]),
-        description: parseValue(feed.description, [textStandard]),
+        feedUrl: url,
     })
 }
 
@@ -73,6 +73,7 @@ export const xmlFeed: FetchFeedMiddleware = async (context, next) => {
 
         context.feedData = {
             etag: context.response.headers.get('etag'),
+            type: 'xml',
             channel: xmlFeedChannel(out, context.response.url),
             items: xmlFeedItems(out),
         }

@@ -5,23 +5,23 @@ import { generateChannel } from '../factories/channel'
 export const seedChannels = async () => {
     await db.insert(tables.channels).values([
         generateChannel({
-            url: 'https://zenhabits.net/feed',
             title: 'zen habits',
-            link: 'https://zenhabits.net',
+            siteUrl: 'https://zenhabits.net',
+            feedUrl: 'https://zenhabits.net/feed',
             description: 'breathe',
             lastScannedAt: undefined,
         }),
         generateChannel({
-            url: 'http://deconstructingyourself.com/feed',
             title: 'Deconstructing Yourself',
-            link: 'http://deconstructingyourself.com',
+            siteUrl: 'http://deconstructingyourself.com',
+            feedUrl: 'http://deconstructingyourself.com/feed',
             description: 'Mindfulness, Meditation, and Awakening for Modern Mutants',
             lastScannedAt: undefined,
         }),
         generateChannel({
-            url: 'https://daringfireball.net/feeds/json',
             title: 'Daring Fireball',
-            link: 'https://daringfireball.net',
+            siteUrl: 'https://daringfireball.net',
+            feedUrl: 'https://daringfireball.net/feeds/json',
             description: undefined,
             lastScannedAt: undefined,
         }),
