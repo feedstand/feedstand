@@ -1,6 +1,6 @@
-import { FetchFeedMiddleware } from '../actions/fetchFeed'
+import { WorkflowProcessor } from '../../actions/createWorkflow'
 
-export const failedFeed: FetchFeedMiddleware = async (context, next) => {
+export const failedPage: WorkflowProcessor<unknown> = async (context, next) => {
     if (!context.error) {
         return await next()
     }

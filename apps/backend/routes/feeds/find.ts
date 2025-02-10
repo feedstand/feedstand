@@ -1,5 +1,4 @@
 import { createRoute, z } from '@hono/zod-openapi'
-import { fetchUrl } from '../../actions/fetchUrl'
 import { findFeeds } from '../../actions/findFeeds'
 import { createHandler } from '../../helpers/hono'
 import { feedInfo } from '../../schemas/feedInfo'
@@ -23,8 +22,7 @@ export const route = createRoute({
 
 export const handler = createHandler(route, async (context) => {
     const { url } = context.req.valid('json')
-    const response = await fetchUrl(url)
-    const feeds = await findFeeds({ response })
+    const feeds = await findFeeds({ url })
 
     return context.json(feeds, 200)
 })

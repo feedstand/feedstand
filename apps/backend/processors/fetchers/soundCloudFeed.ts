@@ -1,4 +1,4 @@
-import { fetchFeed, FetchFeedMiddleware } from '../actions/fetchFeed'
+import { fetchFeed, FetchFeedProcessor } from '../../actions/fetchFeed'
 
 // Details: https://help.soundcloud.com/hc/en-us/articles/115003564088.
 export const extractRedirectUrl = (text: string): string | undefined => {
@@ -9,7 +9,7 @@ export const extractRedirectUrl = (text: string): string | undefined => {
     return match?.[1]
 }
 
-export const soundCloudFeed: FetchFeedMiddleware = async (context, next) => {
+export const soundCloudFeed: FetchFeedProcessor = async (context, next) => {
     if (!context.response?.ok || context.response.url.indexOf('soundcloud.com') === -1) {
         return await next()
     }
@@ -25,7 +25,7 @@ export const soundCloudFeed: FetchFeedMiddleware = async (context, next) => {
     // This would mean that all references to current channel (the one with SoundCloud redirect)
     // would need to be adjusted and assigned to the existing one.
 
-    context.feedData = await fetchFeed({ url: redirectUrl, channel: context.channel })
+    context.result = await fetchFeed({ url: redirectUrl, channel: context.channel })
 
     await next()
 }

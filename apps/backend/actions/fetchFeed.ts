@@ -1,62 +1,29 @@
-import { downloadFeed } from '../fetchers/downloadFeed'
-import { failedFeed } from '../fetchers/failedFeed'
-import { guardedFeed } from '../fetchers/guardedFeed'
-import { invalidFeed } from '../fetchers/invalidFeed'
-import { jsonFeed } from '../fetchers/jsonFeed'
-import { preflightFeed } from '../fetchers/preflightFeed'
-import { redirectFeed } from '../fetchers/redirectFeed'
-import { soundCloudFeed } from '../fetchers/soundCloudFeed'
-import { xmlFeed } from '../fetchers/xmlFeed'
-import { Channel, FeedData } from '../types/schemas'
+import { failedPage } from '../processors/common/failedPage'
+import { guardedPage } from '../processors/common/guardedPage'
+import { preflightFetch } from '../processors/common/preflightFetch'
+import { responseFetch } from '../processors/common/responseFetch'
+import { invalidFeed } from '../processors/fetchers/invalidFeed'
+import { jsonFeed } from '../processors/fetchers/jsonFeed'
+import { redirectFeed } from '../processors/fetchers/redirectFeed'
+import { soundCloudFeed } from '../processors/fetchers/soundCloudFeed'
+import { xmlFeed } from '../processors/fetchers/xmlFeed'
+import { FeedData } from '../types/schemas'
+import { createWorkflow, WorkflowProcessor } from './createWorkflow'
 
-export type FetchFeedContext = {
-    url: string
-    response?: Response
-    channel?: Channel
-    error?: unknown
-    feedData?: FeedData
-}
+export type FetchFeedData = FeedData
 
-export type FetchFeed = (context: FetchFeedContext) => Promise<FeedData>
+export type FetchFeedProcessor = WorkflowProcessor<FetchFeedData>
 
-export type FetchFeedNext = () => Promise<void>
-
-export type FetchFeedMiddleware = (context: FetchFeedContext, next: FetchFeedNext) => Promise<void>
-
-export const middlewares: Array<FetchFeedMiddleware> = [
-    preflightFeed,
-    downloadFeed,
+export const processors: Array<FetchFeedProcessor> = [
+    preflightFetch,
+    responseFetch,
     soundCloudFeed,
     jsonFeed,
     xmlFeed,
     redirectFeed,
-    guardedFeed,
+    guardedPage,
     invalidFeed,
-    failedFeed,
+    failedPage,
 ]
 
-export const fetchFeed: FetchFeed = async (context) => {
-    let index = 0
-
-    const next: FetchFeedNext = async () => {
-        const middleware = middlewares[index++]
-
-        if (!middleware) {
-            return
-        }
-
-        await middleware(context, next)
-    }
-
-    await next()
-
-    if (context.feedData) {
-        return context.feedData
-    }
-
-    if (context.error) {
-        throw context.error
-    }
-
-    throw new Error(`Unprocessable response, HTTP code: ${context.response?.status || 'Unknown'}`)
-}
+export const fetchFeed = createWorkflow<FetchFeedData>(processors)

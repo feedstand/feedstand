@@ -1,14 +1,14 @@
 import RSSParser from 'rss-parser'
-import { FetchFeedMiddleware } from '../actions/fetchFeed'
-import { parseValue, trimStrings } from '../helpers/parsers'
-import { authorFromAtom } from '../parsers/authorFromAtom'
-import { dateAi } from '../parsers/dateAi'
-import { dateCustomFormat } from '../parsers/dateCustomFormat'
-import { dateStandard } from '../parsers/dateStandard'
-import { linkFromAtom } from '../parsers/linkFromAtom'
-import { textStandard } from '../parsers/textStandard'
-import { XmlFeed } from '../types/feeds'
-import { FeedChannel, FeedItem } from '../types/schemas'
+import { FetchFeedProcessor } from '../../actions/fetchFeed'
+import { parseValue, trimStrings } from '../../helpers/parsers'
+import { authorFromAtom } from '../../parsers/authorFromAtom'
+import { dateAi } from '../../parsers/dateAi'
+import { dateCustomFormat } from '../../parsers/dateCustomFormat'
+import { dateStandard } from '../../parsers/dateStandard'
+import { linkFromAtom } from '../../parsers/linkFromAtom'
+import { textStandard } from '../../parsers/textStandard'
+import { XmlFeed } from '../../types/feeds'
+import { FeedChannel, FeedItem } from '../../types/schemas'
 
 export const xmlFeedChannel = (feed: XmlFeed, url: string): FeedChannel => {
     return trimStrings({
@@ -56,7 +56,7 @@ export const xmlFeedItems = (feed: XmlFeed): Array<FeedItem> => {
     return items
 }
 
-export const xmlFeed: FetchFeedMiddleware = async (context, next) => {
+export const xmlFeed: FetchFeedProcessor = async (context, next) => {
     if (!context.response?.ok) {
         return await next()
     }
@@ -71,7 +71,7 @@ export const xmlFeed: FetchFeedMiddleware = async (context, next) => {
         const xml = await context.response.clone().text()
         const out = await new RSSParser().parseString(xml)
 
-        context.feedData = {
+        context.result = {
             etag: context.response.headers.get('etag'),
             type: 'xml',
             channel: xmlFeedChannel(out, context.response.url),

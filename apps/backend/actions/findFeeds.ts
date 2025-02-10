@@ -1,45 +1,21 @@
-import { directFinder } from '../finders/directFinder'
-import { webpageFinder } from '../finders/webpageFinder'
-import { youTubeFinder } from '../finders/youTubeFinder'
-import { Channel, FeedInfo } from '../types/schemas'
+import { preflightFetch } from '../processors/common/preflightFetch'
+import { responseFetch } from '../processors/common/responseFetch'
+import { directFinder } from '../processors/finders/directFinder'
+import { webpageFinder } from '../processors/finders/webpageFinder'
+import { youTubeFinder } from '../processors/finders/youTubeFinder'
+import { FeedInfo } from '../types/schemas'
+import { createWorkflow, WorkflowProcessor } from './createWorkflow'
 
-export type FindFeedsContext = {
-    response: Response
-    channel?: Channel
-    error?: unknown
-    feedInfos?: Array<FeedInfo>
-}
+export type FindFeedsData = Array<FeedInfo>
 
-export type FindFeeds = (context: FindFeedsContext) => Promise<Array<FeedInfo>>
+export type FindFeedsProcessor = WorkflowProcessor<FindFeedsData>
 
-export type FindFeedsNext = () => Promise<void>
+export const processors: Array<FindFeedsProcessor> = [
+    preflightFetch,
+    responseFetch,
+    youTubeFinder,
+    directFinder,
+    webpageFinder,
+]
 
-export type FindFeedsMiddleware = (context: FindFeedsContext, next: FindFeedsNext) => Promise<void>
-
-export const middlewares: Array<FindFeedsMiddleware> = [youTubeFinder, directFinder, webpageFinder]
-
-export const findFeeds: FindFeeds = async (context) => {
-    let index = 0
-
-    const next: FindFeedsNext = async () => {
-        const middleware = middlewares[index++]
-
-        if (!middleware) {
-            return
-        }
-
-        await middleware(context, next)
-    }
-
-    await next()
-
-    if (context.feedInfos) {
-        return context.feedInfos
-    }
-
-    if (context.error) {
-        throw context.error
-    }
-
-    throw new Error(`Unprocessable response, HTTP code: ${context.response?.status || 'Unknown'}`)
-}
+export const findFeeds = createWorkflow<FindFeedsData>(processors)

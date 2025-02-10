@@ -1,7 +1,7 @@
-import { fetchFeed } from '../actions/fetchFeed'
-import { FindFeedsMiddleware } from '../actions/findFeeds'
+import { fetchFeed } from '../../actions/fetchFeed'
+import { FindFeedsProcessor } from '../../actions/findFeeds'
 
-export const directFinder: FindFeedsMiddleware = async (context, next) => {
+export const directFinder: FindFeedsProcessor = async (context, next) => {
     if (!context.response?.ok) {
         return await next()
     }
@@ -13,7 +13,7 @@ export const directFinder: FindFeedsMiddleware = async (context, next) => {
             channel: context.channel,
         })
 
-        context.feedInfos = [{ title: feedData.channel.title, url: feedData.channel.feedUrl }]
+        context.result = [{ title: feedData.channel.title, url: feedData.channel.feedUrl }]
     } catch (error) {
         context.error = error
     }

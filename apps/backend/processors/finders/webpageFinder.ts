@@ -1,10 +1,10 @@
 import { load } from 'cheerio'
-import { fetchFeed } from '../actions/fetchFeed'
-import { FindFeedsMiddleware } from '../actions/findFeeds'
-import { feedLinkSelectors } from '../constants/finders'
-import { FeedInfo } from '../types/schemas'
+import { fetchFeed } from '../../actions/fetchFeed'
+import { FindFeedsProcessor } from '../../actions/findFeeds'
+import { feedLinkSelectors } from '../../constants/finders'
+import { FeedInfo } from '../../types/schemas'
 
-export const webpageFinder: FindFeedsMiddleware = async (context, next) => {
+export const webpageFinder: FindFeedsProcessor = async (context, next) => {
     if (!context.response?.ok) {
         return await next()
     }
@@ -43,7 +43,7 @@ export const webpageFinder: FindFeedsMiddleware = async (context, next) => {
     }
 
     if (feedInfos.length) {
-        context.feedInfos = feedInfos
+        context.result = feedInfos
     }
 
     await next()

@@ -1,4 +1,4 @@
-import { FetchFeedMiddleware } from '../actions/fetchFeed'
+import { WorkflowProcessor } from '../../actions/createWorkflow'
 
 const signatures = [
     // Example: https://dogbiscuitphotos.com/feed/
@@ -23,12 +23,13 @@ const signatures = [
     { text: 'Verifying that you are not a robot...', status: 200, name: 'Unknown' },
 ]
 
-export const guardedFeed: FetchFeedMiddleware = async (context, next) => {
+export const guardedPage: WorkflowProcessor<unknown> = async (context, next) => {
     if (!context.response) {
         return await next()
     }
 
     const text = await context.response.clone().text()
+
     const status = context.response.status
 
     for (const signature of signatures) {

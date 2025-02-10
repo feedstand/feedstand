@@ -1,15 +1,15 @@
-import { fetchFeed } from '../actions/fetchFeed'
-import { FindFeedsMiddleware } from '../actions/findFeeds'
-import { htmlContentTypes } from '../constants/fetchers'
-import { youTubeDomains } from '../constants/finders'
-import { extractValueByRegex, isOneOfContentTypes } from '../helpers/responses'
+import { fetchFeed } from '../../actions/fetchFeed'
+import { FindFeedsProcessor } from '../../actions/findFeeds'
+import { htmlContentTypes } from '../../constants/fetchers'
+import { youTubeDomains } from '../../constants/finders'
+import { extractValueByRegex, isOneOfContentTypes } from '../../helpers/responses'
 
-export const youTubeFinder: FindFeedsMiddleware = async (context, next) => {
+export const youTubeFinder: FindFeedsProcessor = async (context, next) => {
     if (!context.response?.ok) {
         return await next()
     }
 
-    const isYouTubeDomain = youTubeDomains.some((domain) => context.response.url.includes(domain))
+    const isYouTubeDomain = youTubeDomains.some((domain) => context.response?.url.includes(domain))
     const isHtmlPage = isOneOfContentTypes(context.response, htmlContentTypes)
 
     if (!isYouTubeDomain || !isHtmlPage) {
@@ -29,7 +29,7 @@ export const youTubeFinder: FindFeedsMiddleware = async (context, next) => {
     const url = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`
     const feedData = await fetchFeed({ url, channel: context?.channel })
 
-    context.feedInfos = [{ url, title: feedData.channel.title }]
+    context.result = [{ url, title: feedData.channel.title }]
 
     await next()
 }

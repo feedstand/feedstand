@@ -1,7 +1,7 @@
-import { FetchFeedMiddleware } from '../actions/fetchFeed'
-import { fetchUrl } from '../actions/fetchUrl'
+import { WorkflowProcessor } from '../../actions/createWorkflow'
+import { fetchUrl } from '../../actions/fetchUrl'
 
-export const downloadFeed: FetchFeedMiddleware = async (context, next) => {
+export const responseFetch: WorkflowProcessor<unknown> = async (context, next) => {
     if (context.response) {
         return await next()
     }

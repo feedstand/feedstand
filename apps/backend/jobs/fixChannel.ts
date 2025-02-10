@@ -1,5 +1,4 @@
 import { and, eq, notInArray } from 'drizzle-orm'
-import { fetchUrl } from '../actions/fetchUrl'
 import { findFeeds } from '../actions/findFeeds'
 import { tables } from '../database/tables'
 import { convertErrorToString } from '../helpers/errors'
@@ -8,8 +7,7 @@ import { Channel } from '../types/schemas'
 
 export const fixChannel = async (channel: Channel) => {
     try {
-        const response = await fetchUrl(channel.feedUrl)
-        const allFeeds = await findFeeds({ response, channel })
+        const allFeeds = await findFeeds({ url: channel.feedUrl, channel })
         const validFeeds = allFeeds.filter((feed) => feed.url && feed.url !== channel.feedUrl)
         const validFeedUrls = validFeeds.map(({ url }) => url)
 

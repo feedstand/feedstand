@@ -1,12 +1,12 @@
 import { castArray, get } from 'lodash-es'
-import { FetchFeedMiddleware } from '../actions/fetchFeed'
-import { parseValue, trimStrings } from '../helpers/parsers'
-import { dateAi } from '../parsers/dateAi'
-import { dateCustomFormat } from '../parsers/dateCustomFormat'
-import { dateStandard } from '../parsers/dateStandard'
-import { textStandard } from '../parsers/textStandard'
-import { JsonFeed } from '../types/feeds'
-import { FeedChannel, FeedItem } from '../types/schemas'
+import { FetchFeedProcessor } from '../../actions/fetchFeed'
+import { parseValue, trimStrings } from '../../helpers/parsers'
+import { dateAi } from '../../parsers/dateAi'
+import { dateCustomFormat } from '../../parsers/dateCustomFormat'
+import { dateStandard } from '../../parsers/dateStandard'
+import { textStandard } from '../../parsers/textStandard'
+import { JsonFeed } from '../../types/feeds'
+import { FeedChannel, FeedItem } from '../../types/schemas'
 
 export const jsonFeedChannel = (feed: JsonFeed, url: string): FeedChannel => {
     return trimStrings({
@@ -51,7 +51,7 @@ export const jsonFeedItems = (feed: JsonFeed): Array<FeedItem> => {
     return items
 }
 
-export const jsonFeed: FetchFeedMiddleware = async (context, next) => {
+export const jsonFeed: FetchFeedProcessor = async (context, next) => {
     if (!context.response?.ok) {
         return await next()
     }
@@ -66,7 +66,7 @@ export const jsonFeed: FetchFeedMiddleware = async (context, next) => {
         // TODO: Validate if the JSON file is actually a JSON Feed.
         const out = await context.response?.clone().json()
 
-        context.feedData = {
+        context.result = {
             etag: context.response.headers.get('etag'),
             type: 'json',
             channel: jsonFeedChannel(out, context.response.url),

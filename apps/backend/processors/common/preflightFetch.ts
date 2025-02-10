@@ -1,7 +1,7 @@
-import { FetchFeedMiddleware } from '../actions/fetchFeed'
-import { isUrlFresh } from '../actions/isUrlFresh'
+import { WorkflowProcessor } from '../../actions/createWorkflow'
+import { isUrlFresh } from '../../actions/isUrlFresh'
 
-export const preflightFeed: FetchFeedMiddleware = async (context, next) => {
+export const preflightFetch: WorkflowProcessor<unknown> = async (context, next) => {
     if (context.response?.ok || !context.channel?.lastScanEtag || !context.channel?.lastScannedAt) {
         return await next()
     }
