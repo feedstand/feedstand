@@ -37,10 +37,7 @@ export const webpageFinder: FindFeedsMiddleware = async (context, next) => {
         //     continue
         // }
 
-        const { channel } = await fetchFeed({
-            url: feedUrl,
-            channel: context?.channel,
-        })
+        const { channel } = await fetchFeed({ url: feedUrl, channel: context?.channel })
 
         feedInfos.push({ url: channel.url, title: channel.title })
     }
