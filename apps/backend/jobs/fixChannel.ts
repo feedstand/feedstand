@@ -7,7 +7,7 @@ import { Channel } from '../types/schemas'
 
 export const fixChannel = async (channel: Channel) => {
     try {
-        const allFeeds = await findFeeds({ url: channel.feedUrl, channel })
+        const { etag, feeds: allFeeds } = await findFeeds({ url: channel.feedUrl, channel })
         const validFeeds = allFeeds.filter((feed) => feed.url && feed.url !== channel.feedUrl)
         const validFeedUrls = validFeeds.map(({ url }) => url)
 
@@ -15,14 +15,11 @@ export const fixChannel = async (channel: Channel) => {
             .update(tables.channels)
             .set({
                 lastFixCheckedAt: new Date(),
-                lastFixCheckCount: validFeeds.length,
+                lastFixCheckStatus: 'success',
+                lastFixCheckEtag: etag,
                 lastFixCheckError: null,
             })
             .where(eq(tables.channels.id, channel.id))
-
-        if (!validFeeds.length) {
-            return
-        }
 
         // First, delete any fixables that are no longer valid.
         await db
@@ -33,6 +30,10 @@ export const fixChannel = async (channel: Channel) => {
                     notInArray(tables.fixables.feedUrl, validFeedUrls),
                 ),
             )
+
+        if (!validFeeds.length) {
+            return
+        }
 
         // Then, insert all found fixables. If one already exists, ignore insert.
         await db
@@ -46,11 +47,14 @@ export const fixChannel = async (channel: Channel) => {
             )
             .onConflictDoNothing()
     } catch (error) {
+        // TODO: Consider storing info about the 304 Not Modified status differently.
+        // At this moment it's stored as an error but this is not semantically correct.
+
         await db
             .update(tables.channels)
             .set({
                 lastFixCheckedAt: new Date(),
-                lastFixCheckCount: null,
+                lastFixCheckStatus: 'error',
                 // TODO: Extend the error capturing to store last captured error, response status
                 // and number of erroreous scans since last successful scan.
                 lastFixCheckError: convertErrorToString(error, { showNestedErrors: true }),

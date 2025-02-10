@@ -1,14 +1,13 @@
 import { preflightFetch } from '../processors/common/preflightFetch'
 import { responseFetch } from '../processors/common/responseFetch'
 import { directFinder } from '../processors/finders/directFinder'
+import { redirectPage } from '../processors/finders/redirectPage'
 import { webpageFinder } from '../processors/finders/webpageFinder'
 import { youTubeFinder } from '../processors/finders/youTubeFinder'
-import { FeedInfo } from '../types/schemas'
+import { FoundFeeds } from '../types/schemas'
 import { createWorkflow, WorkflowProcessor } from './createWorkflow'
 
-export type FindFeedsData = Array<FeedInfo>
-
-export type FindFeedsProcessor = WorkflowProcessor<FindFeedsData>
+export type FindFeedsProcessor = WorkflowProcessor<FoundFeeds>
 
 export const processors: Array<FindFeedsProcessor> = [
     preflightFetch,
@@ -16,6 +15,7 @@ export const processors: Array<FindFeedsProcessor> = [
     youTubeFinder,
     directFinder,
     webpageFinder,
+    redirectPage,
 ]
 
-export const findFeeds = createWorkflow<FindFeedsData>(processors)
+export const findFeeds = createWorkflow<FoundFeeds>(processors)

@@ -66,6 +66,8 @@ export const fetchUrl = async (url: string, config?: AxiosRequestConfig): Promis
         // Always return a response instead of throwing an exception. This allows for later use
         // of the erroneous response to detect the type of error in parsing middlewares.
         validateStatus: () => true,
+        // Do not automatically transform JSON response to JSON object.
+        transformResponse: [],
         // Append any custom configuration at the end.
         ...config,
     })

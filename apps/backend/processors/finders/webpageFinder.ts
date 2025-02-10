@@ -2,7 +2,7 @@ import { load } from 'cheerio'
 import { fetchFeed } from '../../actions/fetchFeed'
 import { FindFeedsProcessor } from '../../actions/findFeeds'
 import { feedLinkSelectors } from '../../constants/finders'
-import { FeedInfo } from '../../types/schemas'
+import { FoundFeeds } from '../../types/schemas'
 
 export const webpageFinder: FindFeedsProcessor = async (context, next) => {
     if (!context.response?.ok) {
@@ -18,7 +18,7 @@ export const webpageFinder: FindFeedsProcessor = async (context, next) => {
     const html = await context.response.clone().text()
     const $ = load(html)
     const feedLinks = $(feedLinkSelectors.join())
-    const feedInfos: Array<FeedInfo> = []
+    const feeds: FoundFeeds['feeds'] = []
 
     for (const feedLink of feedLinks) {
         const linkHref = $(feedLink).attr('href')
@@ -39,11 +39,14 @@ export const webpageFinder: FindFeedsProcessor = async (context, next) => {
 
         const { channel } = await fetchFeed({ url: feedUrl, channel: context?.channel })
 
-        feedInfos.push({ url: channel.feedUrl, title: channel.title })
+        feeds.push({ url: channel.feedUrl, title: channel.title })
     }
 
-    if (feedInfos.length) {
-        context.result = feedInfos
+    if (feeds.length) {
+        context.result = {
+            etag: context.response.headers.get('etag'),
+            feeds,
+        }
     }
 
     await next()

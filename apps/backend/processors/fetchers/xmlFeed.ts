@@ -57,7 +57,7 @@ export const xmlFeedItems = (feed: XmlFeed): Array<FeedItem> => {
 }
 
 export const xmlFeed: FetchFeedProcessor = async (context, next) => {
-    if (!context.response?.ok) {
+    if (!context.response?.ok || context.result) {
         return await next()
     }
 

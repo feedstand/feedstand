@@ -26,12 +26,7 @@ export const users = pgTable(
 )
 
 export const channelType = pgEnum('channel_types', ['xml', 'json'])
-export const channelScanStatus = pgEnum('channel_scan_statuses', ['updated', 'unchanged', 'failed'])
-export const channelFixCheckStatus = pgEnum('channel_fix_check_statuses', [
-    'fixable',
-    'unfixable',
-    'failed',
-])
+export const channelJobStatus = pgEnum('channel_job_statuses', ['success', 'pass', 'error'])
 
 export const channels = pgTable(
     'channels',
@@ -45,13 +40,12 @@ export const channels = pgTable(
         createdAt: timestamp('created_at').notNull().defaultNow(),
         updatedAt: timestamp('updated_at').notNull().defaultNow(),
         lastScannedAt: timestamp('last_scanned_at'),
-        lastScanStatus: channelScanStatus('last_scan_status'),
+        lastScanStatus: channelJobStatus('last_scan_status'),
         lastScanEtag: safeVarchar('last_scan_etag'),
         lastScanError: safeText('last_scan_error'),
         lastFixCheckedAt: timestamp('last_fix_checked_at'),
-        lastFixCheckStatus: channelFixCheckStatus('last_fix_check_status'),
+        lastFixCheckStatus: channelJobStatus('last_fix_check_status'),
         lastFixCheckEtag: safeVarchar('last_fix_check_etag'),
-        lastFixCheckCount: integer('last_fix_check_count').default(0),
         lastFixCheckError: safeText('last_fix_check_error'),
     },
     (table) => [uniqueIndex('channels_feed_url_idx').on(table.feedUrl)],
@@ -139,6 +133,5 @@ export const tables = {
 
 export const enums = {
     channelType,
-    channelScanStatus,
-    channelFixCheckStatus,
+    channelJobStatus,
 }

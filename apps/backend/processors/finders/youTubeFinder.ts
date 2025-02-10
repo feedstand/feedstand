@@ -29,7 +29,10 @@ export const youTubeFinder: FindFeedsProcessor = async (context, next) => {
     const url = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`
     const feedData = await fetchFeed({ url, channel: context?.channel })
 
-    context.result = [{ url, title: feedData.channel.title }]
+    context.result = {
+        etag: context.response.headers.get('etag'),
+        feeds: [{ url, title: feedData.channel.title }],
+    }
 
     await next()
 }

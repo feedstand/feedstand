@@ -52,7 +52,7 @@ export const jsonFeedItems = (feed: JsonFeed): Array<FeedItem> => {
 }
 
 export const jsonFeed: FetchFeedProcessor = async (context, next) => {
-    if (!context.response?.ok) {
+    if (!context.response?.ok || context.result) {
         return await next()
     }
 

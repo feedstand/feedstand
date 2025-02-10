@@ -18,6 +18,7 @@ export const scanChannel = async (channel: Channel) => {
                 siteUrl: feedData.channel.siteUrl ?? channel.siteUrl,
                 feedType: feedData.type || channel.feedType,
                 lastScannedAt: new Date(),
+                lastScanStatus: 'success',
                 lastScanEtag: feedData.etag,
                 lastScanError: null,
             })
@@ -27,11 +28,13 @@ export const scanChannel = async (channel: Channel) => {
     } catch (error) {
         // TODO: Consider storing info about the 304 Not Modified status differently.
         // At this moment it's stored as an error but this is not semantically correct.
+        // if (error instanceof Error)
 
         await db
             .update(tables.channels)
             .set({
                 lastScannedAt: new Date(),
+                lastScanStatus: 'error',
                 // TODO: Extend the error capturing to store last captured error, response status
                 // and number of erroreous scans since last successful scan. This way, we can later
                 // downgrade or try to cure the channel which does not work for some period of time.

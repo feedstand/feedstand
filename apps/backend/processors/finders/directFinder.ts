@@ -13,7 +13,10 @@ export const directFinder: FindFeedsProcessor = async (context, next) => {
             channel: context.channel,
         })
 
-        context.result = [{ title: feedData.channel.title, url: feedData.channel.feedUrl }]
+        context.result = {
+            etag: feedData.etag,
+            feeds: [{ title: feedData.channel.title, url: feedData.channel.feedUrl }],
+        }
     } catch (error) {
         context.error = error
     }

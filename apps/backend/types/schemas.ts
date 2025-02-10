@@ -1,12 +1,11 @@
 import { z } from 'zod'
 import { channel } from '../schemas/channel'
-import { channelFixCheckStatus } from '../schemas/channelFixCheckStatus'
-import { channelScanStatus } from '../schemas/channelScanStatus'
+import { channelJobStatus } from '../schemas/channelJobStatus'
 import { channelType } from '../schemas/channelType'
 import { feedChannel } from '../schemas/feedChannel'
 import { feedData } from '../schemas/feedData'
-import { feedInfo } from '../schemas/feedInfo'
 import { feedItem } from '../schemas/feedItem'
+import { foundFeeds } from '../schemas/foundFeeds'
 import { item } from '../schemas/item'
 import { newChannel } from '../schemas/newChannel'
 import { newItem } from '../schemas/newItem'
@@ -23,9 +22,7 @@ export type NewUser = z.infer<typeof newUser>
 
 export type ChannelType = z.infer<typeof channelType>
 
-export type ChannelScanStatus = z.infer<typeof channelScanStatus>
-
-export type ChannelFixCheckStatus = z.infer<typeof channelFixCheckStatus>
+export type ChannelJobStatus = z.infer<typeof channelJobStatus>
 
 export type Channel = z.infer<typeof channel>
 
@@ -43,7 +40,7 @@ export type Unread = z.infer<typeof unread>
 
 export type NewUnread = z.infer<typeof newUnread>
 
-export type FeedInfo = z.infer<typeof feedInfo>
+export type FoundFeeds = z.infer<typeof foundFeeds>
 
 export type FeedData = z.infer<typeof feedData>
 
