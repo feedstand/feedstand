@@ -1,5 +1,7 @@
 import { Channel } from '../types/schemas'
 
+export type Workflow<T> = (context: WorkflowContext<T>) => Promise<T>
+
 export type WorkflowContext<T> = {
     url: string
     response?: Response
@@ -15,8 +17,8 @@ export type WorkflowProcessor<T> = (
     next: WorkflowNext,
 ) => Promise<void>
 
-export const createWorkflow = <T>(processors: Array<WorkflowProcessor<T>>) => {
-    return async (context: WorkflowContext<T>): Promise<T> => {
+export const createWorkflow = <T>(processors: Array<WorkflowProcessor<T>>): Workflow<T> => {
+    return async (context) => {
         let index = 0
 
         const next: WorkflowNext = async () => {
