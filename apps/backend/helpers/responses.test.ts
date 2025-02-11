@@ -9,19 +9,19 @@ describe('isOneOfContentTypes', () => {
     })
 
     it('should return true when content-type matches one of the types', () => {
-        const result = isOneOfContentTypes(mockResponse.clone(), ['application/json'])
+        const result = isOneOfContentTypes(mockResponse, ['application/json'])
 
         expect(result).toBe(true)
     })
 
     it('should return true when content-type partially matches', () => {
-        const result = isOneOfContentTypes(mockResponse.clone(), ['application/json', 'text/plain'])
+        const result = isOneOfContentTypes(mockResponse, ['application/json', 'text/plain'])
 
         expect(result).toBe(true)
     })
 
     it('should return false when content-type does not match', () => {
-        const result = isOneOfContentTypes(mockResponse.clone(), ['text/plain'])
+        const result = isOneOfContentTypes(mockResponse, ['text/plain'])
 
         expect(result).toBe(false)
     })
