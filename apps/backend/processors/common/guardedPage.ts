@@ -29,7 +29,6 @@ export const guardedPage: WorkflowProcessor<unknown> = async (context, next) => 
     }
 
     const text = await context.response.clone().text()
-
     const status = context.response.status
 
     for (const signature of signatures) {
