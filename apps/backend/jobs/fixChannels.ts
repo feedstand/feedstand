@@ -1,5 +1,5 @@
 import { subDays } from 'date-fns'
-import { and, eq, gt, inArray, isNull, lte, or, SQL } from 'drizzle-orm'
+import { and, eq, gt, isNull, lte, ne, or, SQL } from 'drizzle-orm'
 import { tables } from '../database/tables'
 import { db } from '../instances/database'
 import { channelQueue } from '../queues/channel'
@@ -12,20 +12,19 @@ export const fixChannels = async () => {
     const conditions: Array<SQL | undefined> = [
         and(
             // Only Channels that were already scanned and returned error the last time.
-            eq(tables.channels.lastScanStatus, 'error'),
+            eq(tables.channels.lastScanStatus, 'failed'),
             or(
-                // Once in 7 days: Channels which were successfully fixes-checked or skipped
-                // due to unchanged response.
+                // Once in 30 days: Channels which were successfully fixes-checked.
                 and(
-                    inArray(tables.channels.lastFixCheckStatus, ['success', 'pass']),
-                    lte(tables.channels.lastFixCheckedAt, subDays(new Date(), 7)),
+                    ne(tables.channels.lastFixCheckStatus, 'failed'),
+                    lte(tables.channels.lastFixCheckedAt, subDays(new Date(), 30)),
                 ),
-                // Once in 30 days: Channels which failed fixes check the last time.
+                // Once in 14 days: Channels which failed fixes check the last time.
                 // TODO: Consider different types of errors and whether to perform the fix check
                 // more frequently when certain type of error occurs (eg. network error).
                 and(
-                    eq(tables.channels.lastFixCheckStatus, 'error'),
-                    lte(tables.channels.lastFixCheckedAt, subDays(new Date(), 30)),
+                    eq(tables.channels.lastFixCheckStatus, 'failed'),
+                    lte(tables.channels.lastFixCheckedAt, subDays(new Date(), 14)),
                 ),
                 // Always: Channels that were never scanned for fixes.
                 isNull(tables.channels.lastFixCheckedAt),

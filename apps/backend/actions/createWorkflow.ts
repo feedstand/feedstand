@@ -41,6 +41,9 @@ export const createWorkflow = <T>(processors: Array<WorkflowProcessor<T>>): Work
             throw context.error
         }
 
-        throw new Error(`Unprocessed pipeline, HTTP code: ${context.response?.status || 'Unknown'}`)
+        throw new Error(
+            `Unprocessed pipeline, HTTP code: ${context.response?.status || 'Unknown'}`,
+            { cause: context.response?.status },
+        )
     }
 }

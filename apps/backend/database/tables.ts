@@ -26,7 +26,12 @@ export const users = pgTable(
 )
 
 export const channelType = pgEnum('channel_types', ['xml', 'json'])
-export const channelJobStatus = pgEnum('channel_job_statuses', ['success', 'pass', 'error'])
+export const channelScanStatus = pgEnum('channel_scan_statuses', ['scanned', 'skipped', 'failed'])
+export const channelFixCheckStatus = pgEnum('channel_fix_check_statuses', [
+    'checked',
+    'skipped',
+    'failed',
+])
 
 export const channels = pgTable(
     'channels',
@@ -40,11 +45,11 @@ export const channels = pgTable(
         createdAt: timestamp('created_at').notNull().defaultNow(),
         updatedAt: timestamp('updated_at').notNull().defaultNow(),
         lastScannedAt: timestamp('last_scanned_at'),
-        lastScanStatus: channelJobStatus('last_scan_status'),
+        lastScanStatus: channelScanStatus('last_scan_status'),
         lastScanEtag: safeVarchar('last_scan_etag'),
         lastScanError: safeText('last_scan_error'),
         lastFixCheckedAt: timestamp('last_fix_checked_at'),
-        lastFixCheckStatus: channelJobStatus('last_fix_check_status'),
+        lastFixCheckStatus: channelFixCheckStatus('last_fix_check_status'),
         lastFixCheckEtag: safeVarchar('last_fix_check_etag'),
         lastFixCheckError: safeText('last_fix_check_error'),
     },
@@ -133,5 +138,6 @@ export const tables = {
 
 export const enums = {
     channelType,
-    channelJobStatus,
+    channelScanStatus,
+    channelFixCheckStatus,
 }

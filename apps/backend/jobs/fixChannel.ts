@@ -6,16 +6,19 @@ import { db } from '../instances/database'
 import { Channel } from '../types/schemas'
 
 export const fixChannel = async (channel: Channel) => {
+    if (!channel.siteUrl) {
+        return
+    }
+
     try {
-        const { etag, feeds: allFeeds } = await findFeeds({ url: channel.feedUrl, channel })
-        const validFeeds = allFeeds.filter((feed) => feed.url && feed.url !== channel.feedUrl)
-        const validFeedUrls = validFeeds.map(({ url }) => url)
+        const { etag, feeds } = await findFeeds({ url: channel.siteUrl, channel })
+        const feedUrls = feeds.map(({ url }) => url)
 
         await db
             .update(tables.channels)
             .set({
                 lastFixCheckedAt: new Date(),
-                lastFixCheckStatus: 'success',
+                lastFixCheckStatus: 'checked',
                 lastFixCheckEtag: etag,
                 lastFixCheckError: null,
             })
@@ -27,11 +30,11 @@ export const fixChannel = async (channel: Channel) => {
             .where(
                 and(
                     eq(tables.fixables.channelId, channel.id),
-                    notInArray(tables.fixables.feedUrl, validFeedUrls),
+                    notInArray(tables.fixables.feedUrl, feedUrls),
                 ),
             )
 
-        if (!validFeeds.length) {
+        if (!feeds.length) {
             return
         }
 
@@ -39,7 +42,7 @@ export const fixChannel = async (channel: Channel) => {
         await db
             .insert(tables.fixables)
             .values(
-                validFeeds.map((feed) => ({
+                feeds.map((feed) => ({
                     channelId: channel.id,
                     title: feed.title,
                     feedUrl: feed.url,
@@ -47,17 +50,19 @@ export const fixChannel = async (channel: Channel) => {
             )
             .onConflictDoNothing()
     } catch (error) {
-        // TODO: Consider storing info about the 304 Not Modified status differently.
-        // At this moment it's stored as an error but this is not semantically correct.
+        const isNotModified = error instanceof Error && error.cause === 304
+        const lastFixCheckedAt = new Date()
+        const lastFixCheckStatus = isNotModified ? 'skipped' : 'failed'
+        const lastFixCheckError = isNotModified
+            ? null
+            : convertErrorToString(error, { showNestedErrors: true })
 
         await db
             .update(tables.channels)
             .set({
-                lastFixCheckedAt: new Date(),
-                lastFixCheckStatus: 'error',
-                // TODO: Extend the error capturing to store last captured error, response status
-                // and number of erroreous scans since last successful scan.
-                lastFixCheckError: convertErrorToString(error, { showNestedErrors: true }),
+                lastFixCheckedAt,
+                lastFixCheckStatus,
+                lastFixCheckError,
             })
             .where(eq(tables.channels.id, channel.id))
     }

@@ -10,7 +10,7 @@ import { createWorkflow, WorkflowProcessor } from './createWorkflow'
 export type FindFeedsProcessor = WorkflowProcessor<FoundFeeds>
 
 export const processors: Array<FindFeedsProcessor> = [
-    preflightFetch,
+    preflightFetch('lastFixCheckEtag', 'lastFixCheckedAt'),
     responseFetch,
     youTubeFinder,
     directFinder,

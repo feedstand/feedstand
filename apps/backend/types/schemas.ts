@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { channel } from '../schemas/channel'
-import { channelJobStatus } from '../schemas/channelJobStatus'
+import { channelFixCheckStatus } from '../schemas/channelFixCheckStatus'
+import { channelScanStatus } from '../schemas/channelScanStatus'
 import { channelType } from '../schemas/channelType'
 import { feedChannel } from '../schemas/feedChannel'
 import { feedData } from '../schemas/feedData'
@@ -22,7 +23,9 @@ export type NewUser = z.infer<typeof newUser>
 
 export type ChannelType = z.infer<typeof channelType>
 
-export type ChannelJobStatus = z.infer<typeof channelJobStatus>
+export type ChannelScanStatus = z.infer<typeof channelScanStatus>
+
+export type ChannelFixCheckStatus = z.infer<typeof channelFixCheckStatus>
 
 export type Channel = z.infer<typeof channel>
 

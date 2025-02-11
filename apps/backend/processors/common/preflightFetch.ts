@@ -1,25 +1,32 @@
 import { WorkflowProcessor } from '../../actions/createWorkflow'
 import { isUrlFresh } from '../../actions/isUrlFresh'
+import { Channel } from '../../types/schemas'
 
-export const preflightFetch: WorkflowProcessor<unknown> = async (context, next) => {
-    if (context.response?.ok || !context.channel?.lastScanEtag || !context.channel?.lastScannedAt) {
-        return await next()
-    }
+export const preflightFetch: (
+    etagProperty: keyof Channel,
+    dateProperty: keyof Channel,
+) => WorkflowProcessor<unknown> = (etagProperty, dateProperty) => {
+    return async (context, next) => {
+        const etag = context.channel?.[etagProperty]
+        const date = context.channel?.[dateProperty]
 
-    try {
-        const { isFresh, response } = await isUrlFresh(context.url, {
-            etag: context.channel?.lastScanEtag,
-            date: context.channel?.lastScannedAt
-                ? new Date(context.channel?.lastScannedAt)
-                : undefined,
-        })
-
-        if (isFresh) {
-            context.response = response
+        if (context.response?.ok || !etag || !date) {
+            return await next()
         }
-    } catch (error) {
-        context.error = error
-    }
 
-    await next()
+        try {
+            const { isFresh, response } = await isUrlFresh(context.url, {
+                etag: etag.toString(),
+                date: date ? new Date(date) : undefined,
+            })
+
+            if (isFresh) {
+                context.response = response
+            }
+        } catch (error) {
+            context.error = error
+        }
+
+        await next()
+    }
 }
