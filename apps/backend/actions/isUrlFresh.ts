@@ -2,23 +2,19 @@ import { fetchUrl } from '../actions/fetchUrl'
 
 export type IsUrlFresh = (
     url: string,
-    options: {
-        etag?: string
-        date?: Date
-        // TODO: Consider adding support for Cache-Control and Age headers to detect if
-        // the content is still fresh.
-    },
+    etag: string | undefined,
+    date: Date | undefined,
 ) => Promise<{
     isFresh: boolean
     response: Response
 }>
 
-export const isUrlFresh: IsUrlFresh = async (url, options) => {
+export const isUrlFresh: IsUrlFresh = async (url, etag, date) => {
     const response = await fetchUrl(url, {
         method: 'head',
         headers: {
-            'If-None-Match': options.etag,
-            'If-Modified-Since': options.date ? options.date.toISOString() : undefined,
+            'If-None-Match': etag,
+            'If-Modified-Since': date ? date.toISOString() : undefined,
         },
     })
 

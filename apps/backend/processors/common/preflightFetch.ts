@@ -15,10 +15,11 @@ export const preflightFetch: (
         }
 
         try {
-            const { isFresh, response } = await isUrlFresh(context.url, {
-                etag: etag.toString(),
-                date: date ? new Date(date) : undefined,
-            })
+            const { isFresh, response } = await isUrlFresh(
+                context.url,
+                etag.toString(),
+                date ? new Date(date) : undefined,
+            )
 
             if (isFresh) {
                 context.response = response
