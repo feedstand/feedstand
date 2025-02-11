@@ -14,7 +14,7 @@ export const soundCloudFeed: FetchFeedProcessor = async (context, next) => {
         return await next()
     }
 
-    const text = await context.response?.clone().text()
+    const text = await context.response.clone().text()
     const redirectUrl = extractRedirectUrl(text)
 
     if (!redirectUrl) {

@@ -7,7 +7,7 @@ export const redirectPage: FetchFeedProcessor = async (context, next) => {
         return await next()
     }
 
-    const text = await context.response?.clone().text()
+    const text = await context.response.clone().text()
     const $ = load(text || '')
     const header = $('meta[http-equiv="refresh"]').attr('content')
     const [, url] = header?.match(/url=(.*)/i) || []

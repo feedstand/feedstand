@@ -29,7 +29,7 @@ export const invalidFeed: FetchFeedProcessor = async (context, next) => {
         return await next()
     }
 
-    const text = await context.response?.clone().text()
+    const text = await context.response.clone().text()
 
     for (const signature of signatures) {
         if (signature.test(text)) {

@@ -64,7 +64,7 @@ export const jsonFeed: FetchFeedProcessor = async (context, next) => {
 
     try {
         // TODO: Validate if the JSON file is actually a JSON Feed.
-        const out = await context.response?.clone().json()
+        const out = await context.response.clone().json()
 
         context.result = {
             etag: context.response.headers.get('etag'),
