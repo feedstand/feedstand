@@ -1,5 +1,5 @@
 import { subDays } from 'date-fns'
-import { and, gt, isNotNull, isNull, lte, or, SQL } from 'drizzle-orm'
+import { and, eq, gt, inArray, isNull, lte, or, SQL } from 'drizzle-orm'
 import { tables } from '../database/tables'
 import { sleep } from '../helpers/system'
 import { db } from '../instances/database'
@@ -12,33 +12,34 @@ export const fixChannels = async () => {
     let lastId = 0
 
     const conditions: Array<SQL | undefined> = [
-        // Every 7 days perform a fix attempt on Channels which were successfully
-        // scanned for fixes.
         and(
-            isNull(tables.channels.lastFixCheckError),
-            lte(tables.channels.lastFixCheckedAt, subDays(new Date(), 7)),
+            // Only Channels that were already scanned and returned error the last time.
+            eq(tables.channels.lastScanStatus, 'error'),
+            or(
+                // Once in 7 days: Channels which were successfully fixes-checked or skipped
+                // due to unchanged response.
+                and(
+                    inArray(tables.channels.lastFixCheckStatus, ['success', 'pass']),
+                    lte(tables.channels.lastFixCheckedAt, subDays(new Date(), 7)),
+                ),
+                // Once in 30 days: Channels which failed fixes check the last time.
+                // TODO: Consider different types of errors and whether to perform the fix check
+                // more frequently when certain type of error occurs (eg. network error).
+                and(
+                    eq(tables.channels.lastFixCheckStatus, 'error'),
+                    lte(tables.channels.lastFixCheckedAt, subDays(new Date(), 30)),
+                ),
+                // Always: Channels that were never scanned for fixes.
+                isNull(tables.channels.lastFixCheckedAt),
+            ),
         ),
-        // Every 30 days perform a fix attempt on Channels which failed fixes scan.
-        and(
-            isNotNull(tables.channels.lastFixCheckError),
-            lte(tables.channels.lastFixCheckedAt, subDays(new Date(), 30)),
-        ),
-        // Every time this runs, perform a fix attempt on Channels that were never
-        // scanned for fixes.
-        and(isNull(tables.channels.lastFixCheckError), isNull(tables.channels.lastFixCheckedAt)),
     ]
 
     while (true) {
         const channels = await db
             .select()
             .from(tables.channels)
-            .where(
-                and(
-                    gt(tables.channels.id, lastId),
-                    isNotNull(tables.channels.lastScanError),
-                    or(...conditions),
-                ),
-            )
+            .where(and(gt(tables.channels.id, lastId), ...conditions))
             .orderBy(tables.channels.id)
             .limit(CHANNELS_CHUNK_SIZE)
 
