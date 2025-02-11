@@ -1,16 +1,15 @@
 import { and, gt, or, SQL } from 'drizzle-orm'
 import { tables } from '../database/tables'
-import { sleep } from '../helpers/system'
 import { db } from '../instances/database'
 import { channelQueue } from '../queues/channel'
 
 const CHANNELS_CHUNK_SIZE = 5000
-const CHANNELS_CHUNK_DELAY = 100
 
 export const scanChannels = async () => {
     let lastId = 0
 
     const conditions: Array<SQL | undefined> = [
+        or(),
         // TODO: Consider adding support for adjusting scanning frequency based on the actual new
         // items being added to the feed. Elegant solution: https://stackoverflow.com/a/6651638.
     ]
@@ -19,7 +18,7 @@ export const scanChannels = async () => {
         const channels = await db
             .select()
             .from(tables.channels)
-            .where(and(gt(tables.channels.id, lastId), or(...conditions)))
+            .where(and(gt(tables.channels.id, lastId), ...conditions))
             .orderBy(tables.channels.id)
             .limit(CHANNELS_CHUNK_SIZE)
 
@@ -32,7 +31,5 @@ export const scanChannels = async () => {
         }
 
         lastId = channels[channels.length - 1].id
-
-        await sleep(CHANNELS_CHUNK_DELAY)
     }
 }

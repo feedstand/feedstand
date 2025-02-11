@@ -1,12 +1,10 @@
 import { subDays } from 'date-fns'
 import { and, eq, gt, inArray, isNull, lte, or, SQL } from 'drizzle-orm'
 import { tables } from '../database/tables'
-import { sleep } from '../helpers/system'
 import { db } from '../instances/database'
 import { channelQueue } from '../queues/channel'
 
 const CHANNELS_CHUNK_SIZE = 5000
-const CHANNELS_CHUNK_DELAY = 100
 
 export const fixChannels = async () => {
     let lastId = 0
@@ -52,7 +50,5 @@ export const fixChannels = async () => {
         }
 
         lastId = channels[channels.length - 1].id
-
-        await sleep(CHANNELS_CHUNK_DELAY)
     }
 }
