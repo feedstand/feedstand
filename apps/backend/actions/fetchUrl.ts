@@ -23,16 +23,10 @@ const instance = axios.create()
 // of the box when performing fetch(), but when creating it manually, there's no way to set it.
 class CustomResponse extends Response {
     public readonly url: string
-    public readonly status: number
 
-    constructor(body: BodyInit | null, init: ResponseInit & { url: string; status: number }) {
-        super(body, { ...init, status: undefined })
+    constructor(body: BodyInit | null, init: ResponseInit & { url: string }) {
+        super(body, init)
         this.url = init.url
-        this.status = init.status
-    }
-
-    get ok(): boolean {
-        return this.status >= 200 && this.status < 300
     }
 }
 
@@ -72,7 +66,7 @@ export const fetchUrl = async (url: string, config?: AxiosRequestConfig): Promis
         ...config,
     })
 
-    return new CustomResponse(response.data, {
+    return new CustomResponse(response.status === 304 ? null : response.data, {
         url: response.request?.res?.responseUrl || url,
         status: response.status,
         statusText: response.statusText,
