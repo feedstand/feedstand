@@ -2,7 +2,26 @@ import { load } from 'cheerio'
 import { fetchFeed } from '../../actions/fetchFeed'
 import { FindFeedsProcessor } from '../../actions/findFeeds'
 import { feedLinkSelectors } from '../../constants/finders'
+import { resolveRelativeUrl } from '../../helpers/urls'
 import { FoundFeeds } from '../../types/schemas'
+
+export const extractFeedUrls = (html: string, baseUrl: string): Array<string> => {
+    const $ = load(html)
+    const linkElements = $(feedLinkSelectors.join())
+    const feedUrls: Array<string> = []
+
+    for (const linkElement of linkElements) {
+        const linkHref = $(linkElement).attr('href')
+
+        if (!linkHref) {
+            continue
+        }
+
+        feedUrls.push(resolveRelativeUrl(linkHref, baseUrl))
+    }
+
+    return feedUrls
+}
 
 export const webpageFinder: FindFeedsProcessor = async (context, next) => {
     if (!context.response?.ok) {
@@ -16,20 +35,11 @@ export const webpageFinder: FindFeedsProcessor = async (context, next) => {
     // }
 
     const html = await context.response.clone().text()
-    const $ = load(html)
-    const feedLinks = $(feedLinkSelectors.join())
+    const feedUrls = extractFeedUrls(html, context.response.url)
     const feeds: FoundFeeds['feeds'] = []
 
-    for (const feedLink of feedLinks) {
-        const linkHref = $(feedLink).attr('href')
-        const feedUrl = linkHref ? new URL(linkHref, context.response.url).href : undefined
-
-        if (!feedUrl) {
-            continue
-        }
-
-        // // TODO: Maybe it's better to stick to the actual name of the feed stored in the feed
-        // // URL? `title` attribute and the actual feed name can differ.
+    for (const feedUrl of feedUrls) {
+        // TODO: Consider simplifying retrival of the feed title to getting it from the link attr.
         // const feedTitle = feedLink.getAttribute('title')
         //
         // if (feedTitle) {
