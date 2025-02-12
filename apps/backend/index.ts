@@ -22,7 +22,7 @@ if (hasServerFeature) {
 }
 
 if (hasWorkerFeature) {
-    setInterval(() => {
+    const logMemoryInfo = () => {
         const used = process.memoryUsage()
         console.log({
             rss: Math.round(used.rss / 1024 / 1024),
@@ -30,5 +30,10 @@ if (hasWorkerFeature) {
             heapUsed: Math.round(used.heapUsed / 1024 / 1024),
             external: Math.round(used.external / 1024 / 1024),
         })
-    }, 10000)
+    }
+
+    process.on('SIGTERM', logMemoryInfo)
+    process.on('SIGINT', logMemoryInfo)
+
+    setInterval(logMemoryInfo, 10000)
 }
