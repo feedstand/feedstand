@@ -130,8 +130,9 @@ services:
       <<: *common-deploy
       replicas: 10
       update_config:
-        parallelism: 2
+        parallelism: 5
         delay: 10s
+        order: start-first
       placement:
         constraints:
           - node.role != manager
@@ -139,6 +140,10 @@ services:
         preferences:
           - spread: node.id
         max_replicas_per_node: 5
+      resources:
+        limits:
+          cpus: 0.5
+          memory: 512M
 
   pgbouncer:
     image: edoburu/pgbouncer
