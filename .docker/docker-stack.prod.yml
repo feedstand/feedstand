@@ -137,6 +137,8 @@ services:
         constraints:
           - node.role != manager
           - node.labels.worker == true
+        preferences:
+          - spread: node.id
       resources:
         limits:
           memory: 256MB
