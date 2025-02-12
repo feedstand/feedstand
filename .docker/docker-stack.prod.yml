@@ -211,3 +211,8 @@ volumes:
     driver: local
   queue_data:
     driver: local
+
+networks:
+  default:
+    driver: overlay
+    attachable: true
