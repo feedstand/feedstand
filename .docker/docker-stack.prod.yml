@@ -141,7 +141,7 @@ services:
           - spread: node.id
       resources:
         limits:
-          memory: 256MB
+          memory: 384MB
           cpus: "0.2"
         reservations:
           memory: 128M
