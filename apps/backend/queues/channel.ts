@@ -5,5 +5,5 @@ import { scanChannel } from '../jobs/scanChannel'
 export const channelQueue = createQueue(
     'channel',
     { scanChannel, fixChannel },
-    { worker: { concurrency: 5 } },
+    { worker: { concurrency: 1 } },
 )

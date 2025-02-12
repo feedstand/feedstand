@@ -4,6 +4,8 @@ x-common-deploy: &common-deploy
     failure_action: rollback
   restart_policy:
     condition: on-failure
+    delay: 10s
+    window: 120s
 
 x-common-healthcheck: &common-healthcheck
   interval: 10s
@@ -128,7 +130,7 @@ services:
       FEATURE_WORKER: "true"
     deploy:
       <<: *common-deploy
-      replicas: 10
+      replicas: 20
       update_config:
         parallelism: 5
         delay: 10s
@@ -137,6 +139,13 @@ services:
         constraints:
           - node.role != manager
           - node.labels.worker == true
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.5"
+        reservations:
+          memory: 256M
+          cpus: "0.1"
 
   pgbouncer:
     image: edoburu/pgbouncer
