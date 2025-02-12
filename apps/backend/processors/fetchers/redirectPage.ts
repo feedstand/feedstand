@@ -10,11 +10,11 @@ export const extractRedirectUrl = (html: string) => {
 }
 
 export const redirectPage: FetchFeedProcessor = async (context, next) => {
-    if (!context.response?.ok) {
+    if (!context.response?.ok || !context.responseText) {
         return await next()
     }
 
-    const html = await context.response.clone().text()
+    const html = context.responseText
     const url = extractRedirectUrl(html)
 
     if (url) {

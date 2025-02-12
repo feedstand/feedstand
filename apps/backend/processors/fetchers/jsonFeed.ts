@@ -52,7 +52,7 @@ export const jsonFeedItems = (feed: JsonFeed): Array<FeedItem> => {
 }
 
 export const jsonFeed: FetchFeedProcessor = async (context, next) => {
-    if (!context.response?.ok || context.result) {
+    if (!context.response?.ok || !context.responseText || context.result) {
         return await next()
     }
 
@@ -64,7 +64,7 @@ export const jsonFeed: FetchFeedProcessor = async (context, next) => {
 
     try {
         // TODO: Validate if the JSON file is actually a JSON Feed.
-        const out = await context.response.clone().json()
+        const out = JSON.parse(context.responseText)
 
         context.result = {
             etag: context.response.headers.get('etag'),

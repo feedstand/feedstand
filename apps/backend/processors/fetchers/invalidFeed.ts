@@ -25,11 +25,11 @@ const signatures: Array<Signature> = [
 ]
 
 export const invalidFeed: FetchFeedProcessor = async (context, next) => {
-    if (!context.response?.ok) {
+    if (!context.response || !context.responseText) {
         return await next()
     }
 
-    const text = await context.response.clone().text()
+    const text = context.responseText
 
     for (const signature of signatures) {
         if (signature.test(text)) {

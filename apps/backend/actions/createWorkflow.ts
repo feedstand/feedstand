@@ -5,6 +5,7 @@ export type Workflow<T> = (context: WorkflowContext<T>) => Promise<T>
 export type WorkflowContext<T> = {
     url: string
     response?: Response
+    responseText?: string
     channel?: Channel
     error?: unknown
     result?: T
@@ -22,13 +23,13 @@ export const createWorkflow = <T>(processors: Array<WorkflowProcessor<T>>): Work
         let index = 0
 
         const next: WorkflowNext = async () => {
-            const processsor = processors[index++]
+            const processor = processors[index++]
 
-            if (!processsor) {
+            if (!processor) {
                 return
             }
 
-            await processsor(context, next)
+            await processor(context, next)
         }
 
         await next()

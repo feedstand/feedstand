@@ -24,7 +24,7 @@ export const extractFeedUrls = (html: string, baseUrl: string): Array<string> =>
 }
 
 export const webpageFinder: FindFeedsProcessor = async (context, next) => {
-    if (!context.response?.ok) {
+    if (!context.response?.ok || !context.responseText) {
         return await next()
     }
 
@@ -34,7 +34,7 @@ export const webpageFinder: FindFeedsProcessor = async (context, next) => {
     //     return
     // }
 
-    const html = await context.response.clone().text()
+    const html = context.responseText
     const feedUrls = extractFeedUrls(html, context.response.url)
     const feeds: FoundFeeds['feeds'] = []
 
@@ -47,7 +47,7 @@ export const webpageFinder: FindFeedsProcessor = async (context, next) => {
         //     continue
         // }
 
-        const { channel } = await fetchFeed({ url: feedUrl, channel: context?.channel })
+        const { channel } = await fetchFeed({ url: feedUrl, channel: context.channel })
 
         feeds.push({ url: channel.feedUrl, title: channel.title })
     }

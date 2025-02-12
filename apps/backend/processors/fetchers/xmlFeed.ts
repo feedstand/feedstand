@@ -57,7 +57,7 @@ export const xmlFeedItems = (feed: XmlFeed): Array<FeedItem> => {
 }
 
 export const xmlFeed: FetchFeedProcessor = async (context, next) => {
-    if (!context.response?.ok || context.result) {
+    if (!context.response?.ok || !context.responseText || context.result) {
         return await next()
     }
 
@@ -68,7 +68,7 @@ export const xmlFeed: FetchFeedProcessor = async (context, next) => {
     // }
 
     try {
-        const xml = await context.response.clone().text()
+        const xml = context.responseText
         const out = await new RSSParser().parseString(xml)
 
         context.result = {
