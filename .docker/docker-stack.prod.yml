@@ -139,7 +139,7 @@ services:
           - node.labels.worker == true
       resources:
         limits:
-          memory: 192MB
+          memory: 256MB
           cpus: "0.2"
         reservations:
           memory: 128M
