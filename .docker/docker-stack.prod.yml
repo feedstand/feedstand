@@ -128,7 +128,7 @@ services:
       FEATURE_WORKER: "true"
     deploy:
       <<: *common-deploy
-      replicas: 20
+      replicas: 40
       update_config:
         parallelism: 5
         delay: 10s
@@ -139,10 +139,10 @@ services:
           - node.labels.worker == true
       resources:
         limits:
-          memory: 512M
-          cpus: "0.5"
+          memory: 192MB
+          cpus: "0.2"
         reservations:
-          memory: 256M
+          memory: 128M
           cpus: "0.1"
 
   pgbouncer:
