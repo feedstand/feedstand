@@ -137,13 +137,6 @@ services:
         constraints:
           - node.role != manager
           - node.labels.worker == true
-        preferences:
-          - spread: node.id
-        max_replicas_per_node: 5
-      resources:
-        limits:
-          cpus: 0.5
-          memory: 512M
 
   pgbouncer:
     image: edoburu/pgbouncer
@@ -218,3 +211,8 @@ volumes:
     driver: local
   queue_data:
     driver: local
+
+networks:
+  default:
+    driver: overlay
+    attachable: true
