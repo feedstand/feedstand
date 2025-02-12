@@ -135,7 +135,7 @@ services:
       placement:
         constraints:
           - node.role != manager
-          - node.hostname =~ ^feedstand-backend-workers-.*
+          - node.labels.worker == true
 
   pgbouncer:
     image: edoburu/pgbouncer
