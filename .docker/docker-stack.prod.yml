@@ -4,8 +4,6 @@ x-common-deploy: &common-deploy
     failure_action: rollback
   restart_policy:
     condition: on-failure
-    delay: 10s
-    window: 120s
 
 x-common-healthcheck: &common-healthcheck
   interval: 10s
