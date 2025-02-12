@@ -138,6 +138,7 @@ services:
           - node.labels.worker == true
         preferences:
           - spread: node.id
+        max_replicas_per_node: 5
 
   pgbouncer:
     image: edoburu/pgbouncer
