@@ -130,8 +130,8 @@ services:
       <<: *common-deploy
       replicas: 40
       update_config:
-        parallelism: 5
-        delay: 10s
+        parallelism: 4
+        delay: 30s
         order: start-first
       placement:
         constraints:
