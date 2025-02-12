@@ -128,7 +128,7 @@ services:
       FEATURE_WORKER: "true"
     deploy:
       <<: *common-deploy
-      replicas: 1
+      replicas: 4
       update_config:
         parallelism: 2
         delay: 10s
