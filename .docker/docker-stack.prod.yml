@@ -77,6 +77,9 @@ services:
       SENTRY_ENVIRONMENT: ${FRONTEND_SENTRY_ENVIRONMENT}
     deploy:
       <<: *common-deploy
+      placement:
+        constraints:
+          - node.role == manager
       labels:
         - traefik.enable=true
         - traefik.http.routers.frontend.rule=Host(`app.feedstand.com`)
@@ -100,6 +103,9 @@ services:
       FEATURE_SERVER: "true"
     deploy:
       <<: *common-deploy
+      placement:
+        constraints:
+          - node.role == manager
       labels:
         - traefik.enable=true
         - traefik.http.routers.backend.rule=Host(`api.feedstand.com`)
@@ -126,6 +132,10 @@ services:
       update_config:
         parallelism: 2
         delay: 10s
+      placement:
+        constraints:
+          - node.role != manager
+          - node.hostname =~ ^feedstand-backend-workers-.*
 
   pgbouncer:
     image: edoburu/pgbouncer
@@ -144,14 +154,14 @@ services:
       AUTH_TYPE: scram-sha-256
     deploy:
       <<: *common-deploy
+      placement:
+        constraints:
+          - node.role == manager
       labels:
         - traefik.enable=true
         - traefik.tcp.routers.pgbouncer.rule=HostSNI(`*`)
         - traefik.tcp.routers.pgbouncer.entrypoints=pgbouncer
         - traefik.tcp.services.pgbouncer.loadbalancer.server.port=5432
-      placement:
-        constraints:
-          - node.role == manager
     healthcheck:
       <<: *common-healthcheck
       test: ["CMD", "pg_isready", "-h", "localhost", "-U", "${DATABASE_USER}"]
@@ -179,14 +189,14 @@ services:
     image: redis:7-alpine
     deploy:
       <<: *common-deploy
+      placement:
+        constraints:
+          - node.role == manager
       labels:
         - traefik.enable=true
         - traefik.tcp.routers.queue.rule=HostSNI(`*`)
         - traefik.tcp.routers.queue.entrypoints=queue
         - traefik.tcp.services.queue.loadbalancer.server.port=6379
-      placement:
-        constraints:
-          - node.role == manager
     volumes:
       - queue_data:/data
     healthcheck:
