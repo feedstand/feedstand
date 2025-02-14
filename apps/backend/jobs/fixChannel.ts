@@ -6,12 +6,10 @@ import { db } from '../instances/database'
 import { Channel } from '../types/schemas'
 
 export const fixChannel = async (channel: Channel) => {
-    if (!channel.siteUrl) {
-        return
-    }
+    const url = channel.siteUrl || channel.feedUrl
 
     try {
-        const { etag, feeds } = await findFeeds({ url: channel.siteUrl, channel })
+        const { etag, feeds } = await findFeeds({ url, channel })
         const feedUrls = feeds.map(({ url }) => url)
 
         await db
