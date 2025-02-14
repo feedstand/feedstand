@@ -100,7 +100,6 @@ services:
       <<: *backend-environment
       FEATURE_MIGRATOR: "true"
       FEATURE_SERVER: "true"
-      FEATURE_WORKER: "true"
     deploy:
       <<: *common-deploy
       placement:
@@ -128,7 +127,7 @@ services:
       FEATURE_WORKER: "true"
     deploy:
       <<: *common-deploy
-      replicas: 2
+      replicas: 1
       update_config:
         parallelism: 4
         delay: 30s
