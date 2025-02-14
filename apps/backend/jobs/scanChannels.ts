@@ -1,4 +1,5 @@
 import { and, gt, or, SQL } from 'drizzle-orm'
+import { performance } from 'node:perf_hooks'
 import { tables } from '../database/tables'
 import { db } from '../instances/database'
 import { channelQueue } from '../queues/channel'
@@ -15,6 +16,8 @@ export const scanChannels = async () => {
     ]
 
     while (true) {
+        const startTime = performance.now()
+
         const channels = await db
             .select()
             .from(tables.channels)
@@ -22,9 +25,13 @@ export const scanChannels = async () => {
             .orderBy(tables.channels.id)
             .limit(CHANNELS_CHUNK_SIZE)
 
+        const queryTime = performance.now() - startTime
+
         if (channels.length === 0) {
             break
         }
+
+        const queueStart = performance.now()
 
         await channelQueue.addBulk(
             channels.map((data) => ({
@@ -32,6 +39,15 @@ export const scanChannels = async () => {
                 data,
             })),
         )
+
+        const queueTime = performance.now() - queueStart
+
+        console.log({
+            batchSize: channels.length,
+            queryTimeMs: queryTime.toFixed(2),
+            queueTimeMs: queueTime.toFixed(2),
+            recordsPerSecond: (channels.length / ((queryTime + queueTime) / 1000)).toFixed(2),
+        })
 
         lastId = channels[channels.length - 1].id
     }
