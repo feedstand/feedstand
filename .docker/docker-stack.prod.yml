@@ -159,9 +159,6 @@ services:
       MAX_DB_CONNECTIONS: 200
       RESERVE_POOL_SIZE: 40
       RESERVE_POOL_TIMEOUT: 3
-      TCP_KEEPIDLE: 60
-      TCP_KEEPINTVL: 10
-      TCP_KEEPCNT: 3
       ADMIN_USERS: ${BACKEND_DATABASE_USER}
       AUTH_TYPE: scram-sha-256
     deploy:
