@@ -15,7 +15,6 @@ x-backend-config: &backend-config
   image: ghcr.io/feedstand/backend:${VERSION_TAG:-latest}
   depends_on:
     - pgbouncer
-    - database
 
 x-backend-environment: &backend-environment
   SERVER_HOST: 0.0.0.0
@@ -142,11 +141,11 @@ services:
           - spread: node.id
       resources:
         limits:
-          memory: 384MB
-          cpus: "0.2"
+          memory: 512MB
+          cpus: "0.5"
         reservations:
-          memory: 128M
-          cpus: "0.1"
+          memory: 256M
+          cpus: "0.3"
 
   pgbouncer:
     image: edoburu/pgbouncer
@@ -156,11 +155,14 @@ services:
       DB_USER: ${BACKEND_DATABASE_USER}
       DB_PASSWORD: ${BACKEND_DATABASE_PASS}
       POOL_MODE: transaction
-      MAX_CLIENT_CONN: 500
-      DEFAULT_POOL_SIZE: 50
-      MAX_DB_CONNECTIONS: 100
-      RESERVE_POOL_SIZE: 25
-      RESERVE_POOL_TIMEOUT: 5
+      MAX_CLIENT_CONN: 1000
+      DEFAULT_POOL_SIZE: 80
+      MAX_DB_CONNECTIONS: 200
+      RESERVE_POOL_SIZE: 40
+      RESERVE_POOL_TIMEOUT: 3
+      TCP_KEEPIDLE: 60
+      TCP_KEEPINTVL: 10
+      TCP_KEEPCNT: 3
       ADMIN_USERS: ${BACKEND_DATABASE_USER}
       AUTH_TYPE: scram-sha-256
     deploy:
@@ -185,6 +187,10 @@ services:
       POSTGRES_DB: ${BACKEND_DATABASE_NAME}
       POSTGRES_USER: ${BACKEND_DATABASE_USER}
       POSTGRES_PASSWORD: ${BACKEND_DATABASE_PASS}
+    sysctls:
+      - net.ipv4.tcp_keepalive_time=60
+      - net.ipv4.tcp_keepalive_intvl=10
+      - net.ipv4.tcp_keepalive_probes=3
     deploy:
       <<: *common-deploy
       placement:
@@ -198,6 +204,10 @@ services:
 
   queue:
     image: redis:7-alpine
+    command:
+      - "redis-server"
+      - "--save 60 1"
+      - "--appendonly yes"
     deploy:
       <<: *common-deploy
       placement:
