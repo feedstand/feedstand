@@ -128,7 +128,7 @@ services:
       FEATURE_WORKER: "true"
     deploy:
       <<: *common-deploy
-      replicas: 1
+      replicas: 4
       update_config:
         parallelism: 4
         delay: 30s
@@ -139,13 +139,13 @@ services:
           - node.labels.worker == true
         preferences:
           - spread: node.id
-      resources:
-        limits:
-          memory: 512MB
-          cpus: "0.5"
-        reservations:
-          memory: 128M
-          cpus: "0.1"
+      # resources:
+      #   limits:
+      #     memory: 512MB
+      #     cpus: "0.5"
+      #   reservations:
+      #     memory: 128M
+      #     cpus: "0.1"
 
   pgbouncer:
     image: edoburu/pgbouncer
