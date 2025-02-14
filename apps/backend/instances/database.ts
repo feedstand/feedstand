@@ -1,7 +1,6 @@
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
 import * as databaseConstants from '../constants/database'
-import { hasWorkerFeature } from '../constants/features'
 import * as schema from '../database/tables'
 
 export const client = postgres({
@@ -10,10 +9,12 @@ export const client = postgres({
     database: databaseConstants.database,
     username: databaseConstants.user,
     password: databaseConstants.password,
-    max: hasWorkerFeature ? 5 : 8,
-    idle_timeout: 20,
-    connect_timeout: 10,
-    max_lifetime: 1800,
+    max: 15,
+    idle_timeout: 30,
+    connect_timeout: 5,
+    max_lifetime: 3600,
+    keep_alive: 60,
+    ssl: false,
 })
 
 export const db = drizzle(client, { schema })
