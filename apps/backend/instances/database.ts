@@ -10,8 +10,8 @@ export const client = postgres({
     username: databaseConstants.user,
     password: databaseConstants.password,
     max: 15,
+    connect_timeout: 10,
     idle_timeout: 30,
-    connect_timeout: 5,
     max_lifetime: 3600,
     keep_alive: 60,
 })
