@@ -126,10 +126,10 @@ services:
     <<: *backend-config
     environment:
       <<: *backend-environment
-      # FEATURE_WORKER: "true"
+      FEATURE_WORKER: "true"
     deploy:
       <<: *common-deploy
-      replicas: 40
+      replicas: 0
       update_config:
         parallelism: 4
         delay: 30s
