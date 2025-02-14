@@ -26,9 +26,12 @@ export const scanChannels = async () => {
             break
         }
 
-        for (const channel of channels) {
-            await channelQueue.add('scanChannel', channel)
-        }
+        await channelQueue.addBulk(
+            channels.map((data) => ({
+                name: 'scanChannel',
+                data,
+            })),
+        )
 
         lastId = channels[channels.length - 1].id
     }

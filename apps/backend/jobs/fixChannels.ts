@@ -44,9 +44,12 @@ export const fixChannels = async () => {
             break
         }
 
-        for (const channel of channels) {
-            await channelQueue.add('fixChannel', channel)
-        }
+        await channelQueue.addBulk(
+            channels.map((data) => ({
+                name: 'fixChannel',
+                data,
+            })),
+        )
 
         lastId = channels[channels.length - 1].id
     }
