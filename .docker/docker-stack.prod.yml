@@ -186,10 +186,6 @@ services:
       POSTGRES_DB: ${BACKEND_DATABASE_NAME}
       POSTGRES_USER: ${BACKEND_DATABASE_USER}
       POSTGRES_PASSWORD: ${BACKEND_DATABASE_PASS}
-    sysctls:
-      - net.ipv4.tcp_keepalive_time=60
-      - net.ipv4.tcp_keepalive_intvl=10
-      - net.ipv4.tcp_keepalive_probes=3
     deploy:
       <<: *common-deploy
       placement:
