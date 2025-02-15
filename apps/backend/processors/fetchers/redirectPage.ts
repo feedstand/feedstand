@@ -17,6 +17,10 @@ export const redirectPage: FetchFeedProcessor = async (context, next) => {
     const html = context.responseText
     const url = extractRedirectUrl(html)
 
+    if (url === context.url) {
+        return await next()
+    }
+
     if (url) {
         context.url = url
         context.response = undefined
