@@ -199,8 +199,10 @@ services:
     image: redis:7-alpine
     command:
       - "redis-server"
-      - '--save ""'
-      - "--appendonly no"
+      - "--save ''"
+      - "--appendonly yes"
+      - "--appendfsync everysec"
+      - "--no-appendfsync-on-rewrite yes"
     deploy:
       <<: *common-deploy
       placement:
