@@ -1,5 +1,4 @@
 import { fetchFeed, FetchFeedProcessor } from '../../actions/fetchFeed'
-import { getCurrentMemoryUsage } from '../../helpers/debug'
 
 export const extractRedirectUrl = (html: string): string | undefined => {
     const metaRegex = /<meta[^>]*?(?=.*?http-equiv\b)(?=.*?refresh\b)[^>]*>/i
@@ -16,9 +15,7 @@ export const extractRedirectUrl = (html: string): string | undefined => {
 }
 
 export const redirectPage: FetchFeedProcessor = async (context, next) => {
-    getCurrentMemoryUsage()
-
-    if (!context.response?.ok) {
+    if (!context.response?.ok || context.result) {
         return await next()
     }
 

@@ -25,7 +25,7 @@ const signatures: Array<Signature> = [
 ]
 
 export const invalidFeed: FetchFeedProcessor = async (context, next) => {
-    if (!context.response) {
+    if (!context.response || context.result) {
         return await next()
     }
 
