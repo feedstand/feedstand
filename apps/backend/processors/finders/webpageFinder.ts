@@ -24,7 +24,7 @@ export const extractFeedUrls = (html: string, baseUrl: string): Array<string> =>
 }
 
 export const webpageFinder: FindFeedsProcessor = async (context, next) => {
-    if (!context.response || !context.responseText) {
+    if (!context.response) {
         return await next()
     }
 
@@ -34,7 +34,7 @@ export const webpageFinder: FindFeedsProcessor = async (context, next) => {
     //     return
     // }
 
-    const html = context.responseText
+    const html = await context.response.text()
     const feedUrls = extractFeedUrls(html, context.response.url)
     const feeds: FoundFeeds['feeds'] = []
 

@@ -10,15 +10,11 @@ export const extractRedirectUrl = (text: string): string | undefined => {
 }
 
 export const soundCloudFeed: FetchFeedProcessor = async (context, next) => {
-    if (
-        !context.response?.ok ||
-        !context.responseText ||
-        context.response.url.indexOf('soundcloud.com') === -1
-    ) {
+    if (!context.response?.ok || context.response.url.indexOf('soundcloud.com') === -1) {
         return await next()
     }
 
-    const text = context.responseText
+    const text = await context.response.text()
     const redirectUrl = extractRedirectUrl(text)
 
     if (!redirectUrl) {

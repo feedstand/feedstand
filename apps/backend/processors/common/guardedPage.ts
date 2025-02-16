@@ -24,11 +24,11 @@ const signatures = [
 ]
 
 export const guardedPage: WorkflowProcessor<unknown> = async (context, next) => {
-    if (!context.response || !context.responseText) {
+    if (!context.response) {
         return await next()
     }
 
-    const text = context.responseText
+    const text = await context.response.text()
     const status = context.response.status
 
     for (const signature of signatures) {

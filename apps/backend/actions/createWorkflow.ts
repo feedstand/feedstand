@@ -5,7 +5,6 @@ export type Workflow<T> = (context: WorkflowContext<T>) => Promise<T>
 export type WorkflowContext<T> = {
     url: string
     response?: Response
-    responseText?: string
     channel?: Channel
     error?: unknown
     result?: T

@@ -2,6 +2,7 @@ import axios, { AxiosRequestConfig } from 'axios'
 import axiosRetry from 'axios-retry'
 import https from 'node:https'
 import { maxTimeout } from '../constants/fetchers'
+import { isJson } from '../helpers/strings'
 
 // TODO:
 // - Increase max header size to 64KB. This is possible in Unidici HTTPS Agent as an option
@@ -23,10 +24,20 @@ const instance = axios.create()
 // of the box when performing fetch(), but when creating it manually, there's no way to set it.
 class CustomResponse extends Response {
     public readonly url: string
+    public readonly _body: string
 
-    constructor(body: BodyInit | null, init: ResponseInit & { url: string }) {
-        super(body, init)
+    constructor(body: string, init: ResponseInit & { url: string }) {
+        super(undefined, init)
         this.url = init.url
+        this._body = body
+    }
+
+    override text(): Promise<string> {
+        return Promise.resolve(this._body)
+    }
+
+    override json<T>(): Promise<T> {
+        return isJson(this._body) ? JSON.parse(this._body) : undefined
     }
 }
 

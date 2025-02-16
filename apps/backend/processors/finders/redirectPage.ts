@@ -4,11 +4,11 @@ import { extractRedirectUrl } from '../fetchers/redirectPage'
 // TODO: Figure out a way to combine this with redirectPage processor from fetchers.
 // The only thing they differ with is what function (workflow) they trigger if url exists.
 export const redirectPage: FindFeedsProcessor = async (context, next) => {
-    if (!context.response?.ok || !context.responseText) {
+    if (!context.response?.ok) {
         return await next()
     }
 
-    const html = context.responseText
+    const html = await context.response.text()
     const url = extractRedirectUrl(html)
 
     if (url) {
