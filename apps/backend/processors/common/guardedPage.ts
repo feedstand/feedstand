@@ -32,7 +32,7 @@ export const guardedPage: WorkflowProcessor<unknown> = async (context, next) => 
     const status = context.response.status
 
     for (const signature of signatures) {
-        if (text.includes(signature.text) && status === signature.status) {
+        if (text?.includes(signature.text) && status === signature.status) {
             throw new Error(`Guarded page, signature: ${signature.name}`)
         }
     }
