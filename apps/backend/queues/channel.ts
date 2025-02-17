@@ -17,6 +17,6 @@ export const channelQueue = createQueue(
                 },
             },
         },
-        worker: { concurrency: 10 },
+        worker: { concurrency: 16 },
     },
 )
