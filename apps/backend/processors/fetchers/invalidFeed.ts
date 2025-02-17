@@ -7,19 +7,15 @@ type Signature = {
 
 const signatures: Array<Signature> = [
     {
-        test: (string: string) => /<!DOCTYPE\s+html/i.test(string),
+        test: (string: string) => /<!DOCTYPE\s+html|<(?:html|head|body)/i.test(string),
         name: 'HTML page',
     },
     {
-        test: (string: string) => /<html/i.test(string),
-        name: 'HTML page',
+        test: (string: string) => Boolean(string) && string.indexOf('<') === -1,
+        name: 'Plain text',
     },
     {
-        test: (string: string) => /<head/i.test(string),
-        name: 'HTML page',
-    },
-    {
-        test: (text: string) => text === '',
+        test: (string: string) => string === '',
         name: 'Empty response',
     },
 ]
