@@ -11,7 +11,7 @@ const signatures: Array<Signature> = [
         name: 'HTML page',
     },
     {
-        test: (string: string) => Boolean(string) && string.indexOf('<') === -1,
+        test: (string: string) => /^[^<>]+$/u.test(string),
         name: 'Plain text',
     },
     {
