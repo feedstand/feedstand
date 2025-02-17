@@ -26,17 +26,17 @@ class CustomResponse extends Response {
     public readonly url: string
     public readonly _body: string
 
-    constructor(body: string, init: ResponseInit & { url: string }) {
+    constructor(body: string | null, init: ResponseInit & { url: string }) {
         super(undefined, init)
         this.url = init.url
-        this._body = body
+        this._body = body || ''
     }
 
-    override text(): Promise<string> {
+    text(): Promise<string> {
         return Promise.resolve(this._body)
     }
 
-    override json<T>(): Promise<T> {
+    json<T>(): Promise<T> {
         return isJson(this._body) ? JSON.parse(this._body) : undefined
     }
 }
