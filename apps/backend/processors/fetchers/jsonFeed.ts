@@ -44,6 +44,7 @@ export const jsonFeedItems = (feed: JsonFeed): Array<FeedItem> => {
                     [dateStandard, dateCustomFormat, dateAi],
                     new Date(),
                 ),
+                rawPublishedAt: item.date_published,
             }),
         )
     }

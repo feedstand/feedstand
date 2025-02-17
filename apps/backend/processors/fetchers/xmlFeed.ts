@@ -49,6 +49,7 @@ export const xmlFeedItems = (feed: XmlFeed): Array<FeedItem> => {
                     [dateStandard, dateCustomFormat, dateAi],
                     new Date(),
                 ),
+                rawPublishedAt: item.pubDate,
             }),
         )
     }

@@ -85,6 +85,7 @@ export const items = pgTable(
         isReadabilitified: boolean('is_readabilitified').default(false),
         error: safeText('error'),
         publishedAt: timestamp('published_at').notNull(),
+        rawPublishedAt: safeVarchar('raw_published_at'),
         createdAt: timestamp('created_at').notNull().defaultNow(),
         updatedAt: timestamp('updated_at').notNull().defaultNow(),
     },

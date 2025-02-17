@@ -8,4 +8,5 @@ export const feedItem = newItem.pick({
     author: true,
     content: true,
     publishedAt: true,
+    rawPublishedAt: true,
 })

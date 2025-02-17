@@ -1,0 +1,1 @@
+ALTER TABLE "items" ADD COLUMN "raw_published_at" varchar;
