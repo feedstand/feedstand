@@ -1,7 +1,8 @@
 import axios, { AxiosRequestConfig } from 'axios'
 import axiosRetry from 'axios-retry'
 import https from 'node:https'
-import { maxTimeout } from '../constants/fetchers'
+import { avoidedContentTypes, maxContentSize, maxTimeout } from '../constants/fetchers'
+import { isOneOfContentTypes } from '../helpers/responses'
 import { isJson } from '../helpers/strings'
 
 // TODO:
@@ -62,6 +63,8 @@ export const fetchUrl = async (url: string, config?: AxiosRequestConfig): Promis
     const response = await axios(url, {
         // TODO: Enable caching of requests based on headers in the response.
         timeout: maxTimeout,
+        // Limit the size of the response.
+        maxContentLength: maxContentSize,
         // Enables lenient HTTP parsing for non-standard server responses where Content-Length or
         // Transfer-Encoding headers might be malformed (common with legacy RSS feeds and
         // misconfigured servers).
@@ -73,11 +76,35 @@ export const fetchUrl = async (url: string, config?: AxiosRequestConfig): Promis
         validateStatus: () => true,
         // Do not automatically transform JSON response to JSON object.
         transformResponse: [],
+        // Need to use the stream response type to detect streaming services (eg. audio.)
+        responseType: 'stream',
         // Append any custom configuration at the end.
         ...config,
     })
 
-    return new CustomResponse(response.status === 304 ? null : response.data, {
+    const contentType = String(response.headers['content-type'])
+
+    // If it's not text, abort right away and destroy the stream so we don't keep reading.
+    if (isOneOfContentTypes(contentType, avoidedContentTypes)) {
+        response.data.destroy(new Error('Non-text or streaming content detected'))
+        throw new Error(`Unwanted content-type: ${contentType}`)
+    }
+
+    let body = ''
+    let downloadedBytes = 0
+
+    for await (const chunk of response.data) {
+        downloadedBytes += chunk.length
+
+        if (downloadedBytes > maxContentSize) {
+            response.data.destroy(new Error('Content length exceeded the limit'))
+            throw new Error('File is too large')
+        }
+
+        body += chunk
+    }
+
+    return new CustomResponse(response.status === 304 ? null : body, {
         url: response.request?.res?.responseUrl || url,
         status: response.status,
         statusText: response.statusText,

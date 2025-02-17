@@ -1,5 +1,9 @@
 export const maxTimeout = 20 * 1000
 
+export const maxContentSize = 100 * 1024 * 1024
+
+export const avoidedContentTypes = ['audio/', 'video/']
+
 export const htmlContentTypes = ['text/html', 'application/xhtml+xml']
 
 export const jsonFeedContentTypes = ['application/json']
@@ -13,7 +17,6 @@ export const xmlFeedContentTypes = [
     'text/rss+xml', // Legacy, for supporting very old websites only.
     'text/atom+xml', // Legacy, for supporting very old websites only.
     'text/xml', // Legacy, for supporting very old websites only.
-    'application/rss+xml+xml', // Some sites have this incorrect format, unfortunately.
 ]
 
 export const anyFeedContentTypes = [...jsonFeedContentTypes, ...xmlFeedContentTypes]
