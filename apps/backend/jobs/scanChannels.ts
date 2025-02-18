@@ -12,6 +12,9 @@ export const scanChannels = async () => {
         or(),
         // TODO: Consider adding support for adjusting scanning frequency based on the actual new
         // items being added to the feed. Elegant solution: https://stackoverflow.com/a/6651638.
+        // TODO: Respect syndication tags in Atom feeds, eg.:
+        // <sy:updatePeriod>hourly</sy:updatePeriod>,
+        // <sy:updateFrequency>1</sy:updateFrequency>.
     ]
 
     while (true) {
