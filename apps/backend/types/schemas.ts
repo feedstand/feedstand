@@ -13,6 +13,7 @@ import { newItem } from '../schemas/newItem'
 import { newSource } from '../schemas/newSource'
 import { newUnread } from '../schemas/newUnread'
 import { newUser } from '../schemas/newUser'
+import { rawFeedItem } from '../schemas/rawFeedItem'
 import { source } from '../schemas/source'
 import { unread } from '../schemas/unread'
 import { user } from '../schemas/user'
@@ -50,3 +51,5 @@ export type FeedData = z.infer<typeof feedData>
 export type FeedChannel = z.infer<typeof feedChannel>
 
 export type FeedItem = z.infer<typeof feedItem>
+
+export type RawFeedItem = z.infer<typeof rawFeedItem>

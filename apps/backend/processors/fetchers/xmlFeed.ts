@@ -1,10 +1,7 @@
 import RSSParser from 'rss-parser'
 import { FetchFeedProcessor } from '../../actions/fetchFeed'
+import { parseFeedItems } from '../../helpers/feeds'
 import { parseValue, trimStrings } from '../../helpers/parsers'
-import { authorFromAtom } from '../../parsers/authorFromAtom'
-import { dateAi } from '../../parsers/dateAi'
-import { dateCustomFormat } from '../../parsers/dateCustomFormat'
-import { dateStandard } from '../../parsers/dateStandard'
 import { linkFromAtom } from '../../parsers/linkFromAtom'
 import { textStandard } from '../../parsers/textStandard'
 import { XmlFeed } from '../../types/feeds'
@@ -27,34 +24,15 @@ export const xmlFeedItems = (feed: XmlFeed): Array<FeedItem> => {
         return []
     }
 
-    const items: Array<FeedItem> = []
-
-    for (const item of feed.items) {
-        if (!item.link) {
-            continue
-        }
-
-        const parsedLink = parseValue(item.link, [textStandard], '')
-
-        items.push(
-            trimStrings({
-                link: parsedLink,
-                guid: parseValue(item.guid, [textStandard], parsedLink),
-                title: parseValue(item.title, [textStandard]),
-                description: parseValue(item.summary, [textStandard]),
-                author: parseValue(item.creator, [textStandard, authorFromAtom]),
-                content: parseValue(item.content, [textStandard]),
-                publishedAt: parseValue(
-                    item.pubDate,
-                    [dateStandard, dateCustomFormat, dateAi],
-                    new Date(),
-                ),
-                rawPublishedAt: item.pubDate,
-            }),
-        )
-    }
-
-    return items
+    return parseFeedItems(feed.items, (item) => ({
+        link: item.link,
+        guid: item.guid,
+        title: item.title,
+        description: item.summary,
+        author: item.creator,
+        content: item.content,
+        publishedAt: item.pubDate,
+    }))
 }
 
 export const xmlFeed: FetchFeedProcessor = async (context, next) => {

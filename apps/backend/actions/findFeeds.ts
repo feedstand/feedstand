@@ -11,6 +11,9 @@ export type FindFeedsProcessor = WorkflowProcessor<FoundFeeds>
 
 export const processors: Array<FindFeedsProcessor> = [
     preflightFetch('lastFixCheckEtag', 'lastFixCheckedAt'),
+    // TODO: In addition to checking the site_url, play with the URL to check whether eg. the
+    // site was previously accessible via http://, but now only https:// works. Or similar case
+    // with the trailing forward slashes, www, etc.
     responseFetch,
     youTubeFinder,
     directFinder,

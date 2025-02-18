@@ -75,24 +75,28 @@ export const items = pgTable(
         id: serial('id').primaryKey(),
         link: safeVarchar('link').notNull(),
         guid: safeVarchar('guid').notNull(),
-        channelId: integer('channel_id')
-            .notNull()
-            .references(() => channels.id, { onDelete: 'cascade' }),
         title: safeVarchar('title'),
         description: safeVarchar('description'),
         author: safeVarchar('author'),
         content: safeText('content'),
-        isReadabilitified: boolean('is_readabilitified').default(false),
-        error: safeText('error'),
+        channelId: integer('channel_id')
+            .notNull()
+            .references(() => channels.id, { onDelete: 'cascade' }),
+        itemChecksum: safeVarchar('item_checksum').notNull(),
+        contentChecksum: safeVarchar('content_checksum').notNull(),
         publishedAt: timestamp('published_at').notNull(),
-        rawPublishedAt: safeVarchar('raw_published_at'),
         createdAt: timestamp('created_at').notNull().defaultNow(),
         updatedAt: timestamp('updated_at').notNull().defaultNow(),
+        rawPublishedAt: safeVarchar('raw_published_at'),
     },
     (table) => [
-        index('items_guid_idx').on(table.guid),
-        uniqueIndex('items_channel_id_guid').on(table.channelId, table.guid),
-        index('items_published_at_idx').on(table.publishedAt),
+        index('items_item_checksum').on(table.itemChecksum),
+        uniqueIndex('items_channel_id_item_checksum_content_checksum').on(
+            table.channelId,
+            table.itemChecksum,
+            table.contentChecksum,
+        ),
+        index('items_published_at').on(table.publishedAt),
     ],
 )
 
@@ -107,6 +111,8 @@ export const sources = pgTable(
             .notNull()
             .references(() => channels.id, { onDelete: 'cascade' }),
         name: safeVarchar('name').notNull(),
+        // TODO: Also add ability to mark specific items as isReadibilitified. This should be done
+        // between the user and the item, so probably in another table linking those two.
         isReadabilitified: boolean('is_readabilitified').default(false),
         createdAt: timestamp('created_at').notNull().defaultNow(),
         updatedAt: timestamp('updated_at').notNull().defaultNow(),

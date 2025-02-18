@@ -1,9 +1,7 @@
 import { castArray, get } from 'lodash-es'
 import { FetchFeedProcessor } from '../../actions/fetchFeed'
+import { parseFeedItems } from '../../helpers/feeds'
 import { parseValue, trimStrings } from '../../helpers/parsers'
-import { dateAi } from '../../parsers/dateAi'
-import { dateCustomFormat } from '../../parsers/dateCustomFormat'
-import { dateStandard } from '../../parsers/dateStandard'
 import { textStandard } from '../../parsers/textStandard'
 import { JsonFeed } from '../../types/feeds'
 import { FeedChannel, FeedItem } from '../../types/schemas'
@@ -22,34 +20,15 @@ export const jsonFeedItems = (feed: JsonFeed): Array<FeedItem> => {
         return []
     }
 
-    const items: Array<FeedItem> = []
-
-    for (const item of castArray(feed.items)) {
-        if (!item.url) {
-            continue
-        }
-
-        const parsedLink = parseValue(item.url, [textStandard], '')
-
-        items.push(
-            trimStrings({
-                link: parsedLink,
-                guid: parseValue(item.id, [textStandard], parsedLink),
-                title: parseValue(item.title, [textStandard]),
-                description: parseValue(item.summary, [textStandard]),
-                author: parseValue(get(item.authors, '0.name'), [textStandard]),
-                content: parseValue(item.content_html || item.content_text, [textStandard]),
-                publishedAt: parseValue(
-                    item.date_published,
-                    [dateStandard, dateCustomFormat, dateAi],
-                    new Date(),
-                ),
-                rawPublishedAt: item.date_published,
-            }),
-        )
-    }
-
-    return items
+    return parseFeedItems(castArray(feed.items), (item: any) => ({
+        link: item.url,
+        guid: item.id,
+        title: item.title,
+        description: item.summary,
+        author: get(item.authors, '0.name'),
+        content: item.content_html || item.content_text,
+        publishedAt: item.date_published,
+    }))
 }
 
 export const jsonFeed: FetchFeedProcessor = async (context, next) => {
@@ -64,7 +43,8 @@ export const jsonFeed: FetchFeedProcessor = async (context, next) => {
     // }
 
     try {
-        // TODO: Validate if the JSON file is actually a JSON Feed.
+        // TODO: Validate if the JSON file is actually a JSON Feed. A good way would be to use
+        // Zod schema and validate the `out` with it.
         const out = await context.response.json()
 
         if (!out) {
