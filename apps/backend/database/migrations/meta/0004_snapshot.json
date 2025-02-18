@@ -259,13 +259,13 @@
                     "name": "item_checksum",
                     "type": "varchar",
                     "primaryKey": false,
-                    "notNull": true
+                    "notNull": false
                 },
                 "content_checksum": {
                     "name": "content_checksum",
                     "type": "varchar",
                     "primaryKey": false,
-                    "notNull": true
+                    "notNull": false
                 },
                 "published_at": {
                     "name": "published_at",

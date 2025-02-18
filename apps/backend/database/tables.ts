@@ -82,8 +82,8 @@ export const items = pgTable(
         channelId: integer('channel_id')
             .notNull()
             .references(() => channels.id, { onDelete: 'cascade' }),
-        itemChecksum: safeVarchar('item_checksum').notNull(),
-        contentChecksum: safeVarchar('content_checksum').notNull(),
+        itemChecksum: safeVarchar('item_checksum'),
+        contentChecksum: safeVarchar('content_checksum'),
         publishedAt: timestamp('published_at').notNull(),
         createdAt: timestamp('created_at').notNull().defaultNow(),
         updatedAt: timestamp('updated_at').notNull().defaultNow(),
