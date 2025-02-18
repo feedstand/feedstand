@@ -31,7 +31,7 @@ export const xmlFeedItems = (feed: XmlFeed): Array<FeedItem> => {
         description: item.summary,
         author: item.creator,
         content: item.content,
-        publishedAt: item.pubDate,
+        publishedAt: item.isoDate,
     }))
 }
 
