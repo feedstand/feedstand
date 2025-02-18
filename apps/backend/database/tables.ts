@@ -22,7 +22,7 @@ export const users = pgTable(
         createdAt: timestamp('created_at').notNull().defaultNow(),
         updatedAt: timestamp('updated_at').notNull().defaultNow(),
     },
-    (table) => [uniqueIndex('users_email_idx').on(table.email)],
+    (table) => [uniqueIndex('users_email').on(table.email)],
 )
 
 export const channelType = pgEnum('channel_types', ['xml', 'json'])
@@ -53,7 +53,7 @@ export const channels = pgTable(
         lastFixCheckEtag: safeVarchar('last_fix_check_etag'),
         lastFixCheckError: safeText('last_fix_check_error'),
     },
-    (table) => [uniqueIndex('channels_feed_url_idx').on(table.feedUrl)],
+    (table) => [uniqueIndex('channels_feed_url').on(table.feedUrl)],
 )
 
 export const fixables = pgTable(
@@ -66,7 +66,7 @@ export const fixables = pgTable(
         title: safeVarchar('title'),
         feedUrl: safeText('feed_url').notNull(),
     },
-    (table) => [uniqueIndex('fixables_channel_id_feed_url_idx').on(table.channelId, table.feedUrl)],
+    (table) => [uniqueIndex('fixables_channel_id_feed_url').on(table.channelId, table.feedUrl)],
 )
 
 export const items = pgTable(
@@ -117,7 +117,7 @@ export const sources = pgTable(
         createdAt: timestamp('created_at').notNull().defaultNow(),
         updatedAt: timestamp('updated_at').notNull().defaultNow(),
     },
-    (table) => [uniqueIndex('sources_user_channel_idx').on(table.userId, table.channelId)],
+    (table) => [uniqueIndex('sources_user_channel').on(table.userId, table.channelId)],
 )
 
 export const unreads = pgTable(
@@ -131,7 +131,7 @@ export const unreads = pgTable(
             .notNull()
             .references(() => items.id, { onDelete: 'cascade' }),
     },
-    (table) => [uniqueIndex('unreads_user_item_idx').on(table.userId, table.itemId)],
+    (table) => [uniqueIndex('unreads_user_item').on(table.userId, table.itemId)],
 )
 
 export const tables = {
