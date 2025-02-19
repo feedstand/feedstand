@@ -23,7 +23,7 @@ const instance = axios.create()
 // When creating a Response object from AxiosObject manually, it is necessary to also store the
 // URL of fetched page so that it can be referenced later. The native Response object has it out
 // of the box when performing fetch(), but when creating it manually, there's no way to set it.
-class CustomResponse extends Response {
+export class CustomResponse extends Response {
     public readonly url: string
     public readonly _body: string
 
