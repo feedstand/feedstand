@@ -859,6 +859,14 @@ const customFormats: CustomFormats = [
         locale: tr,
     },
 
+    // Example: lun. 13 mars 2023 12:43:44 CET
+    // Example: mar. 24 janv. 2023 12:43:06 CET
+    // Example: ven. 02 déc. 2022 12:43:23 CET
+    {
+        format: 'EEE dd MM yyyy HH:mm:ss xx',
+        replace: [fixFrenchMonth, fixFrenchWeekday, fixTzAbbreviation],
+    },
+
     // Example: 週六, 11 一月 2025 05:39:00 +0000
     // Example: 週四, 2 一月 2025 09:12:00 +0000
     // Example: 週二, 1 十月 2024 01:33:00 +0000
