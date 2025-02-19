@@ -20,11 +20,6 @@ export const parseFeedItems = <I>(
 
     for (const item of items) {
         const rawItem = composeRawItem(item)
-
-        if (!rawItem.link) {
-            continue
-        }
-
         const rawContent = rawItem.content
 
         const itemChecksum = generateChecksum(rawItem.guid, rawItem.link, rawItem.publishedAt)
