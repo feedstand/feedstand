@@ -43,43 +43,44 @@ const fixWords = (words: Record<string, string>): CustomFormatsReplace => ({
 })
 
 const fixTzAbbreviation: CustomFormatsReplace = fixWords({
-    estt: '-0500', // Eastern Standard Time
-    est: '-0500', // Eastern Standard Time
-    edt: '-0400', // Eastern Daylight Time
-    cst: '-0600', // Central Standard Time
-    cdt: '-0500', // Central Daylight Time
-    mst: '-0700', // Mountain Standard Time
-    mdt: '-0600', // Mountain Daylight Time
-    pst: '-0800', // Pacific Standard Time
-    pdt: '-0700', // Pacific Daylight Time
-    gmt: '+0000', // Greenwich Mean Time
-    lmt: '+0000', // Local Mean Time
-    utc: '+0000', // Coordinated Universal Time
-    bst: '+0100', // British Summer Time
-    cet: '+0100', // Central European Time
-    cest: '+0200', // Central European Summer Time
-    eet: '+0200', // Eastern European Time
-    eest: '+0300', // Eastern European Summer Time
-    ist: '+0530', // India Standard Time
-    idt: '+0300', // Israel Daylight Time
-    sgt: '+0800', // Singapore Time
-    jst: '+0900', // Japan Standard Time
-    kst: '+0900', // Korea Standard Time
-    aest: '+1000', // Australian Eastern Standard Time
-    aedt: '+1100', // Australian Eastern Daylight Time
-    acst: '+0930', // Australian Central Standard Time
-    acdt: '+1030', // Australian Central Daylight Time
-    awst: '+0800', // Australian Western Standard Time
-    nzst: '+1200', // New Zealand Standard Time
-    nzdt: '+1300', // New Zealand Daylight Time
-    brt: '-0300', // Brasilia Time
-    art: '-0300', // Argentina Time
-    clt: '-0400', // Chile Standard Time
-    clst: '-0300', // Chile Summer Time
-    hkt: '+0800', // Hong Kong Time
-    pht: '+0800', // Philippine Time
-    ict: '+0700', // Indochina Time,
-    et: '-0500', // Eastern Standard Time
+    ' estt': ' -0500', // Eastern Standard Time
+    ' est': ' -0500', // Eastern Standard Time
+    ' edt': ' -0400', // Eastern Daylight Time
+    ' cst': ' -0600', // Central Standard Time
+    ' cdt': ' -0500', // Central Daylight Time
+    ' mst': ' -0700', // Mountain Standard Time
+    ' mdt': ' -0600', // Mountain Daylight Time
+    ' pst': ' -0800', // Pacific Standard Time
+    ' pdt': ' -0700', // Pacific Daylight Time
+    ' gmt': ' +0000', // Greenwich Mean Time
+    ' lmt': ' +0000', // Local Mean Time
+    ' utc': ' +0000', // Coordinated Universal Time
+    ' bst': ' +0100', // British Summer Time
+    ' cet': ' +0100', // Central European Time
+    ' cest': ' +0200', // Central European Summer Time
+    ' eet': ' +0200', // Eastern European Time
+    ' eest': ' +0300', // Eastern European Summer Time
+    ' ist': ' +0530', // India Standard Time
+    ' idt': ' +0300', // Israel Daylight Time
+    ' sgt': ' +0800', // Singapore Time
+    ' jst': ' +0900', // Japan Standard Time
+    ' kst': ' +0900', // Korea Standard Time
+    ' aest': ' +1000', // Australian Eastern Standard Time
+    ' aedt': ' +1100', // Australian Eastern Daylight Time
+    ' acst': ' +0930', // Australian Central Standard Time
+    ' acdt': ' +1030', // Australian Central Daylight Time
+    ' awst': ' +0800', // Australian Western Standard Time
+    ' nzst': ' +1200', // New Zealand Standard Time
+    ' nzdt': ' +1300', // New Zealand Daylight Time
+    ' brt': ' -0300', // Brasilia Time
+    ' art': ' -0300', // Argentina Time
+    ' clt': ' -0400', // Chile Standard Time
+    ' clst': ' -0300', // Chile Summer Time
+    ' hkt': ' +0800', // Hong Kong Time
+    ' pht': ' +0800', // Philippine Time
+    ' ict': ' +0700', // Indochina Time,
+    ' et': ' -0500', // Eastern Standard Time
+    ' pt': ' -0800', // Pacific [Standard] Time
 })
 
 const fixEnglishMonth: CustomFormatsReplace = fixWords({
@@ -549,10 +550,36 @@ const customFormats: CustomFormats = [
     // Example: 31.05.2018
     { format: 'dd.MM.yyyy' },
 
+    // Example: 17th May 2016
+    // Example: 10th May 2016
+    // Example: 3rd May 2016
+    { format: 'do MMMM yyyy' },
+
+    // Example: Monday, September 11th, 2017 11:15:00 GMT
+    // Example: Monday, August 28th, 2017 11:15:00 GMT
+    // Example: Wednesday, June 21st, 2017 11:15:00 GMT
+    {
+        format: 'EEEE, MMMM do, yyyy HH:mm:ss xx',
+        replace: [fixTzAbbreviation],
+    },
+
     // Example: 2020-29-01T21:42:18+00:00
     // Example: 2020-19-01T19:42:22+00:00
     // Example: 2020-14-01T09:34:44+00:00
     { format: "yyyy-dd-MM'T'HH:mm:ssxxx" },
+
+    // Example: 18 February 2025 - 21:22
+    // Example: 18 February 2025 - 21:10
+    // Example: 18 February 2025 - 20:20
+    { format: 'dd MMMM yyyy - HH:mm' },
+
+    // Example: 19-02-2025 00:35
+    { format: 'dd-MM-yyyy HH:mm' },
+
+    // Example: 2023年11月15日
+    // Example: 2023年11月09日
+    // Example: 2023年09月06日
+    { format: 'yyyy年MM月dd日' },
 
     // Example: 2020年3月16日 02:00
     // Example: 2019年10月31日 06:37
@@ -611,6 +638,16 @@ const customFormats: CustomFormats = [
         ],
     },
 
+    //  Example: Sunday, Feb. 23, 2020 19:00 AM PST
+    {
+        format: "EEEE, MMM dd, yyyy HH:mm 'AM' xx",
+        replace: [fixTzAbbreviation],
+    },
+    {
+        format: "EEEE, MMM dd, yyyy HH:mm 'PM' xx",
+        replace: [fixTzAbbreviation],
+    },
+
     // Example: Sun 25 Jun 2017 16:50:44 AM CDT
     // Example: Thu 09 Feb 2012 05:22:11 PM ART
     // Example: Sat 28 Jan 2012 06:47:44 PM ART
@@ -623,12 +660,28 @@ const customFormats: CustomFormats = [
         replace: [fixTzAbbreviation],
     },
 
-    // Example: Wed, 20 Dez 2024 09:00:00 GMT -> 2024-12-20T09:00:00Z
-    // Example: Wed, 13 Dez 2024 09:00:00 GMT -> 2024-12-13T09:00:00Z
-    // Example: Wed, 5 Dez 2024 09:00:00 GMT -> 2024-12-05T09:00:00Z
+    // Example: Wed, 20 Dez 2024 09:00:00 GMT
+    // Example: Wed, 13 Dez 2024 09:00:00 GMT
+    // Example: Wed, 5 Dez 2024 09:00:00 GMT
     {
         format: 'EEE, d MM yyyy HH:mm:ss xx',
         replace: [fixGermanMonth, fixTzAbbreviation],
+    },
+
+    // Example: lun, 10 Fév 2025 17:17:44 +0100
+    // Example: dim, 09 Fév 2025 09:00:56 +0100
+    // Example: sam, 08 Fév 2025 13:46:50 +0100
+    {
+        format: 'EEE, dd MM yyyy HH:mm:ss xx',
+        replace: [fixFrenchWeekday, fixFrenchMonth],
+    },
+
+    // Example: mer. 28 févr. 2024 19:34:44 CET
+    // Example: ven. 27 oct. 2023 13:43:15 CEST
+    // Example: lun. 05 mai 2021 13:43:21 CEST
+    {
+        format: 'EEE dd MM yyyy HH:mm:ss xx',
+        replace: [fixFrenchWeekday, fixFrenchMonth, fixTzAbbreviation],
     },
 
     // Example: mer. 28 févr. 2024 19:34:44 CET
@@ -720,9 +773,9 @@ const customFormats: CustomFormats = [
         replace: [fixTzAbbreviation],
     },
 
-    // Example: 木曜日, 26 11 2009 12:30:03 +0900 -> 2009-11-26T03:30:03Z
-    // Example: 水曜日, 25 11 2009 12:29:29 +0900 -> 2009-11-25T03:29:29Z
-    // Example: 火曜日, 24 11 2009 13:03:26 +0900 -> 2009-11-24T04:03:26Z
+    // Example: 木曜日, 26 11 2009 12:30:03 +0900
+    // Example: 水曜日, 25 11 2009 12:29:29 +0900
+    // Example: 火曜日, 24 11 2009 13:03:26 +0900
     {
         format: 'EEEE, dd MM yyyy HH:mm:ss xx',
         locale: ja,
@@ -806,6 +859,22 @@ const customFormats: CustomFormats = [
     {
         format: 'EEE, dd MMM yyyy HH:mm:ss xx',
         locale: sv,
+    },
+
+    // Example: 15&nbsp;Apr&nbsp;23
+    // Example: 16&nbsp;Jun&nbsp;22
+    // Example: 29&nbsp;May&nbsp;22
+    {
+        format: 'dd MMM yy',
+        replace: [{ from: '&nbsp;', to: () => ' ' }],
+    },
+
+    // Example: 2025-01-20T15:56:38&#43;08:00
+    // Example: 2024-12-06T10:32:22&#43;08:00
+    // Example: 2024-10-06T11:10:22&#43;08:00
+    {
+        format: "yyyy-MM-dd'T'HH:mm:ssxxx",
+        replace: [{ from: '&#43;', to: () => '+' }],
     },
 
     // Example: Wen, 23 fev 2007 12:00:00 +0200
@@ -904,6 +973,12 @@ const customFormats: CustomFormats = [
         replace: [fixTzAbbreviation],
     },
 
+    // Example: Mon, 02 May 202215:00:00 EST
+    {
+        format: 'EEE, dd MMM yyyyHH:mm:ss xx',
+        replace: [fixTzAbbreviation],
+    },
+
     // December 12:27:27 CEST 2016
     {
         format: 'MMMM HH:mm:ss xx yyyy',
@@ -937,6 +1012,12 @@ const customFormats: CustomFormats = [
     {
         format: 'EEE, d MMM yyyy HH:mm:ss xx',
         locale: fr,
+    },
+
+    // Example: Thu, 23 Ju1 2007 14:21:37 GMT
+    {
+        format: 'EEE, dd MMM yyyy HH:mm:ss xx',
+        replace: [fixTzAbbreviation, { from: ' Ju1 ', to: () => ' Jul ' }],
     },
 
     // Example: Mon, 24 Arp 2023 06:50:00 MDT
@@ -973,6 +1054,17 @@ const customFormats: CustomFormats = [
     {
         format: 'EEEE, MMMM d, yyyy, HH:mm xx',
         replace: [fixTzSpace],
+    },
+
+    // Example: Wednesday, 03 Apil 2024 12:00:00 PDT
+    // Example: Sunday, 03 Npovember 2019 12:00:00 PDT
+    {
+        format: 'EEEE, dd MMMM yyyy HH:mm:ss xx',
+        replace: [
+            fixTzAbbreviation,
+            { from: ' Apil ', to: () => ' April ' },
+            { from: ' Npovember ', to: () => ' November ' },
+        ],
     },
 
     // Feed: http://www.spacewar.com/Military_Technology.xml
@@ -1062,6 +1154,13 @@ export const dateCustomFormat: ValueParser<Date> = (value) => {
             { locale: locale || enUS },
         )
         const validatedDate = dateStandard(parsedDate)
+
+        if (
+            value === 'Sunday, Feb. 23, 2020 19:00 AM PST' &&
+            format === "EEEE, MMM. dd, yyyy HH:mm 'AM' xx"
+        ) {
+            console.log({ customizedValue, parsedDate, validatedDate, value, format })
+        }
 
         if (validatedDate && isValid(validatedDate)) {
             return new Date(validatedDate?.toISOString())
