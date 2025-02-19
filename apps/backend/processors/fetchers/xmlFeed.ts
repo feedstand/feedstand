@@ -1,3 +1,4 @@
+import { get } from 'lodash-es'
 import RSSParser from 'rss-parser'
 import { FetchFeedProcessor } from '../../actions/fetchFeed'
 import { parseFeedItems } from '../../helpers/feeds'
@@ -6,6 +7,10 @@ import { linkFromAtom } from '../../parsers/linkFromAtom'
 import { textStandard } from '../../parsers/textStandard'
 import { XmlFeed } from '../../types/feeds'
 import { FeedChannel, FeedItem } from '../../types/schemas'
+
+const parser = new RSSParser({
+    customFields: { item: ['pubdate', 'a10:updated'] },
+})
 
 export const xmlFeedChannel = (feed: XmlFeed, url: string): FeedChannel => {
     return trimStrings({
@@ -31,7 +36,8 @@ export const xmlFeedItems = (feed: XmlFeed): Array<FeedItem> => {
         description: item.summary,
         author: item.creator,
         content: item.content,
-        publishedAt: item.isoDate || item.pubDate,
+        publishedAt:
+            item.isoDate || item.pubDate || get(item, 'pubdate') || get(item, 'a10:updated'),
     }))
 }
 
@@ -49,7 +55,7 @@ export const xmlFeed: FetchFeedProcessor = async (context, next) => {
     try {
         const xml = await context.response.text()
         // TODO: Return early if XML is not actually an XML?
-        const out = await new RSSParser().parseString(xml)
+        const out = await parser.parseString(xml)
 
         context.result = {
             etag: context.response.headers.get('etag'),

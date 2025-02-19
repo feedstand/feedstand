@@ -27,8 +27,7 @@ export const jsonFeedItems = (feed: JsonFeed): Array<FeedItem> => {
         description: item.summary,
         author: get(item.authors, '0.name'),
         content: item.content_html || item.content_text,
-        // TODO: Consider using item.date_modified in case where the date_published is not present.
-        publishedAt: item.date_published,
+        publishedAt: item.date_published || item.date_modified,
     }))
 }
 
