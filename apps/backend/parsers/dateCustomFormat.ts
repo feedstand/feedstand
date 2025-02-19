@@ -568,6 +568,11 @@ const customFormats: CustomFormats = [
     // Example: 2020-14-01T09:34:44+00:00
     { format: "yyyy-dd-MM'T'HH:mm:ssxxx" },
 
+    // Example: 2017-12-12T00:33:47.000+0000
+    // Example: 2017-12-12T00:27:08.000+0000
+    // Example: 2017-12-11T23:57:57.000+0000
+    { format: "yyyy-MM-dd'T'HH:mm:ss.SSSxx" },
+
     // Example: 18 February 2025 - 21:22
     // Example: 18 February 2025 - 21:10
     // Example: 18 February 2025 - 20:20
