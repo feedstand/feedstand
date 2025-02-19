@@ -40,7 +40,6 @@ services:
       - --entrypoints.web.http.redirections.entrypoint.scheme=https
       - --entrypoints.websecure.address=:443
       - --entrypoints.pgbouncer.address=:5432
-      - --entrypoints.queue.address=:6379
       - --certificatesresolvers.letsencrypt.acme.email=${TRAEFIK_ACME_EMAIL}
       - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
       - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
@@ -59,10 +58,6 @@ services:
         mode: host
       - target: 5432
         published: 5432
-        protocol: tcp
-        mode: host
-      - target: 6379
-        published: 6379
         protocol: tcp
         mode: host
     volumes:
@@ -139,13 +134,6 @@ services:
           - node.labels.worker == true
         preferences:
           - spread: node.id
-      # resources:
-      #   limits:
-      #     memory: 512MB
-      #     cpus: "0.5"
-      #   reservations:
-      #     memory: 128M
-      #     cpus: "0.1"
 
   pgbouncer:
     image: edoburu/pgbouncer
@@ -213,11 +201,6 @@ services:
       placement:
         constraints:
           - node.role == manager
-      labels:
-        - traefik.enable=true
-        - traefik.tcp.routers.queue.rule=HostSNI(`*`)
-        - traefik.tcp.routers.queue.entrypoints=queue
-        - traefik.tcp.services.queue.loadbalancer.server.port=6379
     volumes:
       - queue_data:/data
     healthcheck:
