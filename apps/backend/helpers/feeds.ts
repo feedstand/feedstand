@@ -1,6 +1,5 @@
 import { createHash } from 'crypto'
 import { authorFromAtom } from '../parsers/authorFromAtom'
-import { dateAi } from '../parsers/dateAi'
 import { dateCustomFormat } from '../parsers/dateCustomFormat'
 import { dateStandard } from '../parsers/dateStandard'
 import { textStandard } from '../parsers/textStandard'
@@ -42,7 +41,7 @@ export const parseFeedItems = <I>(
             contentChecksum,
             publishedAt: parseValue(
                 rawItem.publishedAt,
-                [dateStandard, dateCustomFormat, dateAi],
+                [dateStandard, dateCustomFormat],
                 new Date(),
             ),
             rawPublishedAt: rawItem.publishedAt,
