@@ -468,9 +468,9 @@ const customFormats: CustomFormats = [
     // Example: Jan 11, 2025 10:44am
     { format: 'MMM d, yyyy h:mmaaa' },
 
-    //    Example: Thu, 20 Jun 2024 20 +0000
-    //    Example: Thu, 29 Feb 2024 23 +0000
-    //    Example: Mon, 04 Dec 2023 15 +0000
+    // Example: Thu, 20 Jun 2024 20 +0000
+    // Example: Thu, 29 Feb 2024 23 +0000
+    // Example: Mon, 04 Dec 2023 15 +0000
     { format: 'EEE, dd MMM yyyy HH xx' },
 
     // Example: 14/01/2025 - 14:51
@@ -517,15 +517,35 @@ const customFormats: CustomFormats = [
     // Example: 2025-01-16T19:24:28+00:00
     { format: "yyyy-MM-dd'T'HH:mm:ssxxx" },
 
-    //  Example: 04.02.2025T00:00:00 +0100
-    //  Example: 30.01.2025T17:05:00 +0100
-    //  Example: 28.01.2025T21:55:00 +0100
+    // Example: 04.02.2025T00:00:00 +0100
+    // Example: 30.01.2025T17:05:00 +0100
+    // Example: 28.01.2025T21:55:00 +0100
     { format: "dd.MM.yyyy'T'HH:mm:ss xx" },
 
-    //  Example: 2025-01-2821:47:13
-    //  Example: 2025-01-2819:40:26
-    //  Example: 2025-01-2812:17:37
+    // Example: 2025-01-2821:47:13
+    // Example: 2025-01-2819:40:26
+    // Example: 2025-01-2812:17:37
     { format: 'yyyy-MM-ddHH:mm:ss' },
+
+    // Example: 10-02-2025 - 13:26
+    // Example: 10-02-2025 - 10:47
+    // Example: 07-02-2025 - 08:00
+    { format: 'dd-MM-yyyy - HH:mm' },
+
+    // Example: Mon, 30 Mar 2009 14:15:00 GMT + 1:00
+    // Example: Sun, 31 Jan 2010 15:30:00 GMT + 1:00
+    {
+        format: 'EEE, dd MMM yyyy HH:mm:ss xx',
+        replace: [fixTzAbbreviation, { from: /\s\+\s\d:\d{2}/, to: () => '' }],
+    },
+
+    // Example: Fri Jul 4 2008 15:37:08 KST
+    // Example: Mon Apr 7 2008 7:12:42 KST
+    // Example: Mon Mar 24 2008 7:14:02 KST
+    {
+        format: 'EEE MMM d yyyy H:mm:ss xx',
+        replace: [fixTzAbbreviation],
+    },
 
     // Example: Thursday, January 16, 2025 - 20:00
     // Example: Monday, January 6, 2025 - 20:00
@@ -554,6 +574,22 @@ const customFormats: CustomFormats = [
     // Example: 10th May 2016
     // Example: 3rd May 2016
     { format: 'do MMMM yyyy' },
+
+    // Example: Aug. 24, 2010, 5 p.m.
+    { format: 'MMM dd, yyyy, h aaaa' },
+
+    // Example: Aug. 24, 2010, 4:11 p.m.
+    // Example: May 30, 2011, 11:05 a.m.
+    // Example: May 30, 2011, 11:30 a.m.
+    { format: 'MMM dd, yyyy, h:mm aaaa' },
+
+    // Example: Wednesday, February 19, 2025 13:00 IST
+    // Example: Wednesday, February 19, 2025 12:00 IST
+    // Example: Wednesday, February 19, 2025 08:00 IST
+    {
+        format: 'EEEE, MMMM d, yyyy HH:mm xx',
+        replace: [fixTzAbbreviation],
+    },
 
     // Example: Monday, September 11th, 2017 11:15:00 GMT
     // Example: Monday, August 28th, 2017 11:15:00 GMT
@@ -638,7 +674,7 @@ const customFormats: CustomFormats = [
         ],
     },
 
-    //  Example: Sunday, Feb. 23, 2020 19:00 AM PST
+    // Example: Sunday, Feb. 23, 2020 19:00 AM PST
     {
         format: "EEEE, MMM dd, yyyy HH:mm 'AM' xx",
         replace: [fixTzAbbreviation],
@@ -665,6 +701,12 @@ const customFormats: CustomFormats = [
     // Example: Wed, 5 Dez 2024 09:00:00 GMT
     {
         format: 'EEE, d MM yyyy HH:mm:ss xx',
+        replace: [fixGermanMonth, fixTzAbbreviation],
+    },
+
+    // Example: 08 oktober 2010 15:00:00 GMT
+    {
+        format: 'dd MM yyyy HH:mm:ss xx',
         replace: [fixGermanMonth, fixTzAbbreviation],
     },
 
@@ -748,14 +790,14 @@ const customFormats: CustomFormats = [
         replace: [fixSpanishWeekday, fixSpanishMonth, fixTzAbbreviation],
     },
 
-    //  Example: WED, 22 dic 2010 18:14:00 +0100
-    //  Example: WED, 1 dic 2010 18:14:00 +0100
+    // Example: WED, 22 dic 2010 18:14:00 +0100
+    // Example: WED, 1 dic 2010 18:14:00 +0100
     {
         format: 'EEE, d MM yyyy HH:mm:ss xx',
         replace: [fixSpanishMonth],
     },
 
-    //  Example: FRI 31 dic 2010 18:14:00 +0100
+    // Example: FRI 31 dic 2010 18:14:00 +0100
     {
         format: 'EEE d MM yyyy HH:mm:ss xx',
         replace: [fixSpanishMonth],
@@ -1020,6 +1062,14 @@ const customFormats: CustomFormats = [
         replace: [fixTzAbbreviation, { from: ' Ju1 ', to: () => ' Jul ' }],
     },
 
+    // Example: Sat, 23 Feb 2008 09:52:30 -05003030
+    // Example: Sat, 16 Feb 2008 15:02:45 -05004545
+    // Example: Sat, 09 Feb 2008 12:51:02 -05000202
+    {
+        format: 'EEE, dd MMM yyyy HH:mm:ss xx',
+        replace: [{ from: /\-\d{8}/, to: (match) => match.substring(0, 5) }],
+    },
+
     // Example: Mon, 24 Arp 2023 06:50:00 MDT
     {
         format: 'EEE, d MMM yyyy HH:mm:ss xx',
@@ -1154,13 +1204,6 @@ export const dateCustomFormat: ValueParser<Date> = (value) => {
             { locale: locale || enUS },
         )
         const validatedDate = dateStandard(parsedDate)
-
-        if (
-            value === 'Sunday, Feb. 23, 2020 19:00 AM PST' &&
-            format === "EEEE, MMM. dd, yyyy HH:mm 'AM' xx"
-        ) {
-            console.log({ customizedValue, parsedDate, validatedDate, value, format })
-        }
 
         if (validatedDate && isValid(validatedDate)) {
             return new Date(validatedDate?.toISOString())
