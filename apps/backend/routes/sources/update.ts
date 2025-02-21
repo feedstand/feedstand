@@ -18,6 +18,7 @@ export const route = createRoute({
                     schema: source.pick({ name: true, isReadabilitified: true }),
                 },
             },
+            required: true,
             description: '',
         },
     },

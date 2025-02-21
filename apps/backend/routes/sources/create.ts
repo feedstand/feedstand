@@ -16,6 +16,7 @@ export const route = createRoute({
                     schema: newSource.omit({ channelId: true }).extend({ url: z.string().url() }),
                 },
             },
+            required: true,
             description: '',
         },
     },

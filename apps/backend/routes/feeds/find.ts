@@ -9,6 +9,7 @@ export const route = createRoute({
     request: {
         body: {
             content: { 'application/json': { schema: z.object({ url: z.string().url() }) } },
+            required: true,
             description: '',
         },
     },
