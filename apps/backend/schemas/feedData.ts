@@ -4,8 +4,8 @@ import { feedChannel } from './feedChannel'
 import { feedItem } from './feedItem'
 
 export const feedData = z.object({
-    etag: z.string().nullable(),
-    type: channelType,
-    channel: feedChannel,
-    items: z.array(feedItem),
+  etag: z.string().nullable(),
+  type: channelType,
+  channel: feedChannel,
+  items: z.array(feedItem),
 })

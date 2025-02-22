@@ -10,13 +10,13 @@ import { hono } from './instances/hono'
 await importFilesFromDirectory('./queues')
 
 if (hasMigratorFeature) {
-    await migrate(db, databaseConstants)
+  await migrate(db, databaseConstants)
 }
 
 if (hasServerFeature) {
-    serve({
-        fetch: hono.fetch,
-        hostname: serverConstants.host,
-        port: serverConstants.port,
-    })
+  serve({
+    fetch: hono.fetch,
+    hostname: serverConstants.host,
+    port: serverConstants.port,
+  })
 }

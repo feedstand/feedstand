@@ -5,14 +5,14 @@ import { generateItem } from '../factories/item'
 import { tables } from '../tables'
 
 export const seedItems = async () => {
-    const newItems: Array<NewItem> = []
-    const allChannels = await db.select().from(tables.channels)
+  const newItems: Array<NewItem> = []
+  const allChannels = await db.select().from(tables.channels)
 
-    for (let i = 0; i < 100; ++i) {
-        const randomChannel = allChannels[random(0, allChannels.length - 1)]
+  for (let i = 0; i < 100; ++i) {
+    const randomChannel = allChannels[random(0, allChannels.length - 1)]
 
-        newItems.push(generateItem({ channelId: randomChannel.id }))
-    }
+    newItems.push(generateItem({ channelId: randomChannel.id }))
+  }
 
-    await db.insert(tables.items).values(newItems)
+  await db.insert(tables.items).values(newItems)
 }

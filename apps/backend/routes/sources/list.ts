@@ -6,20 +6,20 @@ import { db } from '../../instances/database'
 import { source } from '../../schemas/source'
 
 export const route = createRoute({
-    method: 'get',
-    path: '/sources',
-    responses: {
-        200: {
-            content: {
-                'application/json': { schema: z.array(source) },
-            },
-            description: '',
-        },
+  method: 'get',
+  path: '/sources',
+  responses: {
+    200: {
+      content: {
+        'application/json': { schema: z.array(source) },
+      },
+      description: '',
     },
+  },
 })
 
 export const handler = createHandler(route, async (context) => {
-    const sources = await db.select().from(tables.sources).orderBy(desc(tables.sources.createdAt))
+  const sources = await db.select().from(tables.sources).orderBy(desc(tables.sources.createdAt))
 
-    return context.json(sources, 200)
+  return context.json(sources, 200)
 })

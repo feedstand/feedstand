@@ -10,7 +10,7 @@ import { ValueParser } from '../types/system'
 // </author>
 // Example feed: https://blog.google/rss/.
 export const authorFromAtom: ValueParser<string> = (value) => {
-    if (get(value, '$.xmlns:author') === 'http://www.w3.org/2005/Atom') {
-        return get(value, 'name.0')
-    }
+  if (get(value, '$.xmlns:author') === 'http://www.w3.org/2005/Atom') {
+    return get(value, 'name.0')
+  }
 }

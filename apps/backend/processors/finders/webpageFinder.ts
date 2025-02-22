@@ -6,58 +6,58 @@ import { resolveRelativeUrl } from '../../helpers/urls'
 import { FoundFeeds } from '../../types/schemas'
 
 export const extractFeedUrls = (html: string, baseUrl: string): Array<string> => {
-    const $ = load(html)
-    const linkElements = $(feedLinkSelectors.join())
-    const feedUrls: Array<string> = []
+  const $ = load(html)
+  const linkElements = $(feedLinkSelectors.join())
+  const feedUrls: Array<string> = []
 
-    for (const linkElement of linkElements) {
-        const linkHref = $(linkElement).attr('href')
+  for (const linkElement of linkElements) {
+    const linkHref = $(linkElement).attr('href')
 
-        if (!linkHref) {
-            continue
-        }
-
-        feedUrls.push(resolveRelativeUrl(linkHref, baseUrl))
+    if (!linkHref) {
+      continue
     }
 
-    return feedUrls
+    feedUrls.push(resolveRelativeUrl(linkHref, baseUrl))
+  }
+
+  return feedUrls
 }
 
 export const webpageFinder: FindFeedsProcessor = async (context, next) => {
-    if (!context.response) {
-        return await next()
-    }
+  if (!context.response) {
+    return await next()
+  }
 
-    // TODO: Should content type check be skipped? In the real world, feeds do not always set the
-    // correct content type indicating XML which result in some feeds not being correctly scanned.
-    // if (!isOneOfContentTypes(context.response, htmlContentTypes)) {
-    //     return
+  // TODO: Should content type check be skipped? In the real world, feeds do not always set the
+  // correct content type indicating XML which result in some feeds not being correctly scanned.
+  // if (!isOneOfContentTypes(context.response, htmlContentTypes)) {
+  //     return
+  // }
+
+  const html = await context.response.text()
+  const feedUrls = extractFeedUrls(html, context.response.url)
+  const feeds: FoundFeeds['feeds'] = []
+
+  for (const feedUrl of feedUrls) {
+    // TODO: Consider simplifying retrival of the feed title to getting it from the link attr.
+    // const feedTitle = feedLink.getAttribute('title')
+    //
+    // if (feedTitle) {
+    //     feedInfos.push({ url: feedUrl, title: feedTitle })
+    //     continue
     // }
 
-    const html = await context.response.text()
-    const feedUrls = extractFeedUrls(html, context.response.url)
-    const feeds: FoundFeeds['feeds'] = []
+    const { channel } = await fetchFeed({ url: feedUrl, channel: context.channel })
 
-    for (const feedUrl of feedUrls) {
-        // TODO: Consider simplifying retrival of the feed title to getting it from the link attr.
-        // const feedTitle = feedLink.getAttribute('title')
-        //
-        // if (feedTitle) {
-        //     feedInfos.push({ url: feedUrl, title: feedTitle })
-        //     continue
-        // }
+    feeds.push({ url: channel.feedUrl, title: channel.title })
+  }
 
-        const { channel } = await fetchFeed({ url: feedUrl, channel: context.channel })
-
-        feeds.push({ url: channel.feedUrl, title: channel.title })
+  if (feeds.length) {
+    context.result = {
+      etag: context.response.headers.get('etag'),
+      feeds,
     }
+  }
 
-    if (feeds.length) {
-        context.result = {
-            etag: context.response.headers.get('etag'),
-            feeds,
-        }
-    }
-
-    await next()
+  await next()
 }

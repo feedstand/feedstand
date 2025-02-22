@@ -6,27 +6,27 @@ import { Channel } from '../types/schemas'
 import { createOrUpdateItems } from './createOrUpdateItems'
 
 export const fetchOrCreateChannel = async (url: string): Promise<Channel> => {
-    const [existingChannel] = await db
-        .select()
-        .from(tables.channels)
-        .where(eq(tables.channels.feedUrl, url))
-        .limit(1)
+  const [existingChannel] = await db
+    .select()
+    .from(tables.channels)
+    .where(eq(tables.channels.feedUrl, url))
+    .limit(1)
 
-    if (existingChannel) {
-        return existingChannel
-    }
+  if (existingChannel) {
+    return existingChannel
+  }
 
-    const feedData = await fetchFeed({ url })
-    const [newChannel] = await db
-        .insert(tables.channels)
-        .values({
-            ...feedData.channel,
-            lastScannedAt: new Date(),
-            lastScanEtag: feedData.etag,
-        })
-        .returning()
+  const feedData = await fetchFeed({ url })
+  const [newChannel] = await db
+    .insert(tables.channels)
+    .values({
+      ...feedData.channel,
+      lastScannedAt: new Date(),
+      lastScanEtag: feedData.etag,
+    })
+    .returning()
 
-    createOrUpdateItems(newChannel, feedData.items)
+  createOrUpdateItems(newChannel, feedData.items)
 
-    return newChannel
+  return newChannel
 }

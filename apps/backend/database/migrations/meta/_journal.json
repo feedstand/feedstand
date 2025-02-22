@@ -1,41 +1,41 @@
 {
-    "version": "7",
-    "dialect": "postgresql",
-    "entries": [
-        {
-            "idx": 0,
-            "version": "7",
-            "when": 1738170128212,
-            "tag": "0000_famous_rattler",
-            "breakpoints": true
-        },
-        {
-            "idx": 1,
-            "version": "7",
-            "when": 1739350774151,
-            "tag": "0001_superb_thor_girl",
-            "breakpoints": true
-        },
-        {
-            "idx": 2,
-            "version": "7",
-            "when": 1739821162341,
-            "tag": "0002_deep_james_howlett",
-            "breakpoints": true
-        },
-        {
-            "idx": 3,
-            "version": "7",
-            "when": 1739916852977,
-            "tag": "0003_late_terrax",
-            "breakpoints": true
-        },
-        {
-            "idx": 4,
-            "version": "7",
-            "when": 1739917014654,
-            "tag": "0004_useful_mathemanic",
-            "breakpoints": true
-        }
-    ]
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1738170128212,
+      "tag": "0000_famous_rattler",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1739350774151,
+      "tag": "0001_superb_thor_girl",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1739821162341,
+      "tag": "0002_deep_james_howlett",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1739916852977,
+      "tag": "0003_late_terrax",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1739917014654,
+      "tag": "0004_useful_mathemanic",
+      "breakpoints": true
+    }
+  ]
 }

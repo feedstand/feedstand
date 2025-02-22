@@ -12,7 +12,7 @@ import { ValueParser } from '../types/system'
 // }
 // Example feed: https://www.inc.com/rss/.
 export const linkFromAtom: ValueParser<string> = (value) => {
-    if (get(value, '$.xmlns') === 'http://www.w3.org/2005/Atom') {
-        return get(value, '$.href')
-    }
+  if (get(value, '$.xmlns') === 'http://www.w3.org/2005/Atom') {
+    return get(value, '$.href')
+  }
 }

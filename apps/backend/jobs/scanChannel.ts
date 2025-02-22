@@ -7,42 +7,42 @@ import { db } from '../instances/database'
 import { Channel } from '../types/schemas'
 
 export const scanChannel = async (channel: Channel) => {
-    try {
-        const feedData = await fetchFeed({ url: channel.feedUrl, channel })
+  try {
+    const feedData = await fetchFeed({ url: channel.feedUrl, channel })
 
-        await db
-            .update(tables.channels)
-            .set({
-                title: feedData.channel.title ?? channel.title,
-                description: feedData.channel.description ?? channel.description,
-                siteUrl: feedData.channel.siteUrl ?? channel.siteUrl,
-                feedType: feedData.type || channel.feedType,
-                lastScannedAt: new Date(),
-                lastScanStatus: 'scanned',
-                lastScanEtag: feedData.etag,
-                lastScanError: null,
-            })
-            .where(eq(tables.channels.id, channel.id))
+    await db
+      .update(tables.channels)
+      .set({
+        title: feedData.channel.title ?? channel.title,
+        description: feedData.channel.description ?? channel.description,
+        siteUrl: feedData.channel.siteUrl ?? channel.siteUrl,
+        feedType: feedData.type || channel.feedType,
+        lastScannedAt: new Date(),
+        lastScanStatus: 'scanned',
+        lastScanEtag: feedData.etag,
+        lastScanError: null,
+      })
+      .where(eq(tables.channels.id, channel.id))
 
-        createOrUpdateItems(channel, feedData.items)
-    } catch (error) {
-        const isNotModified = error instanceof Error && error.cause === 304
-        const lastScannedAt = new Date()
-        const lastScanStatus = isNotModified ? 'skipped' : 'failed'
-        // TODO: Extend the error capturing to store last captured error, response status
-        // and number of erroreous scans since last successful scan. This way, we can later
-        // downgrade or try to cure the channel which does not work for some period of time.
-        const lastScanError = isNotModified
-            ? null
-            : convertErrorToString(error, { showNestedErrors: true })
+    createOrUpdateItems(channel, feedData.items)
+  } catch (error) {
+    const isNotModified = error instanceof Error && error.cause === 304
+    const lastScannedAt = new Date()
+    const lastScanStatus = isNotModified ? 'skipped' : 'failed'
+    // TODO: Extend the error capturing to store last captured error, response status
+    // and number of erroreous scans since last successful scan. This way, we can later
+    // downgrade or try to cure the channel which does not work for some period of time.
+    const lastScanError = isNotModified
+      ? null
+      : convertErrorToString(error, { showNestedErrors: true })
 
-        await db
-            .update(tables.channels)
-            .set({
-                lastScannedAt,
-                lastScanStatus,
-                lastScanError,
-            })
-            .where(eq(tables.channels.id, channel.id))
-    }
+    await db
+      .update(tables.channels)
+      .set({
+        lastScannedAt,
+        lastScanStatus,
+        lastScanError,
+      })
+      .where(eq(tables.channels.id, channel.id))
+  }
 }

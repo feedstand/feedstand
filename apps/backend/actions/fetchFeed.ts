@@ -13,15 +13,15 @@ import { createWorkflow, WorkflowProcessor } from './createWorkflow'
 export type FetchFeedProcessor = WorkflowProcessor<FeedData>
 
 export const processors: Array<FetchFeedProcessor> = [
-    preflightFetch('lastScanEtag', 'lastScannedAt'),
-    responseFetch,
-    soundCloudFeed,
-    jsonFeed,
-    xmlFeed,
-    redirectPage,
-    guardedPage,
-    invalidFeed,
-    failedPage,
+  preflightFetch('lastScanEtag', 'lastScannedAt'),
+  responseFetch,
+  soundCloudFeed,
+  jsonFeed,
+  xmlFeed,
+  redirectPage,
+  guardedPage,
+  invalidFeed,
+  failedPage,
 ]
 
 export const fetchFeed = createWorkflow<FeedData>(processors)

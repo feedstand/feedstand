@@ -4,10 +4,10 @@ import { version } from '../constants/app'
 import { dsn, environment } from '../constants/sentry'
 
 export const sentry = init({
-    dsn,
-    environment,
-    release: version,
-    integrations: [nodeProfilingIntegration()],
-    tracesSampleRate: 1,
-    profilesSampleRate: 1,
+  dsn,
+  environment,
+  release: version,
+  integrations: [nodeProfilingIntegration()],
+  tracesSampleRate: 1,
+  profilesSampleRate: 1,
 })

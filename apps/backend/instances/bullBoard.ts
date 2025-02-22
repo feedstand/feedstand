@@ -9,8 +9,8 @@ import { channelsQueue } from '../queues/channels'
 export const serverAdapter = new HonoAdapter(serveStatic).setBasePath(path)
 
 export const bullBoard = createBullBoard({
-    queues: [new BullMQAdapter(channelsQueue), new BullMQAdapter(channelQueue)],
-    serverAdapter,
+  queues: [new BullMQAdapter(channelsQueue), new BullMQAdapter(channelQueue)],
+  serverAdapter,
 })
 
 export const routeHandler = serverAdapter.registerPlugin()

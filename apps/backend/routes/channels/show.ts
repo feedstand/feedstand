@@ -7,31 +7,31 @@ import { db } from '../../instances/database'
 import { channel } from '../../schemas/channel'
 
 export const route = createRoute({
-    method: 'get',
-    path: '/channels/{id}',
-    request: {
-        params: z.object({ id: z.coerce.number() }),
+  method: 'get',
+  path: '/channels/{id}',
+  request: {
+    params: z.object({ id: z.coerce.number() }),
+  },
+  responses: {
+    200: {
+      content: { 'application/json': { schema: channel } },
+      description: '',
     },
-    responses: {
-        200: {
-            content: { 'application/json': { schema: channel } },
-            description: '',
-        },
-    },
+  },
 })
 
 export const handler = createHandler(route, async (context) => {
-    const params = context.req.valid('param')
+  const params = context.req.valid('param')
 
-    const [channel] = await db
-        .select()
-        .from(tables.channels)
-        .where(eq(tables.channels.id, params.id))
-        .limit(1)
+  const [channel] = await db
+    .select()
+    .from(tables.channels)
+    .where(eq(tables.channels.id, params.id))
+    .limit(1)
 
-    if (!channel) {
-        throw new HTTPException(404)
-    }
+  if (!channel) {
+    throw new HTTPException(404)
+  }
 
-    return context.json(channel)
+  return context.json(channel)
 })
