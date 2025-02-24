@@ -1,4 +1,3 @@
-import { sql } from 'drizzle-orm'
 import { tables } from '../database/tables'
 import { db } from '../instances/database'
 import { Channel, FeedItem, NewItem } from '../types/schemas'
@@ -24,11 +23,8 @@ export const createOrUpdateItems = async (channel: Channel, items: Array<FeedIte
     await db
       .insert(tables.items)
       .values(chunkItems)
-      .onConflictDoUpdate({
+      .onConflictDoNothing({
         target: [tables.items.channelId, tables.items.itemChecksum, tables.items.contentChecksum],
-        set: {
-          rawPublishedAt: sql`excluded.raw_published_at`,
-        },
       })
   }
 }
