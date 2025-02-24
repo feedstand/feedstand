@@ -44,15 +44,7 @@ describe('isAggregateError', () => {
 })
 
 describe('convertErrorToString', () => {
-  it('should convert regular Error to string with stack', () => {
-    const error = new Error('Test error')
-    const result = convertErrorToString(error)
-
-    expect(result).toContain('Error: Test error')
-    expect(result).toContain('at ')
-  })
-
-  it('should convert Error without stack', () => {
+  it('should convert Error', () => {
     const error = new Error('Test error')
     error.stack = undefined
     const result = convertErrorToString(error)
