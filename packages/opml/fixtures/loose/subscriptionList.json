@@ -1,0 +1,150 @@
+{
+  "version": "2.0",
+  "head": {
+    "title": "mySubscriptions.opml",
+    "dateCreated": "Sat, 18 Jun 2005 12:11:52 GMT",
+    "dateModified": "Tue, 02 Aug 2005 21:42:48 GMT",
+    "ownerName": "Dave Winer",
+    "ownerEmail": "dave@scripting.com",
+    "expansionState": "",
+    "vertScrollState": "1",
+    "windowTop": "61",
+    "windowLeft": "304",
+    "windowBottom": "562",
+    "windowRight": "842"
+  },
+  "body": {
+    "outline": [
+      {
+        "text": "CNET News.com",
+        "description": "Tech news and business reports by CNET News.com. Focused on information technology, core topics include computers, hardware, software, networking, and Internet media.",
+        "htmlUrl": "http://news.com.com/",
+        "language": "unknown",
+        "title": "CNET News.com",
+        "type": "rss",
+        "version": "RSS2",
+        "xmlUrl": "http://news.com.com/2547-1_3-0-5.xml"
+      },
+      {
+        "description": "Politics",
+        "htmlUrl": "http://www.washingtonpost.com/wp-dyn/politics?nav=rss_politics",
+        "language": "unknown",
+        "text": "washingtonpost.com - Politics",
+        "title": "washingtonpost.com - Politics",
+        "type": "rss",
+        "version": "RSS2",
+        "xmlUrl": "http://www.washingtonpost.com/wp-srv/politics/rssheadlines.xml"
+      },
+      {
+        "description": "Robert Scoble's look at geek and Microsoft life.",
+        "htmlUrl": "http://radio.weblogs.com/0001011/",
+        "language": "unknown",
+        "text": "Scobleizer: Microsoft Geek Blogger",
+        "title": "Scobleizer: Microsoft Geek Blogger",
+        "type": "rss",
+        "version": "RSS2",
+        "xmlUrl": "http://radio.weblogs.com/0001011/rss.xml"
+      },
+      {
+        "description": "Technology",
+        "htmlUrl": "http://news.yahoo.com/news?tmpl=index&cid=738",
+        "language": "unknown",
+        "text": "Yahoo! News: Technology",
+        "title": "Yahoo! News: Technology",
+        "type": "rss",
+        "version": "RSS2",
+        "xmlUrl": "http://rss.news.yahoo.com/rss/tech"
+      },
+      {
+        "description": "Programming and publishing news and comment",
+        "htmlUrl": "http://www.cadenhead.org/workbench/",
+        "language": "unknown",
+        "text": "Workbench",
+        "title": "Workbench",
+        "type": "rss",
+        "version": "RSS2",
+        "xmlUrl": "http://www.cadenhead.org/workbench/rss.xml"
+      },
+      {
+        "description": "Read the front page stories of csmonitor.com.",
+        "htmlUrl": "http://csmonitor.com",
+        "language": "unknown",
+        "text": "Christian Science Monitor | Top Stories",
+        "title": "Christian Science Monitor | Top Stories",
+        "type": "rss",
+        "version": "RSS",
+        "xmlUrl": "http://www.csmonitor.com/rss/top.rss"
+      },
+      {
+        "description": "A new word is presented every day with its definition and example sentences from actual published works.",
+        "htmlUrl": "http://dictionary.reference.com/wordoftheday/",
+        "language": "unknown",
+        "text": "Dictionary.com Word of the Day",
+        "title": "Dictionary.com Word of the Day",
+        "type": "rss",
+        "version": "RSS",
+        "xmlUrl": "http://www.dictionary.com/wordoftheday/wotd.rss"
+      },
+      {
+        "description": "To Educate, Amuse, and Enrich",
+        "htmlUrl": "http://www.fool.com",
+        "language": "unknown",
+        "text": "The Motley Fool",
+        "title": "The Motley Fool",
+        "type": "rss",
+        "version": "RSS",
+        "xmlUrl": "http://www.fool.com/xml/foolnews_rss091.xml"
+      },
+      {
+        "description": "The latest on Top News from InfoWorld",
+        "htmlUrl": "http://www.infoworld.com/news/index.html",
+        "language": "unknown",
+        "text": "InfoWorld: Top News",
+        "title": "InfoWorld: Top News",
+        "type": "rss",
+        "version": "RSS2",
+        "xmlUrl": "http://www.infoworld.com/rss/news.xml"
+      },
+      {
+        "description": "Find breaking news & business news on Wall Street, media & advertising, international business, banking, interest rates, the stock market, currencies & funds.",
+        "htmlUrl": "http://www.nytimes.com/pages/business/index.html?partner=rssnyt",
+        "language": "unknown",
+        "text": "NYT > Business",
+        "title": "NYT > Business",
+        "type": "rss",
+        "version": "RSS2",
+        "xmlUrl": "http://www.nytimes.com/services/xml/rss/nyt/Business.xml"
+      },
+      {
+        "description": "",
+        "htmlUrl": "http://www.nytimes.com/pages/technology/index.html?partner=rssnyt",
+        "language": "unknown",
+        "text": "NYT > Technology",
+        "title": "NYT > Technology",
+        "type": "rss",
+        "version": "RSS2",
+        "xmlUrl": "http://www.nytimes.com/services/xml/rss/nyt/Technology.xml"
+      },
+      {
+        "description": "It's even worse than it appears.",
+        "htmlUrl": "http://www.scripting.com/",
+        "language": "unknown",
+        "text": "Scripting News",
+        "title": "Scripting News",
+        "type": "rss",
+        "version": "RSS2",
+        "xmlUrl": "http://www.scripting.com/rss.xml"
+      },
+      {
+        "description": "Technology, and the way we do business, is changing the world we know. Wired News is a technology - and business-oriented news service feeding an intelligent, discerning audience. What role does technology play in the day-to-day living of your life? Wired News tells you. How has evolving technology changed the face of the international business world? Wired News puts you in the picture.",
+        "htmlUrl": "http://www.wired.com/",
+        "language": "unknown",
+        "text": "Wired News",
+        "title": "Wired News",
+        "type": "rss",
+        "version": "RSS",
+        "xmlUrl": "http://www.wired.com/news_drop/netcenter/netcenter.rdf"
+      }
+    ]
+  }
+}
