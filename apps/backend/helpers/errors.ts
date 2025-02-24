@@ -16,7 +16,7 @@ export const convertErrorToString = (
   }
 
   if (error instanceof Error) {
-    return error.stack || `${error.name}: ${error.message}`
+    return `${error.name}: ${error.message}`
   }
 
   return String(error)
