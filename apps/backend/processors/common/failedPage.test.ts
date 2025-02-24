@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { WorkflowContext } from '../../actions/createWorkflow'
+import { WorkflowContext } from '../../helpers/workflows'
 import { failedPage } from './failedPage'
 
 describe('failedPage', () => {

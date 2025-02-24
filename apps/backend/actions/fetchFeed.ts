@@ -1,3 +1,4 @@
+import { createWorkflow, WorkflowProcessor } from '../helpers/workflows'
 import { failedPage } from '../processors/common/failedPage'
 import { guardedPage } from '../processors/common/guardedPage'
 import { preflightFetch } from '../processors/common/preflightFetch'
@@ -8,7 +9,6 @@ import { redirectPage } from '../processors/fetchers/redirectPage'
 import { soundCloudFeed } from '../processors/fetchers/soundCloudFeed'
 import { xmlFeed } from '../processors/fetchers/xmlFeed'
 import { FeedData } from '../types/schemas'
-import { createWorkflow, WorkflowProcessor } from './createWorkflow'
 
 export type FetchFeedProcessor = WorkflowProcessor<FeedData>
 

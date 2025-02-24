@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { WorkflowContext } from '../../actions/createWorkflow'
 import { CustomResponse } from '../../actions/fetchUrl'
+import { WorkflowContext } from '../../helpers/workflows'
 import { FeedData } from '../../types/schemas'
 import { guardedPage } from './guardedPage'
 

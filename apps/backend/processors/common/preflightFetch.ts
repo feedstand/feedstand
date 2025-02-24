@@ -1,5 +1,5 @@
-import { WorkflowProcessor } from '../../actions/createWorkflow'
 import { isUrlFresh } from '../../actions/isUrlFresh'
+import { WorkflowProcessor } from '../../helpers/workflows'
 import { Channel } from '../../types/schemas'
 
 export const preflightFetch: (
