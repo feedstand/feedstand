@@ -1,5 +1,5 @@
 export const isOneOfContentTypes = (response: Response | string, contentTypes: Array<string>) => {
-  const contentType = response instanceof Response ? response.headers.get('content-type') : response
+  const contentType = typeof response === 'string' ? response : response.headers.get('content-type')
 
   return contentTypes.some((type) => contentType?.includes(type))
 }

@@ -32,6 +32,12 @@ describe('isOneOfContentTypes', () => {
 
     expect(result).toBe(false)
   })
+
+  it('should return true when string-based content-type matches', () => {
+    const result = isOneOfContentTypes('application/json', ['application/json'])
+
+    expect(result).toBe(true)
+  })
 })
 
 describe('extractValueByRegex', () => {
