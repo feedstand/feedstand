@@ -22,7 +22,7 @@ export const convertXmlToJson = (xml: string): LooseOpml => {
             break
 
           case 'outline': {
-            const outline = { ...attributes } as unknown as LooseOpmlOutline
+            const outline: LooseOpmlOutline = { ...attributes }
 
             if (outlineStack.length > 0) {
               const parentOutline = outlineStack[outlineStack.length - 1]
@@ -94,7 +94,7 @@ export type ParseOpmlOptions = {
 // TODO: Add support for parsing streams/files.
 export type ParseOpml = (opml: string, options?: ParseOpmlOptions) => LooseOpml
 
-export const ParseOpml: ParseOpml = (xml) => {
+export const parseOpml: ParseOpml = (xml) => {
   // TODO: Add option to validate if options.strict, etc.
   // TODO: Implement casting LooseOpml object to StrictOpml if flag is enabled.
   return convertXmlToJson(xml)
