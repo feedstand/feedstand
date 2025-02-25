@@ -1,4 +1,17 @@
 import { z } from 'zod'
+import { LooseOpmlOutline } from './types'
+
+export const looseOpmlOutline: z.ZodType<LooseOpmlOutline> = z.lazy(() =>
+  z.object({ outline: z.array(looseOpmlOutline).optional() }).catchall(z.string().optional()),
+)
+
+export const looseOpml = z.object({
+  version: z.string(),
+  head: z.record(z.string(), z.string()),
+  body: z.object({
+    outline: z.array(looseOpmlOutline),
+  }),
+})
 
 export const strictOpml10 = z.object({
   version: z.literal('1.0'),

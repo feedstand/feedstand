@@ -1,23 +1,12 @@
 import { z } from 'zod'
 import {
+  looseOpml,
   strictOpml,
   strictOpml10,
   strictOpml11,
   strictOpml20,
   strictOpml20Outline,
 } from './schemas'
-
-export type LooseOpmlOutline = {
-  outline?: Array<LooseOpmlOutline>
-} & {
-  [K in string]: K extends 'outline' ? never : string | undefined
-}
-
-export type LooseOpml = {
-  version: string
-  head: Record<string, string>
-  body: { outline: Array<LooseOpmlOutline> }
-}
 
 // export type StrictOpml10Outline = {
 //   // TODO: Fill the type.
@@ -81,6 +70,14 @@ export type LooseOpml = {
 // }
 
 // export type StrictOpml = StrictOpml10 | StrictOpml11 | StrictOpml20
+
+export type LooseOpmlOutline = {
+  outline?: Array<LooseOpmlOutline>
+} & {
+  [K in string]: K extends 'outline' ? never : string | undefined
+}
+
+export type LooseOpml = z.infer<typeof looseOpml>
 
 export type StrictOpml20Outline = z.infer<typeof strictOpml20Outline>
 export type StrictOpml10 = z.infer<typeof strictOpml10>
