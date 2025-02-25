@@ -3,8 +3,8 @@ import { fetchFeed } from '../actions/fetchFeed'
 import { tables } from '../database/tables'
 import { db } from '../instances/database'
 import { Channel } from '../types/schemas'
-import { createOrUpdateItems } from './createOrUpdateItems'
 import { fetchUrl } from './fetchUrl'
+import { insertItems } from './insertItems'
 
 const fetchExistingChannel = async (feedUrl: string) => {
   const [existingChannel] = await db
@@ -44,7 +44,7 @@ export const fetchOrCreateChannel = async (url: string): Promise<Channel> => {
     })
     .returning()
 
-  createOrUpdateItems(newChannel, feedData.items)
+  insertItems(newChannel, feedData.items)
 
   return newChannel
 }

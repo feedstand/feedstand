@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm'
-import { createOrUpdateItems } from '../actions/createOrUpdateItems'
 import { fetchFeed } from '../actions/fetchFeed'
+import { insertItems } from '../actions/insertItems'
 import { tables } from '../database/tables'
 import { convertErrorToString } from '../helpers/errors'
 import { db } from '../instances/database'
@@ -24,7 +24,7 @@ export const scanChannel = async (channel: Channel) => {
       })
       .where(eq(tables.channels.id, channel.id))
 
-    createOrUpdateItems(channel, feedData.items)
+    insertItems(channel, feedData.items)
   } catch (error) {
     const isNotModified = error instanceof Error && error.cause === 304
     const lastScannedAt = new Date()

@@ -4,7 +4,7 @@ import { Channel, FeedItem, NewItem } from '../types/schemas'
 
 const ITEMS_CHUNK_SIZE = 5000
 
-export const createOrUpdateItems = async (channel: Channel, items: Array<FeedItem>) => {
+export const insertItems = async (channel: Channel, items: Array<FeedItem>) => {
   if (items.length === 0) {
     return
   }
