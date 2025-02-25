@@ -6,6 +6,7 @@ import { channelType } from '../schemas/channelType'
 import { feedChannel } from '../schemas/feedChannel'
 import { feedData } from '../schemas/feedData'
 import { feedItem } from '../schemas/feedItem'
+import { fixSuggestion } from '../schemas/fixSuggestion'
 import { foundFeeds } from '../schemas/foundFeeds'
 import { item } from '../schemas/item'
 import { newChannel } from '../schemas/newChannel'
@@ -53,3 +54,5 @@ export type FeedChannel = z.infer<typeof feedChannel>
 export type FeedItem = z.infer<typeof feedItem>
 
 export type RawFeedItem = z.infer<typeof rawFeedItem>
+
+export type FixSuggestion = z.infer<typeof fixSuggestion>

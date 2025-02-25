@@ -15,6 +15,7 @@ import * as findFeeds from '../routes/feeds/find'
 import * as previewFeed from '../routes/feeds/preview'
 import * as index from '../routes/index/index'
 import * as listItems from '../routes/items/list'
+import * as suggestFixes from '../routes/opmls/suggestions'
 import * as createSource from '../routes/sources/create'
 import * as listSources from '../routes/sources/list'
 import * as showSource from '../routes/sources/show'
@@ -74,3 +75,4 @@ export const openapi = hono
   .openapi(updateSource.route, updateSource.handler)
   .openapi(previewFeed.route, previewFeed.handler)
   .openapi(findFeeds.route, findFeeds.handler)
+  .openapi(suggestFixes.route, suggestFixes.handler)
