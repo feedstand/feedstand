@@ -78,6 +78,8 @@ export const fetchUrl = async (url: string, config?: AxiosRequestConfig): Promis
     transformResponse: [],
     // Need to use the stream response type to detect streaming services (eg. audio.)
     responseType: 'stream',
+    // Turn off favouriting application/json by default in Accept header.
+    headers: { Accept: '*/*', ...config?.headers },
     // Append any custom configuration at the end.
     ...config,
   })
