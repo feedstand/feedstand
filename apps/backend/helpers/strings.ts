@@ -3,7 +3,19 @@ export const removeNullBytes = (value: unknown): string => {
 }
 
 export const isJson = (value: string): boolean => {
-  return (
-    (value.startsWith('{') && value.endsWith('}')) || (value.startsWith('[') && value.endsWith(']'))
-  )
+  // Matches strings that start with { or [ and end with } or ] respectively,
+  // ignoring any whitespace before or after.
+  const jsonRegex = /^\s*(?:\{[\s\S]*\}|\[[\s\S]*\])\s*$/
+
+  if (!jsonRegex.test(value)) {
+    return false
+  }
+
+  try {
+    JSON.parse(value)
+
+    return true
+  } catch (error) {
+    return false
+  }
 }
