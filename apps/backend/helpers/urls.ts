@@ -12,5 +12,9 @@ export const resolveRelativeUrl = (url: string, base: string): string => {
     return url
   }
 
-  return new URL(url, base).href
+  try {
+    return new URL(url, base).href
+  } catch {
+    return url
+  }
 }

@@ -74,7 +74,11 @@ describe('resolveRelativeUrl', () => {
   })
 
   it('should handle empty base URL', () => {
-    expect(() => resolveRelativeUrl('file.txt', '')).toThrow('Invalid URL')
+    expect(resolveRelativeUrl('file.txt', '')).toEqual('file.txt')
+  })
+
+  it('should handle malformed base URL', () => {
+    expect(resolveRelativeUrl('/test', 'http:// test.com')).toEqual('/test')
   })
 
   it('should preserve URL encoding', () => {
