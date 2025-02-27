@@ -1,9 +1,16 @@
-import axios, { AxiosRequestConfig } from 'axios'
-import axiosRetry from 'axios-retry'
+import { sample } from 'lodash-es'
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
 import https from 'node:https'
-import { avoidedContentTypes, maxContentSize, maxTimeout } from '../constants/fetchers'
+import {
+  avoidedContentTypes,
+  commonHeaders,
+  maxContentSize,
+  maxTimeout,
+  userAgents,
+} from '../constants/fetchers'
 import { isOneOfContentTypes } from '../helpers/responses'
 import { isJson } from '../helpers/strings'
+import { sleep } from '../helpers/system'
 
 // TODO:
 // - Increase max header size to 64KB. This is possible in Unidici HTTPS Agent as an option
@@ -16,8 +23,6 @@ import { isJson } from '../helpers/strings'
 //   control and better performance and less dependencies on external packages. It might be
 //   a challenge as a lot of stuff that Axios provides out of the box would need to be written
 //   from scratch, but maybe it's worth it. Alternatively consider using Got or Ky packages.
-
-const instance = axios.create()
 
 // The CustomResponse class is necessary to simulate the native Response object behavior.
 // When creating a Response object from AxiosObject manually, it is necessary to also store the
@@ -42,29 +47,12 @@ export class CustomResponse extends Response {
   }
 }
 
-axiosRetry(instance, {
-  retries: 2,
-  // Some servers have misconfigured IPv6 setup (AAAA DNS records exist but no actual IPv6
-  // connectivity). When this happens, the first request attempts both IPv6 and IPv4, resulting
-  // in ENETUNREACH or ETIMEDOUT errors. This retry logic forces IPv4-only (family: 4) on
-  // subsequent attempts, which typically resolves the connection issues for such servers.
-  retryCondition: (error) => {
-    if (error.config && (error.code === 'ENETUNREACH' || error.code === 'ETIMEDOUT')) {
-      error.config.family = 4
-
-      return true
-    }
-
-    return false
-  },
-})
-
 export const fetchUrl = async (url: string, config?: AxiosRequestConfig): Promise<Response> => {
-  const response = await axios(url, {
-    // TODO: Enable caching of requests based on headers in the response.
+  let retriesCount = 0
+  const maxRetries = 3
+
+  const instance = axios.create({
     timeout: maxTimeout,
-    // Limit the size of the response.
-    maxContentLength: maxContentSize,
     // Enables lenient HTTP parsing for non-standard server responses where Content-Length or
     // Transfer-Encoding headers might be malformed (common with legacy RSS feeds and
     // misconfigured servers).
@@ -78,17 +66,57 @@ export const fetchUrl = async (url: string, config?: AxiosRequestConfig): Promis
     transformResponse: [],
     // Need to use the stream response type to detect streaming services (eg. audio.)
     responseType: 'stream',
-    // Turn off favouriting application/json by default in Accept header.
-    headers: { Accept: '*/*', ...config?.headers },
+    // Turn off the default preference for application/json in the Accept header.
+    headers: { Accept: '*/*', ...commonHeaders, ...config?.headers },
     // Append any custom configuration at the end.
     ...config,
   })
 
+  // Try other user agent header as the server might require recognizable string.
+  const userAgentInterceptor = async (response: AxiosResponse) => {
+    if (response.status === 403 && retriesCount < maxRetries) {
+      retriesCount++
+      response.config.headers['User-Agent'] = sample(userAgents)
+
+      // Exponential backoff with jitter to avoid thundering herd.
+      await sleep(retriesCount * 1000 + Math.random() * 1000)
+
+      return instance(response.config)
+    }
+
+    return response
+  }
+
+  // Some servers have misconfigured IPv6 setup (AAAA DNS records exist but no actual IPv6
+  // connectivity). When this happens, the first request attempts both IPv6 and IPv4, resulting
+  // in ENETUNREACH or ETIMEDOUT errors. This retry logic forces IPv4-only (family: 4) on
+  // subsequent attempts, which typically resolves the connection issues for such servers.
+  const ipFamilyInterceptor = async (error: AxiosError) => {
+    if (
+      error.config &&
+      (error.code === 'ENETUNREACH' || error.code === 'ETIMEDOUT') &&
+      retriesCount < maxRetries
+    ) {
+      retriesCount++
+      error.config.family = 4
+
+      // Exponential backoff with jitter to avoid thundering herd.
+      await sleep(retriesCount * 1000 + Math.random() * 1000)
+
+      return instance(error.config)
+    }
+
+    return Promise.reject(error)
+  }
+
+  instance.interceptors.response.use(userAgentInterceptor, ipFamilyInterceptor)
+
+  const response = await instance(url)
   const contentType = String(response.headers['content-type'])
 
   // If it's not text, abort right away and destroy the stream so we don't keep reading.
   if (isOneOfContentTypes(contentType, avoidedContentTypes)) {
-    response.data.destroy(new Error('Non-text or streaming content detected'))
+    response.data.destroy()
     throw new Error(`Unwanted content-type: ${contentType}`)
   }
 
@@ -98,9 +126,12 @@ export const fetchUrl = async (url: string, config?: AxiosRequestConfig): Promis
   for await (const chunk of response.data) {
     downloadedBytes += chunk.length
 
+    // Check the size as data arrives and abort the download immediately if it exceeds the max
+    // allowed size, preventing memory issues from extremely large responses or streams (eg.
+    // video or audio stream).
     if (downloadedBytes > maxContentSize) {
-      response.data.destroy(new Error('Content length exceeded the limit'))
-      throw new Error('File is too large')
+      response.data.destroy()
+      throw new Error(`Content length exceeded the limit: ${maxContentSize}`)
     }
 
     body += chunk
