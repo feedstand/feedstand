@@ -1,101 +1,78 @@
-import { Parser } from 'htmlparser2'
+import { XMLParser } from 'fast-xml-parser'
 import type { LooseOpml, LooseOpmlOutline } from './types'
 
+const HEAD_ELEMENTS = Object.freeze([
+  'title',
+  'dateCreated',
+  'dateModified',
+  'ownerName',
+  'ownerEmail',
+  'ownerId',
+  'docs',
+  'expansionState',
+  'vertScrollState',
+  'windowTop',
+  'windowLeft',
+  'windowBottom',
+  'windowRight',
+])
+
+const parser = new XMLParser({
+  ignoreAttributes: false,
+  attributeNamePrefix: '',
+  parseTagValue: false,
+  isArray: (name) => name === 'outline',
+})
+
+const processOutlines = (outlines: Array<any>): Array<LooseOpmlOutline> => {
+  return outlines.map(({ outline, ...rest }) => {
+    return outline ? { ...rest, outline: processOutlines(outline) } : rest
+  })
+}
+
 export const convertXmlToJson = (xml: string): LooseOpml => {
+  const { opml } = parser.parse(xml) ?? {}
+
   const json: LooseOpml = {
     version: '',
     head: {},
-    body: { outline: [] },
+    body: {
+      outline: [],
+    },
   }
 
-  const outlineStack: Array<LooseOpmlOutline> = []
+  if (opml?.version) {
+    json.version = opml.version
+  }
 
-  let currentElement: string | null = null
-  let currentText = ''
+  if (opml?.head) {
+    for (let element of HEAD_ELEMENTS) {
+      if (element in opml.head) {
+        json.head[element] = opml.head[element]
+      }
+    }
+  }
 
-  const parser = new Parser(
-    {
-      onopentag(name, attributes) {
-        switch (name) {
-          case 'opml':
-            json.version = attributes.version
-            break
-
-          case 'outline': {
-            const outline: LooseOpmlOutline = { ...attributes }
-
-            if (outlineStack.length > 0) {
-              const parentOutline = outlineStack[outlineStack.length - 1]
-              parentOutline.outline = parentOutline.outline || []
-              parentOutline.outline.push(outline)
-            } else {
-              json.body.outline.push(outline)
-            }
-
-            outlineStack.push(outline)
-            break
-          }
-
-          case 'title':
-          case 'dateCreated':
-          case 'dateModified':
-          case 'ownerName':
-          case 'ownerEmail':
-          case 'ownerId':
-          case 'docs':
-          case 'expansionState':
-          case 'vertScrollState':
-          case 'windowTop':
-          case 'windowLeft':
-          case 'windowBottom':
-          case 'windowRight':
-            currentElement = name
-            currentText = ''
-            break
-        }
-      },
-
-      ontext(text) {
-        if (currentElement) {
-          currentText += text.trim()
-        }
-      },
-
-      onclosetag(name) {
-        if (name === 'outline') {
-          outlineStack.pop()
-          return
-        }
-
-        if (name === currentElement) {
-          json.head[currentElement] = currentText
-          currentElement = null
-          currentText = ''
-        }
-      },
-    },
-    {
-      xmlMode: true,
-      decodeEntities: true,
-    },
-  )
-
-  parser.write(xml)
-  parser.end()
+  if (opml?.body?.outline) {
+    json.body.outline = processOutlines(opml.body.outline)
+  }
 
   return json
 }
 
-export type ParseOpmlOptions = {
-  strict?: boolean
-  downloadExternalOutlines?: boolean
-}
+// export type Options = {
+//   strict?: boolean
+//   downloadExternalOutlines?: boolean
+// }
 
-// TODO: Add support for parsing streams/files.
-export type ParseOpml = (opml: string, options?: ParseOpmlOptions) => LooseOpml
+// export const parse = (xml: string, options?: Options): LooseOpml => {
+//   if (options?.strict) {
+//     const validationResult = XMLValidator.validate(xml)
 
-export const parseOpml: ParseOpml = (xml) => {
-  // TODO: Add option to validate if options.strict, etc.
-  // TODO: Implement casting LooseOpml object to StrictOpml if flag is enabled.
-  return convertXmlToJson(xml)
-}
+//     if (validationResult !== true) {
+//       throw new Error(`Invalid XML: ${validationResult.err.msg}`)
+//     }
+//   }
+
+//   return convertXmlToJson(result)
+// }
