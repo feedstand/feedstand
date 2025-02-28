@@ -2,7 +2,13 @@
   "name": "@feedstand/jsonfeed",
   "type": "module",
   "main": "index.ts",
+  "scripts": {
+    "test": "vitest"
+  },
   "dependencies": {
     "zod": "^3.0.0"
+  },
+  "devDependencies": {
+    "vitest": "^3.0.0"
   }
 }
