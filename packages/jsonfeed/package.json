@@ -3,7 +3,7 @@
   "type": "module",
   "main": "index.ts",
   "scripts": {
-    "test": "vitest"
+    "test": "vitest run"
   },
   "dependencies": {
     "zod": "^3.0.0"

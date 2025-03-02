@@ -3,7 +3,7 @@
   "type": "module",
   "main": "index.ts",
   "scripts": {
-    "test": "vitest"
+    "test": "vitest run"
   },
   "dependencies": {
     "fast-xml-parser": "^5.0.0",
