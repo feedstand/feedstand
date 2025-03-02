@@ -1,10 +1,12 @@
 import { z } from 'zod'
-import { looseFeed, strictFeed1, strictFeed11, strictFeed } from './schemas'
+import { parsedAttachment, parsedAuthor, parsedFeed, parsedHub, parsedItem } from './schemas/parse'
 
-export type LooseFeed = z.infer<typeof looseFeed>
+export type ParsedAuthor = z.infer<typeof parsedAuthor>
 
-export type StrictFeed1 = z.infer<typeof strictFeed1>
+export type ParsedAttachment = z.infer<typeof parsedAttachment>
 
-export type StrictFeed11 = z.infer<typeof strictFeed11>
+export type ParsedItem = z.infer<typeof parsedItem>
 
-export type StrictFeed = z.infer<typeof strictFeed>
+export type ParsedHub = z.infer<typeof parsedHub>
+
+export type ParsedFeed = z.infer<typeof parsedFeed>

@@ -1,25 +1,19 @@
-import { looseFeed, strictFeed } from './schemas'
-import { LooseFeed, StrictFeed } from './types'
+import { parsedFeed } from './schemas/parse'
+import { ParsedFeed } from './types'
 
-type LooseOptions = {
-  strict?: false
+export type Options = {
+  extraFeedAttributes?: Array<string>
+  extraHeadAttributes?: Array<string>
+  extraItemAttributes?: Array<string>
 }
 
-type StrictOptions = {
-  strict: true
-}
+export type Parse = (json: Record<string, unknown>, options?: Options) => ParsedFeed
 
-export type Options = LooseOptions | StrictOptions
+export const parse: Parse = (json) => {
+  const result = parsedFeed.parse(json)
 
-export type Parse = {
-  (json: unknown, options: StrictOptions): StrictFeed
-  (json: unknown, options?: LooseOptions): LooseFeed
-}
-
-export const parse = ((json: unknown, options: Options = {}): LooseFeed | StrictFeed => {
-  const strict = options.strict ?? true
-  const schema = strict ? strictFeed : looseFeed
-  const result = schema.parse(json)
+  // TODO: Implement:
+  // - Ability to define and parse specified additional attributes in feed, head, item.
 
   return result
-}) as Parse
+}
