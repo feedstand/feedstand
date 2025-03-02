@@ -1,14 +1,6 @@
-import { XMLParser } from 'fast-xml-parser'
 import type { ParsedOpml } from './types'
 import { parsedOpml } from './schemas/parse'
-
-const parser = new XMLParser({
-  ignoreAttributes: false,
-  attributeNamePrefix: '',
-  parseTagValue: false,
-  parseAttributeValue: false,
-  isArray: (name) => name === 'outline',
-})
+import { parser } from './common'
 
 export type Options = {
   downloadExternalOutlines?: boolean
