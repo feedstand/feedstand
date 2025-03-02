@@ -1,10 +1,11 @@
+import { CustomResponse } from '../actions/fetchUrl'
 import { Channel } from '../types/schemas'
 
 export type Workflow<T> = (context: WorkflowContext<T>) => Promise<T>
 
 export type WorkflowContext<T> = {
   url: string
-  response?: Response
+  response?: CustomResponse
   channel?: Channel
   error?: unknown
   result?: T
