@@ -11,6 +11,7 @@ import {
 import { isOneOfContentTypes } from '../helpers/responses'
 import { isJson } from '../helpers/strings'
 import { sleep } from '../helpers/system'
+import { createHash } from 'node:crypto'
 
 // TODO:
 // - Increase max header size to 64KB. This is possible in Unidici HTTPS Agent as an option
@@ -31,23 +32,28 @@ import { sleep } from '../helpers/system'
 export class CustomResponse extends Response {
   public readonly url: string
   public readonly _body: string
+  public readonly hash?: string
 
-  constructor(body: string | null, init: ResponseInit & { url: string }) {
+  constructor(body: string | null, init: ResponseInit & { url: string; hash?: string }) {
     super(undefined, init)
     this.url = init.url
     this._body = body || ''
+    this.hash = init.hash
   }
 
   text(): Promise<string> {
     return Promise.resolve(this._body)
   }
 
-  json<T>(): Promise<T> {
-    return isJson(this._body) ? JSON.parse(this._body) : undefined
+  json<T>(): Promise<T | undefined> {
+    return isJson(this._body) ? JSON.parse(this._body) : Promise.resolve(undefined)
   }
 }
 
-export const fetchUrl = async (url: string, config?: AxiosRequestConfig): Promise<Response> => {
+export const fetchUrl = async (
+  url: string,
+  config?: AxiosRequestConfig,
+): Promise<CustomResponse> => {
   let retriesCount = 0
   const maxRetries = 3
 
@@ -122,6 +128,7 @@ export const fetchUrl = async (url: string, config?: AxiosRequestConfig): Promis
 
   let body = ''
   let downloadedBytes = 0
+  const hash = createHash('md5')
 
   for await (const chunk of response.data) {
     downloadedBytes += chunk.length
@@ -134,6 +141,7 @@ export const fetchUrl = async (url: string, config?: AxiosRequestConfig): Promis
       throw new Error(`Content length exceeded the limit: ${maxContentSize}`)
     }
 
+    hash.update(chunk)
     body += chunk
   }
 
@@ -142,5 +150,6 @@ export const fetchUrl = async (url: string, config?: AxiosRequestConfig): Promis
     status: response.status,
     statusText: response.statusText,
     headers: new Headers(response.headers as Record<string, string>),
+    hash: hash.digest('hex'),
   })
 }
