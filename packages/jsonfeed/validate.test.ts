@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { validate } from './validate'
 import { ZodError } from 'zod'
+import { validate } from './validate'
 
 const hasError = (error: ZodError | undefined, path: string) => {
   return error?.issues.some((issue) => issue.path.join('.') === path)
@@ -27,8 +27,8 @@ describe('validate', () => {
         },
       ],
     }
-
     const result = validate(validFeed)
+
     expect(result.isValid).toBe(true)
     expect(result.error).toBeUndefined()
   })
@@ -57,7 +57,6 @@ describe('validate', () => {
         },
       ],
     }
-
     const result = validate(validFeed)
 
     expect(result.isValid).toBe(true)
@@ -74,7 +73,6 @@ describe('validate', () => {
         },
       ],
     }
-
     const result = validate(invalidFeed)
 
     expect(result.isValid).toBe(false)
@@ -96,7 +94,6 @@ describe('validate', () => {
         },
       ],
     }
-
     const result = validate(invalidFeed)
 
     expect(result.isValid).toBe(false)
@@ -116,7 +113,6 @@ describe('validate', () => {
         },
       ],
     }
-
     const result = validate(invalidFeed)
 
     expect(result.isValid).toBe(false)
@@ -134,7 +130,6 @@ describe('validate', () => {
         },
       ],
     }
-
     const result = validate(invalidFeed)
 
     expect(result.isValid).toBe(false)
@@ -152,7 +147,6 @@ describe('validate', () => {
         },
       ],
     }
-
     const result = validate(invalidFeed)
 
     expect(result.isValid).toBe(false)
@@ -179,7 +173,6 @@ describe('validate', () => {
         },
       ],
     }
-
     const result = validate(validFeed)
 
     expect(result.isValid).toBe(true)
@@ -204,7 +197,6 @@ describe('validate', () => {
         },
       ],
     }
-
     const result = validate(invalidFeed)
 
     expect(result.isValid).toBe(false)
@@ -230,31 +222,9 @@ describe('validate', () => {
         },
       ],
     }
-
     const result = validate(validFeed)
 
     expect(result.isValid).toBe(true)
     expect(result.error).toBeUndefined()
-  })
-
-  it('should reject non-object input', () => {
-    const result = validate('not an object')
-
-    expect(result.isValid).toBe(false)
-    expect(result.error).toBeDefined()
-  })
-
-  it('should reject null input', () => {
-    const result = validate(null)
-
-    expect(result.isValid).toBe(false)
-    expect(result.error).toBeDefined()
-  })
-
-  it('should reject array input', () => {
-    const result = validate([])
-
-    expect(result.isValid).toBe(false)
-    expect(result.error).toBeDefined()
   })
 })

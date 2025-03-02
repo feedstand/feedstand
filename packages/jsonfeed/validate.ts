@@ -1,13 +1,13 @@
 import { ZodError } from 'zod'
-import { strictFeed } from './schemas'
+import { validatedFeed } from './schemas/validate'
 
-export type Validate = (json: unknown) => {
+export type Validate = (json: Record<string, unknown>) => {
   isValid: boolean
   error: ZodError | undefined
 }
 
 export const validate: Validate = (json) => {
-  const { success: isValid, error } = strictFeed.safeParse(json)
+  const { success: isValid, error } = validatedFeed.safeParse(json)
 
   return { isValid, error }
 }
