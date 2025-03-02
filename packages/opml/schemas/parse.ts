@@ -1,13 +1,21 @@
 import { z } from 'zod'
 import type { ParsedOpmlOutline } from '../types'
 
+const boolean = z.any().pipe(
+  z.any().transform((value) => {
+    if (value?.toString().toLowerCase() === 'true') return true
+    if (value?.toString().toLowerCase() === 'false') return false
+    return !!value
+  }),
+)
+
 export const parsedOpmlOutline: z.ZodType<ParsedOpmlOutline> = z.lazy(() => {
   return z
     .object({
       text: z.string(),
       type: z.string(),
-      isComment: z.coerce.boolean(),
-      isBreakpoint: z.coerce.boolean(),
+      isComment: boolean,
+      isBreakpoint: boolean,
       created: z.string(),
       category: z.string(),
       description: z.string(),
@@ -32,11 +40,11 @@ export const parsedOpmlHead = z
     ownerId: z.string(),
     docs: z.string(),
     expansionState: z.string(),
-    vertScrollState: z.coerce.number(),
-    windowTop: z.coerce.number(),
-    windowLeft: z.coerce.number(),
-    windowBottom: z.coerce.number(),
-    windowRight: z.coerce.number(),
+    vertScrollState: z.coerce.number().catch(0),
+    windowTop: z.coerce.number().catch(0),
+    windowLeft: z.coerce.number().catch(0),
+    windowBottom: z.coerce.number().catch(0),
+    windowRight: z.coerce.number().catch(0),
   })
   .partial()
 
