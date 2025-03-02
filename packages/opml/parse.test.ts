@@ -1,68 +1,64 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, it, expect } from 'vitest'
-import { convertXmlToJson } from './parse'
-import categoryLooseJson from './fixtures/loose/category.json'
-import placesLivedLooseJson from './fixtures/loose/placesLived.json'
-import directoryLooseJson from './fixtures/loose/directory.json'
-import statesLooseJson from './fixtures/loose/states.json'
-import simpleScriptLooseJson from './fixtures/loose/simpleScript.json'
-import subscriptionListLooseJson from './fixtures/loose/subscriptionList.json'
+import { parse } from './parse'
+import categoryJson from './fixtures/parse/category.json'
+import countriesJson from './fixtures/parse/countries.json'
+import directoryJson from './fixtures/parse/directory.json'
+import placesJson from './fixtures/parse/places.json'
+import scriptJson from './fixtures/parse/script.json'
+import subscriptionsJson from './fixtures/parse/subscriptions.json'
 
 const readOpmlFile = (filename: string) => {
-  return readFileSync(join(__dirname, 'fixtures', 'opmls', filename), 'utf-8')
+  return readFileSync(join(__dirname, 'fixtures', filename), 'utf-8')
 }
 
-describe('convertXmlToJson', () => {
+describe('parse', () => {
   it('should parse category OPML exactly', () => {
-    const xml = readOpmlFile('category.opml')
-    const result = convertXmlToJson(xml)
+    const xml = readOpmlFile('parse/category.opml')
+    const result = parse(xml)
 
-    expect(result).toEqual(categoryLooseJson)
+    expect(result).toEqual(categoryJson)
   })
 
   it('should parse directory OPML exactly', () => {
-    const xml = readOpmlFile('directory.opml')
-    const result = convertXmlToJson(xml)
+    const xml = readOpmlFile('parse/directory.opml')
+    const result = parse(xml)
 
-    expect(result).toEqual(directoryLooseJson)
+    expect(result).toEqual(directoryJson)
   })
 
-  it('should parse places lived OPML exactly', () => {
-    const xml = readOpmlFile('placesLived.opml')
-    const result = convertXmlToJson(xml)
+  it('should parse places OPML exactly', () => {
+    const xml = readOpmlFile('parse/places.opml')
+    const result = parse(xml)
 
-    expect(result).toEqual(placesLivedLooseJson)
+    expect(result).toEqual(placesJson)
   })
 
-  it('should parse simple script OPML exactly', () => {
-    const xml = readOpmlFile('simpleScript.opml')
-    const result = convertXmlToJson(xml)
+  it('should parse script OPML exactly', () => {
+    const xml = readOpmlFile('parse/script.opml')
+    const result = parse(xml)
 
-    expect(result).toEqual(simpleScriptLooseJson)
+    expect(result).toEqual(scriptJson)
   })
 
-  it('should parse states OPML exactly', () => {
-    const xml = readOpmlFile('states.opml')
-    const result = convertXmlToJson(xml)
+  it('should parse countries OPML exactly', () => {
+    const xml = readOpmlFile('parse/countries.opml')
+    const result = parse(xml)
 
-    expect(result).toEqual(statesLooseJson)
+    expect(result).toEqual(countriesJson)
   })
 
-  it('should parse subscription list OPML exactly', () => {
-    const xml = readOpmlFile('subscriptionList.opml')
-    const result = convertXmlToJson(xml)
+  it('should parse subscriptions OPML exactly', () => {
+    const xml = readOpmlFile('parse/subscriptions.opml')
+    const result = parse(xml)
 
-    expect(result).toEqual(subscriptionListLooseJson)
+    expect(result).toEqual(subscriptionsJson)
   })
+})
 
-  it('should handle empty OPML exactly', () => {
-    const result = convertXmlToJson('')
+it('should handle empty string', () => {
+  const result = parse('')
 
-    expect(result).toEqual({
-      version: '',
-      head: {},
-      body: { outline: [] },
-    })
-  })
+  expect(result).toBeUndefined()
 })
