@@ -47,14 +47,20 @@ export const webpageFinder: FindFeedsProcessor = async (context, next) => {
     //     continue
     // }
 
-    const { channel } = await fetchFeed({ url: feedUrl, channel: context.channel })
+    const feedData = await fetchFeed({ url: feedUrl, channel: context.channel })
 
-    feeds.push({ url: channel.feedUrl, title: channel.title })
+    feeds.push({
+      title: feedData.channel.title,
+      url: feedData.channel.selfUrl || feedData.meta.responseUrl,
+    })
   }
 
   if (feeds.length) {
     context.result = {
-      etag: context.response.headers.get('etag'),
+      meta: {
+        etag: context.response.headers.get('etag'),
+        hash: context.response.hash,
+      },
       feeds,
     }
   }

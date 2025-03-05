@@ -30,8 +30,16 @@ export const youTubeFinder: FindFeedsProcessor = async (context, next) => {
   const feedData = await fetchFeed({ url, channel: context?.channel })
 
   context.result = {
-    etag: context.response.headers.get('etag'),
-    feeds: [{ url, title: feedData.channel.title }],
+    meta: {
+      etag: context.response.headers.get('etag'),
+      hash: context.response.hash,
+    },
+    feeds: [
+      {
+        title: feedData.channel.title,
+        url: feedData.channel.selfUrl || feedData.meta.responseUrl,
+      },
+    ],
   }
 
   await next()
