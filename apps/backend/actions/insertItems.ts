@@ -24,7 +24,7 @@ export const insertItems = async (channel: Channel, items: Array<FeedItem>) => {
       .insert(tables.items)
       .values(chunkItems)
       .onConflictDoNothing({
-        target: [tables.items.channelId, tables.items.itemChecksum, tables.items.contentChecksum],
+        target: [tables.items.channelId, tables.items.itemHash, tables.items.contentHash],
       })
   }
 }
