@@ -45,7 +45,7 @@ export class CustomResponse extends Response {
     return Promise.resolve(this._body)
   }
 
-  json<T>(): Promise<T | undefined> {
+  json(): Promise<ReturnType<typeof JSON.parse> | undefined> {
     return isJson(this._body) ? JSON.parse(this._body) : Promise.resolve(undefined)
   }
 }
