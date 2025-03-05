@@ -40,6 +40,7 @@ export const channels = pgTable(
     title: safeVarchar('title'),
     description: safeVarchar('description'),
     siteUrl: safeText('site_url'),
+    selfUrl: safeText('self_url'),
     feedUrl: safeText('feed_url').notNull(),
     feedType: channelType('feed_type'),
     createdAt: timestamp('created_at').notNull().defaultNow(),
@@ -47,26 +48,48 @@ export const channels = pgTable(
     lastScannedAt: timestamp('last_scanned_at'),
     lastScanStatus: channelScanStatus('last_scan_status'),
     lastScanEtag: safeVarchar('last_scan_etag'),
+    lastScanHash: safeVarchar('last_scan_hash'),
     lastScanError: safeText('last_scan_error'),
     lastFixCheckedAt: timestamp('last_fix_checked_at'),
     lastFixCheckStatus: channelFixCheckStatus('last_fix_check_status'),
     lastFixCheckEtag: safeVarchar('last_fix_check_etag'),
+    lastFixCheckHash: safeVarchar('last_fix_check_hash'),
     lastFixCheckError: safeText('last_fix_check_error'),
   },
   (table) => [uniqueIndex('channels_feed_url').on(table.feedUrl)],
 )
 
+export const aliases = pgTable(
+  'aliases',
+  {
+    id: serial('id').primaryKey(),
+    aliasUrl: safeText('alias_url').notNull(),
+    channelId: integer('channel_id')
+      .references(() => channels.id, { onDelete: 'cascade' })
+      .notNull(),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  },
+  (table) => [uniqueIndex('channel_aliases_alias_url').on(table.aliasUrl)],
+)
+
+export const fixableType = pgEnum('fixable_types', ['defunct', 'redirect'])
+
 export const fixables = pgTable(
   'fixables',
   {
     id: serial('id').primaryKey(),
-    channelId: integer('channel_id')
-      .notNull()
-      .references(() => channels.id, { onDelete: 'cascade' }),
-    title: safeVarchar('title'),
+    type: fixableType('type').notNull(),
+    fromUrl: safeText('from_url').notNull(),
     feedUrl: safeText('feed_url').notNull(),
+    title: safeVarchar('title'),
+    channelId: integer('channel_id').references(() => channels.id, { onDelete: 'set null' }),
   },
-  (table) => [uniqueIndex('fixables_channel_id_feed_url').on(table.channelId, table.feedUrl)],
+  (table) => [
+    index('fixables_type').on(table.type),
+    uniqueIndex('fixables_from_url').on(table.feedUrl),
+    index('fixables_feed_url').on(table.feedUrl),
+  ],
 )
 
 export const items = pgTable(
@@ -82,19 +105,19 @@ export const items = pgTable(
     channelId: integer('channel_id')
       .notNull()
       .references(() => channels.id, { onDelete: 'cascade' }),
-    itemChecksum: safeVarchar('item_checksum'),
-    contentChecksum: safeVarchar('content_checksum'),
+    itemHash: safeVarchar('item_hash'),
+    contentHash: safeVarchar('content_hash'),
     publishedAt: timestamp('published_at').notNull(),
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at').notNull().defaultNow(),
     rawPublishedAt: safeVarchar('raw_published_at'),
   },
   (table) => [
-    index('items_item_checksum').on(table.itemChecksum),
+    index('items_item_checksum').on(table.itemHash),
     uniqueIndex('items_channel_id_item_checksum_content_checksum').on(
       table.channelId,
-      table.itemChecksum,
-      table.contentChecksum,
+      table.itemHash,
+      table.contentHash,
     ),
     index('items_published_at').on(table.publishedAt),
   ],
@@ -137,6 +160,7 @@ export const unreads = pgTable(
 export const tables = {
   users,
   channels,
+  aliases,
   fixables,
   items,
   sources,
@@ -147,4 +171,5 @@ export const enums = {
   channelType,
   channelScanStatus,
   channelFixCheckStatus,
+  fixableType,
 }

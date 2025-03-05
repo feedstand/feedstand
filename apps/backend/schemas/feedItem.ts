@@ -7,8 +7,8 @@ export const feedItem = newItem.pick({
   description: true,
   author: true,
   content: true,
-  itemChecksum: true,
-  contentChecksum: true,
+  itemHash: true,
+  contentHash: true,
   publishedAt: true,
   rawPublishedAt: true,
 })

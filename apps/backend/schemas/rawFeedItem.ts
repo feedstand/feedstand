@@ -3,8 +3,8 @@ import { feedItem } from './feedItem'
 
 export const rawFeedItem = feedItem
   .omit({
-    itemChecksum: true,
-    contentChecksum: true,
+    itemHash: true,
+    contentHash: true,
     rawPublishedAt: true,
   })
   .extend({

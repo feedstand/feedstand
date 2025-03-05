@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { alias } from '../schemas/alias'
 import { channel } from '../schemas/channel'
 import { channelFixCheckStatus } from '../schemas/channelFixCheckStatus'
 import { channelScanStatus } from '../schemas/channelScanStatus'
@@ -6,14 +7,18 @@ import { channelType } from '../schemas/channelType'
 import { feedChannel } from '../schemas/feedChannel'
 import { feedData } from '../schemas/feedData'
 import { feedItem } from '../schemas/feedItem'
-import { fixSuggestion } from '../schemas/fixSuggestion'
+import { fixable } from '../schemas/fixable'
+import { fixableType } from '../schemas/fixableType'
 import { foundFeeds } from '../schemas/foundFeeds'
 import { item } from '../schemas/item'
+import { newAlias } from '../schemas/newAlias'
 import { newChannel } from '../schemas/newChannel'
+import { newFixable } from '../schemas/newFixable'
 import { newItem } from '../schemas/newItem'
 import { newSource } from '../schemas/newSource'
 import { newUnread } from '../schemas/newUnread'
 import { newUser } from '../schemas/newUser'
+import { rawFeedChannel } from '../schemas/rawFeedChannel'
 import { rawFeedItem } from '../schemas/rawFeedItem'
 import { source } from '../schemas/source'
 import { unread } from '../schemas/unread'
@@ -33,6 +38,16 @@ export type Channel = z.infer<typeof channel>
 
 export type NewChannel = z.infer<typeof newChannel>
 
+export type Alias = z.infer<typeof alias>
+
+export type NewAlias = z.infer<typeof newAlias>
+
+export type FixableType = z.infer<typeof fixableType>
+
+export type Fixable = z.infer<typeof fixable>
+
+export type NewFixable = z.infer<typeof newFixable>
+
 export type Item = z.infer<typeof item>
 
 export type NewItem = z.infer<typeof newItem>
@@ -51,8 +66,8 @@ export type FeedData = z.infer<typeof feedData>
 
 export type FeedChannel = z.infer<typeof feedChannel>
 
+export type RawFeedChannel = z.infer<typeof rawFeedChannel>
+
 export type FeedItem = z.infer<typeof feedItem>
 
 export type RawFeedItem = z.infer<typeof rawFeedItem>
-
-export type FixSuggestion = z.infer<typeof fixSuggestion>
