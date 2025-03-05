@@ -16,10 +16,11 @@ export const scanChannel = async (channel: Channel) => {
         title: feedData.channel.title ?? channel.title,
         description: feedData.channel.description ?? channel.description,
         siteUrl: feedData.channel.siteUrl ?? channel.siteUrl,
-        feedType: feedData.type || channel.feedType,
+        feedType: feedData.meta.type || channel.feedType,
         lastScannedAt: new Date(),
         lastScanStatus: 'scanned',
-        lastScanEtag: feedData.etag,
+        lastScanEtag: feedData.meta.etag,
+        lastScanHash: feedData.meta.hash,
         lastScanError: null,
       })
       .where(eq(tables.channels.id, channel.id))
