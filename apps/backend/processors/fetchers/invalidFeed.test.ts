@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { CustomResponse } from '../../actions/fetchUrl'
 import { WorkflowContext } from '../../helpers/workflows'
 import { FeedData } from '../../types/schemas'
 import { invalidFeed } from './invalidFeed'
@@ -7,7 +8,7 @@ describe('invalidFeed processor', () => {
   const next = vi.fn()
   const baseContext: WorkflowContext<FeedData> = {
     url: 'https://example.com',
-    response: new Response(),
+    response: new CustomResponse(null, { url: '' }),
   }
 
   beforeEach(() => {
@@ -16,14 +17,19 @@ describe('invalidFeed processor', () => {
 
   it('should pass through when result exists', async () => {
     const result: FeedData = {
-      etag: null,
-      type: 'xml' as const,
-      channel: { feedUrl: '' },
+      meta: {
+        etag: null,
+        hash: undefined,
+        type: 'xml' as const,
+        requestUrl: '',
+        responseUrl: '',
+      },
+      channel: { selfUrl: '' },
       items: [],
     }
     const context = {
       ...baseContext,
-      response: new Response('test'),
+      response: new CustomResponse('test', { url: '' }),
       result,
     }
 
@@ -46,7 +52,7 @@ describe('invalidFeed processor', () => {
       it(`detects "${html.slice(0, 30)}..."`, async () => {
         const context = {
           ...baseContext,
-          response: new Response(html),
+          response: new CustomResponse(html, { url: '' }),
         }
 
         await expect(invalidFeed(context, next)).rejects.toThrow(
@@ -68,7 +74,7 @@ describe('invalidFeed processor', () => {
       it(`detects "${text.slice(0, 30)}..."`, async () => {
         const context = {
           ...baseContext,
-          response: new Response(text),
+          response: new CustomResponse(text, { url: '' }),
         }
 
         await expect(invalidFeed(context, next)).rejects.toThrow(
@@ -81,7 +87,7 @@ describe('invalidFeed processor', () => {
   it('should detect empty response', async () => {
     const context = {
       ...baseContext,
-      response: new Response(''),
+      response: new CustomResponse('', { url: '' }),
     }
 
     await expect(invalidFeed(context, next)).rejects.toThrow(
@@ -100,7 +106,7 @@ describe('invalidFeed processor', () => {
       it(`accepts "${feed.slice(0, 30)}..."`, async () => {
         const context = {
           ...baseContext,
-          response: new Response(feed),
+          response: new CustomResponse(feed, { url: '' }),
         }
 
         await invalidFeed(context, next)

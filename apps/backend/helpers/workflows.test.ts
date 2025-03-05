@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { CustomResponse } from '../actions/fetchUrl'
 import { Channel } from '../types/schemas'
 import { createWorkflow, type WorkflowContext, type WorkflowProcessor } from './workflows'
 
@@ -10,6 +11,7 @@ describe('createWorkflow', () => {
     title: 'Test',
     description: null,
     siteUrl: 'http://site.com',
+    selfUrl: null,
     feedUrl: 'http://site.com/feed',
     feedType: 'xml',
     createdAt: new Date(),
@@ -17,10 +19,12 @@ describe('createWorkflow', () => {
     lastScannedAt: null,
     lastScanStatus: null,
     lastScanEtag: null,
+    lastScanHash: null,
     lastScanError: null,
     lastFixCheckedAt: null,
     lastFixCheckStatus: null,
     lastFixCheckEtag: null,
+    lastFixCheckHash: null,
     lastFixCheckError: null,
   }
 
@@ -90,7 +94,7 @@ describe('createWorkflow', () => {
   it('should throw unprocessed pipeline error with status code', async () => {
     const processors: Array<WorkflowProcessor<TestResult>> = [
       async (context) => {
-        context.response = new Response(null, { status: 404 })
+        context.response = new CustomResponse(null, { url: '', status: 404 })
       },
     ]
 
@@ -177,7 +181,7 @@ describe('createWorkflow', () => {
   it('should preserve context between processors', async () => {
     const context: WorkflowContext<TestResult> = {
       url: 'test',
-      response: new Response(null, { status: 200 }),
+      response: new CustomResponse(null, { url: '', status: 200 }),
     }
 
     const processors: Array<WorkflowProcessor<TestResult>> = [

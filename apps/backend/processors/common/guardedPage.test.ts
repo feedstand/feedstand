@@ -32,9 +32,14 @@ describe('guardedPage', () => {
         status: 200,
       }),
       result: {
-        etag: null,
-        type: 'xml',
-        channel: { title: 'Test Feed', feedUrl: '' },
+        meta: {
+          etag: null,
+          hash: '',
+          type: 'xml',
+          requestUrl: '',
+          responseUrl: '',
+        },
+        channel: { title: 'Test Feed', selfUrl: '' },
         items: [],
       },
     }

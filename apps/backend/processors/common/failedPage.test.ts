@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { CustomResponse } from '../../actions/fetchUrl'
 import { WorkflowContext } from '../../helpers/workflows'
 import { failedPage } from './failedPage'
 
@@ -6,7 +7,7 @@ describe('failedPage', () => {
   const mockNext = vi.fn().mockResolvedValue(undefined)
   const baseContext: WorkflowContext<unknown> = {
     url: 'https://example.com',
-    response: new Response(),
+    response: new CustomResponse('', { url: '' }),
   }
 
   beforeEach(() => {
