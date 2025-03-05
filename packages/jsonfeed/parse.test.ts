@@ -115,38 +115,64 @@ describe('parse', () => {
 
     expect((result as any).custom_field).toBeUndefined()
   })
-})
 
-it('should parse number values presented as string in attachment data', () => {
-  const feedWithInvalidNumbers = {
-    items: [
-      {
-        attachments: [
-          {
-            size_in_bytes: 'not-a-number',
-          },
-        ],
-      },
-    ],
-  }
-  const result = parse(feedWithInvalidNumbers)
+  it('should parse number values presented as string in attachment data', () => {
+    const feedWithInvalidNumbers = {
+      items: [
+        {
+          attachments: [
+            {
+              size_in_bytes: 'not-a-number',
+            },
+          ],
+        },
+      ],
+    }
+    const result = parse(feedWithInvalidNumbers)
 
-  expect(result.items?.[0]?.attachments?.[0]?.size_in_bytes).toBe(0)
-})
+    expect(result.items?.[0]?.attachments?.[0]?.size_in_bytes).toBe(0)
+  })
 
-it('should not parse number values to 0 if none is provided', () => {
-  const feedWithInvalidNumbers = {
-    items: [
-      {
-        attachments: [
-          {
-            size_in_bytes: undefined,
-          },
-        ],
-      },
-    ],
-  }
-  const result = parse(feedWithInvalidNumbers)
+  it('should not parse number values to 0 if none is provided', () => {
+    const feedWithInvalidNumbers = {
+      items: [
+        {
+          attachments: [
+            {
+              size_in_bytes: undefined,
+            },
+          ],
+        },
+      ],
+    }
+    const result = parse(feedWithInvalidNumbers)
 
-  expect(result.items?.[0]?.attachments?.[0]?.size_in_bytes).toBe(undefined)
+    expect(result.items?.[0]?.attachments?.[0]?.size_in_bytes).toBe(undefined)
+  })
+
+  it('should handle null input', () => {
+    expect(() => parse(null)).toThrow()
+  })
+
+  it('should handle undefined input', () => {
+    expect(() => parse(undefined)).toThrow()
+  })
+
+  it('should handle number input', () => {
+    expect(() => parse(123)).toThrow()
+  })
+
+  it('should handle string input', () => {
+    expect(() => parse('not a feed')).toThrow()
+  })
+
+  it('should handle empty object input', () => {
+    const result = parse({})
+
+    expect(result).toEqual({})
+  })
+
+  it('should handle array input', () => {
+    expect(() => parse([])).toThrow()
+  })
 })

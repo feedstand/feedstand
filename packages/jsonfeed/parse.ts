@@ -7,7 +7,7 @@ export type Options = {
   extraItemAttributes?: Array<string>
 }
 
-export type Parse = (json: Record<string, unknown>, options?: Options) => ParsedFeed
+export type Parse = (json: ReturnType<typeof JSON.parse>, options?: Options) => ParsedFeed
 
 export const parse: Parse = (json) => {
   const result = parsedFeed.parse(json)
