@@ -2,15 +2,25 @@ import { createHash } from 'crypto'
 import { authorFromAtom } from '../parsers/authorFromAtom'
 import { dateCustomFormat } from '../parsers/dateCustomFormat'
 import { dateStandard } from '../parsers/dateStandard'
+import { linkFromAtom } from '../parsers/linkFromAtom'
 import { textStandard } from '../parsers/textStandard'
-import { FeedItem, RawFeedItem } from '../types/schemas'
+import { FeedChannel, FeedItem, RawFeedChannel, RawFeedItem } from '../types/schemas'
 import { parseValue, trimStrings } from './parsers'
 
 export const generateChecksum = (...values: Array<string | null | undefined>) => {
   return createHash('md5').update(values.join('')).digest('hex')
 }
 
-export const parseFeedItems = <I>(
+export const parseRawFeedChannel = (rawChannel: RawFeedChannel): FeedChannel => {
+  return trimStrings({
+    title: parseValue(rawChannel.title, [textStandard]),
+    description: parseValue(rawChannel.description, [textStandard]),
+    siteUrl: parseValue(rawChannel.siteUrl, [textStandard, linkFromAtom]),
+    selfUrl: parseValue(rawChannel.selfUrl, [textStandard, linkFromAtom]),
+  })
+}
+
+export const parseRawFeedItems = <I>(
   items: Array<I>,
   composeRawItem: (item: I) => RawFeedItem,
 ): Array<FeedItem> => {
@@ -19,27 +29,34 @@ export const parseFeedItems = <I>(
 
   for (const item of items) {
     const rawItem = composeRawItem(item)
-    const rawContent = rawItem.content
 
-    const itemChecksum = generateChecksum(rawItem.guid, rawItem.link, rawItem.publishedAt)
-    const contentChecksum = generateChecksum(rawContent)
-    const combinedChecksum = [itemChecksum, contentChecksum].join(':')
+    const parsedLink = parseValue(rawItem.link, [textStandard], '')
+    const parsedGuid = parseValue(rawItem.guid, [textStandard], parsedLink)
+    const parsedPublishedAt = parseValue(
+      rawItem.publishedAt,
+      [dateStandard, dateCustomFormat],
+      new Date(),
+    )
+    const parsedContent = parseValue(rawItem.content, [textStandard])
+
+    const itemHash = generateChecksum(parsedGuid, parsedLink, rawItem.publishedAt)
+    const contentHash = generateChecksum(parsedContent)
+    const combinedChecksum = [itemHash, contentHash].join(':')
 
     if (uniqueChecksums.has(combinedChecksum)) {
       continue
     }
 
-    const parsedLink = parseValue(rawItem.link, [textStandard], '')
     const parsedItem = trimStrings({
       link: parsedLink,
-      guid: parseValue(rawItem.guid, [textStandard], parsedLink),
+      guid: parsedGuid,
       title: parseValue(rawItem.title, [textStandard]),
       description: parseValue(rawItem.description, [textStandard]),
       author: parseValue(rawItem.author, [textStandard, authorFromAtom]),
-      content: parseValue(rawContent, [textStandard]),
-      itemChecksum,
-      contentChecksum,
-      publishedAt: parseValue(rawItem.publishedAt, [dateStandard, dateCustomFormat], new Date()),
+      content: parsedContent,
+      itemHash,
+      contentHash,
+      publishedAt: parsedPublishedAt,
       rawPublishedAt: rawItem.publishedAt,
     })
 
