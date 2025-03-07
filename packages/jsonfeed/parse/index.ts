@@ -1,4 +1,4 @@
-import { parsedFeed } from './schemas/parse'
+import { parsedFeed } from './schemas'
 import { ParsedFeed } from './types'
 
 export type Options = {

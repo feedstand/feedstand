@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
+import { parse } from './index'
 import { ParsedFeed } from './types'
-import { parse } from './parse'
 
 describe('parse', () => {
   const validFeedV1 = {

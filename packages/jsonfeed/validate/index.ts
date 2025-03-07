@@ -1,5 +1,5 @@
 import { ZodError } from 'zod'
-import { validatedFeed } from './schemas/validate'
+import { validatedFeed } from './schemas'
 
 export type Validate = (json: Record<string, unknown>) => {
   isValid: boolean

@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { ZodError } from 'zod'
-import { validate } from './validate'
+import { validate } from './index'
 
 const hasError = (error: ZodError | undefined, path: string) => {
   return error?.issues.some((issue) => issue.path.join('.') === path)
