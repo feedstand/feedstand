@@ -27,7 +27,7 @@ export const validatedOpml10 = z.object({
   version: z.literal('1.0'),
   head: validatedOpml10Head,
   body: z.object({
-    outline: z.array(validatedOpml10Outline),
+    outlines: z.array(validatedOpml10Outline),
   }),
 })
 
@@ -39,7 +39,7 @@ export const validatedOpml11 = z.object({
   version: z.literal('1.1'),
   head: validatedOpml11Head,
   body: z.object({
-    outline: z.array(validatedOpml11Outline),
+    outlines: z.array(validatedOpml11Outline),
   }),
 })
 
@@ -111,7 +111,7 @@ export const validatedOpml20 = z.object({
   version: z.literal('2.0'),
   head: validatedOpml20Head,
   body: z.object({
-    outline: z.array(validatedOpml20Outline),
+    outlines: z.array(validatedOpml20Outline),
   }),
 })
 

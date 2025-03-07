@@ -1,6 +1,6 @@
 import { ZodError } from 'zod'
-import { validatedOpml } from './schemas/validate'
-import { parser } from './common'
+import { parser } from '../common'
+import { validatedOpml } from './schemas'
 
 export type Validate = (xml: string) => {
   isValid: boolean

@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import type { ParsedOpmlOutline } from '../types'
+import type { ParsedOpmlOutline } from './types'
 
 const boolean = z.any().pipe(
   z.any().transform((value) => {
@@ -25,7 +25,7 @@ export const parsedOpmlOutline: z.ZodType<ParsedOpmlOutline> = z.lazy(() => {
       title: z.string(),
       version: z.string(),
       url: z.string(),
-      outline: z.array(parsedOpmlOutline).optional(),
+      outlines: z.array(parsedOpmlOutline).optional(),
     })
     .partial()
 })
@@ -53,7 +53,7 @@ export const parsedOpml = z
     version: z.string().optional(),
     head: parsedOpmlHead,
     body: z.object({
-      outline: z.array(parsedOpmlOutline),
+      outlines: z.array(parsedOpmlOutline),
     }),
   })
   .optional()

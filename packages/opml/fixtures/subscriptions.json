@@ -8,7 +8,7 @@
     "ownerEmail": "anna@example.com"
   },
   "body": {
-    "outline": [
+    "outlines": [
       {
         "text": "The Verge",
         "description": "The Verge covers the intersection of technology, science, art, and culture.",

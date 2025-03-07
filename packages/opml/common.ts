@@ -5,5 +5,6 @@ export const parser = new XMLParser({
   attributeNamePrefix: '',
   parseTagValue: false,
   parseAttributeValue: false,
-  isArray: (name) => name === 'outline',
+  isArray: (name) => name === 'outlines',
+  transformTagName: (name) => (name === 'outline' ? 'outlines' : name),
 })

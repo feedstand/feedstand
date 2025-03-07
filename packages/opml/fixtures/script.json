@@ -14,14 +14,14 @@
     "windowRight": 470
   },
   "body": {
-    "outline": [
+    "outlines": [
       {
         "text": "Changes",
         "isComment": false,
-        "outline": [
+        "outlines": [
           {
             "text": "18/02/2024; 9:15:22 AM by AS",
-            "outline": [
+            "outlines": [
               {
                 "text": "Change 'output' to 'export'."
               }
@@ -30,7 +30,7 @@
           {
             "text": "25/01/2024; 3:22:15 PM by AS",
             "isComment": true,
-            "outline": [
+            "outlines": [
               {
                 "text": "Create test data by generating JSON files with random user information."
               }
@@ -40,7 +40,7 @@
       },
       {
         "text": "on createUserData (filename, count)",
-        "outline": [
+        "outlines": [
           {
             "text": "directory.ensurePath (filename)",
             "isBreakpoint": true
@@ -55,7 +55,7 @@
       },
       {
         "text": "for i = 1 to 10",
-        "outline": [
+        "outlines": [
           {
             "text": "createUserData (outputDir + 'batch' + i + '.json', random (50, 200))"
           }

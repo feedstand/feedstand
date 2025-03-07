@@ -1,6 +1,6 @@
+import { parser } from '../common'
+import { parsedOpml } from './schemas'
 import type { ParsedOpml } from './types'
-import { parsedOpml } from './schemas/parse'
-import { parser } from './common'
 
 export type Options = {
   downloadExternalOutlines?: boolean

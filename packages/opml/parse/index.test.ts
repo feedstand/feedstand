@@ -1,16 +1,16 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { describe, it, expect } from 'vitest'
-import { parse } from './parse'
-import categoryJson from './fixtures/category.json'
-import countriesJson from './fixtures/countries.json'
-import directoryJson from './fixtures/directory.json'
-import placesJson from './fixtures/places.json'
-import scriptJson from './fixtures/script.json'
-import subscriptionsJson from './fixtures/subscriptions.json'
+import { describe, expect, it } from 'vitest'
+import categoryJson from '../fixtures/category.json'
+import countriesJson from '../fixtures/countries.json'
+import directoryJson from '../fixtures/directory.json'
+import placesJson from '../fixtures/places.json'
+import scriptJson from '../fixtures/script.json'
+import subscriptionsJson from '../fixtures/subscriptions.json'
+import { parse } from './index'
 
 const readOpmlFile = (filename: string) => {
-  return readFileSync(join(__dirname, 'fixtures', filename), 'utf-8')
+  return readFileSync(join(__dirname, '../fixtures', filename), 'utf-8')
 }
 
 describe('parse', () => {

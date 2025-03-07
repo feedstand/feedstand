@@ -14,13 +14,13 @@
     "windowRight": 500
   },
   "body": {
-    "outline": [
+    "outlines": [
       {
         "text": "Countries I've visited",
-        "outline": [
+        "outlines": [
           {
             "text": "France",
-            "outline": [
+            "outlines": [
               {
                 "text": "Paris"
               },
@@ -31,7 +31,7 @@
           },
           {
             "text": "Italy",
-            "outline": [
+            "outlines": [
               {
                 "text": "Rome"
               },
@@ -48,7 +48,7 @@
           },
           {
             "text": "Germany",
-            "outline": [
+            "outlines": [
               {
                 "text": "Berlin"
               },
@@ -59,7 +59,7 @@
           },
           {
             "text": "Spain",
-            "outline": [
+            "outlines": [
               {
                 "text": "Barcelona"
               }
@@ -72,7 +72,7 @@
           },
           {
             "text": "United Kingdom",
-            "outline": [
+            "outlines": [
               {
                 "text": "London"
               },

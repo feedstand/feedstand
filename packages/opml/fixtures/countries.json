@@ -14,13 +14,13 @@
     "windowRight": 470
   },
   "body": {
-    "outline": [
+    "outlines": [
       {
         "text": "European Union",
-        "outline": [
+        "outlines": [
           {
             "text": "Western Europe",
-            "outline": [
+            "outlines": [
               {
                 "text": "France"
               },
@@ -32,7 +32,7 @@
               },
               {
                 "text": "Germany",
-                "outline": [
+                "outlines": [
                   {
                     "text": "Berlin",
                     "created": "Mon, 15 Feb 2024 12:34:21 GMT"
@@ -61,7 +61,7 @@
           },
           {
             "text": "Eastern Europe",
-            "outline": [
+            "outlines": [
               {
                 "text": "Poland"
               },
@@ -81,7 +81,7 @@
           },
           {
             "text": "Northern Europe",
-            "outline": [
+            "outlines": [
               {
                 "text": "Denmark"
               },
@@ -101,7 +101,7 @@
           },
           {
             "text": "Southern Europe",
-            "outline": [
+            "outlines": [
               {
                 "text": "Italy"
               },
@@ -130,7 +130,7 @@
           },
           {
             "text": "Central Europe",
-            "outline": [
+            "outlines": [
               {
                 "text": "Czech Republic"
               },
