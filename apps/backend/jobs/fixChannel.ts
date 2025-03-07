@@ -9,7 +9,7 @@ export const fixChannel = async (channel: Channel) => {
   const url = channel.siteUrl || channel.feedUrl
 
   try {
-    const { etag, feeds } = await findFeeds({ url, channel })
+    const { meta, feeds } = await findFeeds({ url, channel })
     const feedUrls = feeds.map(({ url }) => url)
 
     await db
@@ -17,7 +17,8 @@ export const fixChannel = async (channel: Channel) => {
       .set({
         lastFixCheckedAt: new Date(),
         lastFixCheckStatus: 'checked',
-        lastFixCheckEtag: etag,
+        lastFixCheckEtag: meta.etag,
+        lastFixCheckHash: meta.hash,
         lastFixCheckError: null,
       })
       .where(eq(tables.channels.id, channel.id))
@@ -41,9 +42,11 @@ export const fixChannel = async (channel: Channel) => {
       .insert(tables.fixables)
       .values(
         feeds.map((feed) => ({
+          type: 'defunct' as const,
+          fromUrl: channel.feedUrl,
+          feedUrl: feed.url,
           channelId: channel.id,
           title: feed.title,
-          feedUrl: feed.url,
         })),
       )
       .onConflictDoNothing()
