@@ -1,42 +1,31 @@
-import { get } from 'lodash-es'
-import RSSParser from 'rss-parser'
+import { ParsedRss as ParsedRssFeed, parse as parseRssFeed } from '@feedstand/rss'
 import { FetchFeedProcessor } from '../../actions/fetchFeed'
-import { parseFeedItems } from '../../helpers/feeds'
-import { parseValue, trimStrings } from '../../helpers/parsers'
-import { linkFromAtom } from '../../parsers/linkFromAtom'
-import { textStandard } from '../../parsers/textStandard'
-import { XmlFeed } from '../../types/feeds'
+import { parseRawFeedChannel, parseRawFeedItems } from '../../helpers/feeds'
+import { isJson } from '../../helpers/strings'
 import { FeedChannel, FeedItem } from '../../types/schemas'
 
-const parser = new RSSParser({
-  customFields: { item: ['pubdate', 'a10:updated'] },
-})
-
-export const xmlFeedChannel = (feed: XmlFeed, url: string): FeedChannel => {
-  return trimStrings({
-    title: parseValue(feed.title, [textStandard]),
-    description: parseValue(feed.description, [textStandard]),
-    siteUrl: parseValue(feed.link, [textStandard, linkFromAtom]),
-    // TODO: Consider using feed.feedUrl. The only problem is that it might be a relative
-    // URL instead of absolute. What to do in such cases?
-    // url: parseValue(feed.feedUrl, [textStandard], url),
-    feedUrl: url,
+export const xmlFeedChannel = (feed: ParsedRssFeed): FeedChannel => {
+  return parseRawFeedChannel({
+    title: feed.title,
+    description: feed.description,
+    siteUrl: feed.link,
+    selfUrl: feed.self,
   })
 }
 
-export const xmlFeedItems = (feed: XmlFeed): Array<FeedItem> => {
+export const xmlFeedItems = (feed: ParsedRssFeed): Array<FeedItem> => {
   if (!feed.items?.length) {
     return []
   }
 
-  return parseFeedItems(feed.items, (item) => ({
+  return parseRawFeedItems(feed.items, (item) => ({
     link: item.link,
-    guid: item.guid,
+    guid: item.id,
     title: item.title,
-    description: item.summary,
-    author: item.creator,
+    description: item.description,
+    author: item.authors?.[0]?.name,
     content: item.content,
-    publishedAt: item.isoDate || item.pubDate || get(item, 'pubdate') || get(item, 'a10:updated'),
+    publishedAt: item.publishedAt,
   }))
 }
 
@@ -53,14 +42,25 @@ export const xmlFeed: FetchFeedProcessor = async (context, next) => {
 
   try {
     const xml = await context.response.text()
-    // TODO: Return early if XML is not actually an XML?
-    const out = await parser.parseString(xml)
+
+    if (isJson(xml)) {
+      return
+    }
+
+    const out = parseRssFeed(xml)
+    const channel = xmlFeedChannel(out)
+    const items = xmlFeedItems(out)
 
     context.result = {
-      etag: context.response.headers.get('etag'),
-      type: 'xml',
-      channel: xmlFeedChannel(out, context.response.url),
-      items: xmlFeedItems(out),
+      meta: {
+        etag: context.response.headers.get('etag'),
+        hash: context.response.hash,
+        type: 'xml',
+        requestUrl: context.url,
+        responseUrl: context.response.url,
+      },
+      channel,
+      items,
     }
   } catch (error) {
     context.error = error
