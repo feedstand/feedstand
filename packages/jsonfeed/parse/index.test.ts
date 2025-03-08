@@ -118,8 +118,6 @@ describe('parse', () => {
 
   it('should parse number values presented as string in attachment data', () => {
     const feedWithInvalidNumbers = {
-      version: 'https://jsonfeed.org/version/1',
-      title: 'My Example Feed',
       items: [
         {
           attachments: [
@@ -137,8 +135,6 @@ describe('parse', () => {
 
   it('should not parse number values to 0 if none is provided', () => {
     const feedWithInvalidNumbers = {
-      version: 'https://jsonfeed.org/version/1',
-      title: 'My Example Feed',
       items: [
         {
           attachments: [
@@ -170,8 +166,10 @@ describe('parse', () => {
     expect(() => parse('not a feed')).toThrow()
   })
 
-  it('should throw an error if required fields not provided', () => {
-    expect(() => parse({})).toThrow()
+  it('should handle empty object input', () => {
+    const result = parse({})
+
+    expect(result).toEqual({})
   })
 
   it('should handle array input', () => {

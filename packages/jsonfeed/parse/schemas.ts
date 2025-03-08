@@ -53,6 +53,8 @@ export const parsedHub = z
 
 export const parsedFeed = z
   .object({
+    version: z.string(),
+    title: z.string(),
     home_page_url: z.string(),
     feed_url: z.string(),
     description: z.string(),
@@ -65,10 +67,6 @@ export const parsedFeed = z
     hubs: z.array(parsedHub),
     author: parsedAuthor,
     authors: z.array(parsedAuthor),
-  })
-  .partial()
-  .extend({
-    version: z.string(),
-    title: z.string(),
     items: z.array(parsedItem),
   })
+  .partial()
