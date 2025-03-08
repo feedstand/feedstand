@@ -65,10 +65,10 @@ export const parsedFeed = z
     hubs: z.array(parsedHub),
     author: parsedAuthor,
     authors: z.array(parsedAuthor),
-    items: z.array(parsedItem),
   })
   .partial()
   .extend({
     version: z.string(),
     title: z.string(),
+    items: z.array(parsedItem),
   })
