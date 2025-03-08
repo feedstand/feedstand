@@ -34,12 +34,6 @@ export const xmlFeed: FetchFeedProcessor = async (context, next) => {
     return await next()
   }
 
-  // TODO: Should content type check be skipped? In the real world, feeds do not always set the
-  // correct content type indicating XML which result in some feeds not being correctly scanned.
-  // if (!isOneOfContentTypes(response, xmlFeedContentTypes)) {
-  //     return await next()
-  // }
-
   try {
     const xml = await context.response.text()
 

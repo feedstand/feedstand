@@ -34,12 +34,6 @@ export const jsonFeed: FetchFeedProcessor = async (context, next) => {
     return await next()
   }
 
-  // TODO: Should content type check be skipped? In the real world, feeds do not always set the
-  // correct content type indicating XML which result in some feeds not being correctly scanned.
-  // if !isOneOfContentTypes(response, jsonFeedContentTypes)) {
-  //     return await next()
-  // }
-
   const json = await context.response.json()
 
   if (!json) {
