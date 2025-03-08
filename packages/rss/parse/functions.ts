@@ -1,3 +1,4 @@
+import { decode } from 'html-entities'
 import { ParsedRssAuthor, ParsedRssEnclosure, ParsedRssImage, ParsedRssItem } from './types'
 
 export const isObject = (value: unknown): value is Record<string, any> => {
@@ -31,6 +32,14 @@ export const getFirstPropValue = (object: any, props: Array<string>): any => {
   }
 }
 
+export const deEntity = (value: unknown): string | undefined => {
+  if (typeof value !== 'string') {
+    return undefined
+  }
+
+  return decode(value)
+}
+
 export const retrieveSelf = (object: any): string | undefined => {
   const atomLinks = object?.['atom:link']
 
@@ -40,7 +49,7 @@ export const retrieveSelf = (object: any): string | undefined => {
 
   for (const atomLink of atomLinks) {
     if (atomLink?.rel === 'self') {
-      return atomLink?.href ?? undefined
+      return deEntity(atomLink?.href ?? undefined)
     }
   }
 }
@@ -62,7 +71,7 @@ const publishedProps = [
 ]
 
 export const retrievePublishedAt = (object: any): string | undefined => {
-  return getFirstPropValue(object, publishedProps)?.['#text']
+  return deEntity(getFirstPropValue(object, publishedProps)?.['#text'])
 }
 
 const updatedProps = [
@@ -82,7 +91,7 @@ const updatedProps = [
 ]
 
 export const retrieveUpdatedAt = (object: any): string | undefined => {
-  return getFirstPropValue(object, updatedProps)?.['#text']
+  return deEntity(getFirstPropValue(object, updatedProps)?.['#text'])
 }
 
 export const retrieveEnclosure = (object: any): ParsedRssEnclosure | undefined => {
@@ -91,9 +100,9 @@ export const retrieveEnclosure = (object: any): ParsedRssEnclosure | undefined =
   }
 
   return {
-    url: object.enclosure?.url?.['#text'],
+    url: deEntity(object.enclosure?.url?.['#text']),
     length: object.enclosure?.length?.['#text'],
-    type: object.enclosure?.type?.['#text'],
+    type: deEntity(object.enclosure?.type?.['#text']),
   }
 }
 
@@ -103,11 +112,11 @@ export const retrieveImage = (object: any): ParsedRssImage | undefined => {
   }
 
   return {
-    description: object.image?.description?.['#text'],
+    description: deEntity(object.image?.description?.['#text']),
     height: object.image?.height?.['#text'],
-    link: object.image?.link?.['#text'],
-    title: object.image?.title?.['#text'],
-    url: object.image?.url?.['#text'],
+    link: deEntity(object.image?.link?.['#text']),
+    title: deEntity(object.image?.title?.['#text']),
+    url: deEntity(object.image?.url?.['#text']),
     width: object.image?.width?.['#text'],
   }
 }
@@ -123,16 +132,16 @@ export const retrieveAuthors = (object: any): Array<ParsedRssAuthor> | undefined
     }
 
     authors.push({
-      email: rssAuthor.email?.['#text'],
-      link: rssAuthor.link?.['#text'],
-      name: rssAuthor.name?.['#text'],
+      email: deEntity(rssAuthor.email?.['#text']),
+      link: deEntity(rssAuthor.link?.['#text']),
+      name: deEntity(rssAuthor.name?.['#text']),
     })
   }
 
   // TODO: Add atom authors here?
 
   for (const itunesAuthor of itunesAuthors) {
-    const name = itunesAuthor?.['#text']
+    const name = deEntity(itunesAuthor?.['#text'])
 
     if (name) {
       authors.push({ name })
@@ -150,15 +159,15 @@ export const retrieveItem = (object: any): ParsedRssItem | undefined => {
   return {
     authors: retrieveAuthors(object),
     // TODO: Add categories.
-    content: object?.content?.['#text'],
-    description: object?.description?.['#text'],
-    id: object?.guid?.['#text'],
+    content: deEntity(object?.content?.['#text']),
+    description: deEntity(object?.description?.['#text']),
+    id: deEntity(object?.guid?.['#text']),
     enclosure: retrieveEnclosure(object),
     image: retrieveImage(object),
-    link: object?.link?.['#text'],
+    link: deEntity(object?.link?.['#text']),
     // TODO: Add media.
     publishedAt: retrievePublishedAt(object),
-    title: object?.title?.['#text'],
+    title: deEntity(object?.title?.['#text']),
     updatedAt: retrieveUpdatedAt(object),
   }
 }

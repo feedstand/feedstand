@@ -27,18 +27,18 @@ export const parsedRssEnclosure = z
 export const parsedRssImage = z
   .object({
     description: z.string(),
-    height: z.string(),
+    height: z.coerce.number().catch(0),
     link: z.string(),
     title: z.string(),
     url: z.string(),
-    width: z.string(),
+    width: z.coerce.number().catch(0),
   })
   .partial()
 
 export const parsedRssItemMedia = z
   .object({
     image: z.string(),
-    length: z.number(),
+    length: z.coerce.number().catch(0),
     mimetype: z.string(),
     title: z.string(),
     type: z.string(),

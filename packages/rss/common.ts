@@ -6,5 +6,5 @@ export const parser = new XMLParser({
   attributeNamePrefix: '',
   parseTagValue: false,
   parseAttributeValue: false,
-  isArray: (name) => ['item', 'category', 'author', 'itunes:author'].includes(name),
+  isArray: (name) => ['item', 'category', 'author', 'itunes:author', 'atom:link'].includes(name),
 })

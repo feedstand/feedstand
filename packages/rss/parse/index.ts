@@ -1,5 +1,6 @@
 import { parser } from '../common'
 import {
+  deEntity,
   retrieveAuthors,
   retrieveImage,
   retrieveItems,
@@ -24,18 +25,18 @@ export const parse: Parse = (xml) => {
     authors: retrieveAuthors(object?.channel),
     // TODO: Add categories.
     // TODO: Add hub.
-    copyright: object?.channel?.copyright?.['#text'],
-    description: object?.channel?.description?.['#text'],
-    generator: object?.channel?.generator?.['#text'],
+    copyright: deEntity(object?.channel?.copyright?.['#text']),
+    description: deEntity(object?.channel?.description?.['#text']),
+    generator: deEntity(object?.channel?.generator?.['#text']),
     image: retrieveImage(object?.channel),
     items: retrieveItems(object?.channel),
-    language: object?.channel?.language?.['#text'],
-    link: object?.channel?.link?.['#text'],
+    language: deEntity(object?.channel?.language?.['#text']),
+    link: deEntity(object?.channel?.link?.['#text']),
     publishedAt: retrievePublishedAt(object?.channel),
     self: retrieveSelf(object?.channel),
-    title: object?.channel?.title?.['#text'],
+    title: deEntity(object?.channel?.title?.['#text']),
     updatedAt: retrieveUpdatedAt(object?.channel),
-    version: object?.version,
+    version: deEntity(object?.version),
   }
 
   // TODO: Implement:
