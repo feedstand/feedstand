@@ -42,8 +42,6 @@ export const xmlFeed: FetchFeedProcessor = async (context, next) => {
     }
 
     const out = parseRssFeed(xml)
-    const channel = xmlFeedChannel(out)
-    const items = xmlFeedItems(out)
 
     context.result = {
       meta: {
@@ -53,8 +51,8 @@ export const xmlFeed: FetchFeedProcessor = async (context, next) => {
         requestUrl: context.url,
         responseUrl: context.response.url,
       },
-      channel,
-      items,
+      channel: xmlFeedChannel(out),
+      items: xmlFeedItems(out),
     }
   } catch (error) {
     context.error = error

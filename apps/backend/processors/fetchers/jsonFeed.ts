@@ -34,16 +34,14 @@ export const jsonFeed: FetchFeedProcessor = async (context, next) => {
     return await next()
   }
 
-  const json = await context.response.json()
-
-  if (!json) {
-    return await next()
-  }
-
   try {
+    const json = await context.response.json()
+
+    if (!json) {
+      return await next()
+    }
+
     const out = parseJsonFeed(json)
-    const channel = jsonFeedChannel(out)
-    const items = jsonFeedItems(out)
 
     context.result = {
       meta: {
@@ -53,8 +51,8 @@ export const jsonFeed: FetchFeedProcessor = async (context, next) => {
         requestUrl: context.url,
         responseUrl: context.response.url,
       },
-      channel,
-      items,
+      channel: jsonFeedChannel(out),
+      items: jsonFeedItems(out),
     }
   } catch (error) {
     context.error = error
