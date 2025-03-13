@@ -6,6 +6,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "html-entities": "^2.0.0",
     "zod": "^3.0.0"
   },
   "devDependencies": {

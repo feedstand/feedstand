@@ -1,19 +1,27 @@
+import { parseFeed } from './functions'
 import { parsedFeed } from './schemas'
-import { ParsedFeed } from './types'
+import { ParsedFeed, ParseLevel } from './types'
 
 export type Options = {
-  extraFeedAttributes?: Array<string>
-  extraHeadAttributes?: Array<string>
-  extraItemAttributes?: Array<string>
+  level: ParseLevel
 }
 
-export type Parse = (json: ReturnType<typeof JSON.parse>, options?: Options) => ParsedFeed
+export type Parse = (json: unknown, options?: Options) => ParsedFeed | undefined
 
-export const parse: Parse = (json) => {
-  const result = parsedFeed.parse(json)
+export const parse: Parse = (json, options) => {
+  const level: ParseLevel = options?.level || 'coerce'
 
   // TODO: Implement:
   // - Ability to define and parse specified additional attributes in feed, head, item.
+  //   extraFeedAttributes?: Array<string>
+  //   extraHeadAttributes?: Array<string>
+  //   extraItemAttributes?: Array<string>
 
-  return result
+  if (level === 'strict') {
+    return parsedFeed.parse(json)
+  }
+
+  const feed = parseFeed(json, level)
+
+  return feed ? parsedFeed.parse(feed) : undefined
 }
