@@ -36,12 +36,11 @@ export const jsonFeed: FetchFeedProcessor = async (context, next) => {
 
   try {
     const json = await context.response.json()
+    const out = parseJsonFeed(json)
 
-    if (!json) {
+    if (!out) {
       return await next()
     }
-
-    const out = parseJsonFeed(json)
 
     context.result = {
       meta: {
