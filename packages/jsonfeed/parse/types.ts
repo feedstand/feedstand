@@ -3,7 +3,7 @@ import { parsedAttachment, parsedAuthor, parsedFeed, parsedHub, parsedItem } fro
 
 export type ParseLevel = 'strict' | 'skip' | 'coerce'
 
-export type NonStrictParseLevel = Omit<ParseLevel, 'strict'>
+export type NonStrictParseLevel = 'skip' | 'coerce'
 
 export type ParseFunction<T> = (value: unknown, level: NonStrictParseLevel) => T | undefined
 
