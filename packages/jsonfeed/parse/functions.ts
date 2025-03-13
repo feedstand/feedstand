@@ -26,24 +26,6 @@ export const omitNullish = <T>(array: Array<T | null | undefined>): Array<T> => 
   return array.filter((item): item is T => item !== null && item !== undefined)
 }
 
-export const parseArrayOf = <P>(
-  value: unknown,
-  parser: ParseFunction<P>,
-  level: NonStrictParseLevel,
-): Array<P> | undefined => {
-  if (Array.isArray(value)) {
-    return omitNullish(value.map((item) => parser(item, level)))
-  }
-
-  if (level === 'coerce') {
-    const parsed = parser(value, level)
-
-    return parsed ? [parsed] : undefined
-  }
-
-  return undefined
-}
-
 export const parseString: ParseFunction<string> = (value, level) => {
   if (typeof value === 'number') {
     return level === 'coerce' ? value.toString() : undefined
@@ -81,6 +63,57 @@ export const parseBoolean: ParseFunction<boolean> = (value, level) => {
 
   if (level === 'coerce' && value === 'false') {
     return false
+  }
+
+  return undefined
+}
+
+export const parseArray: ParseFunction<Array<unknown>> = (value, level) => {
+  if (Array.isArray(value)) {
+    return value
+  }
+
+  if (level === 'skip' || !isObject(value)) {
+    return undefined
+  }
+
+  if (value.length) {
+    return Array.from(value as unknown as ArrayLike<unknown>)
+  }
+
+  const keys = Object.keys(value)
+
+  if (keys.length === 0) {
+    return undefined
+  }
+
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i]
+    const n = Number(key)
+
+    if (!Number.isInteger(n) || n !== i) {
+      return undefined
+    }
+  }
+
+  return Object.values(value)
+}
+
+export const parseArrayOf = <P>(
+  value: unknown,
+  parse: ParseFunction<P>,
+  level: NonStrictParseLevel,
+): Array<P> | undefined => {
+  const array = parseArray(value, level)
+
+  if (array) {
+    return omitNullish(array.map((item) => parse(item, level)))
+  }
+
+  if (level === 'coerce') {
+    const parsed = parse(value, level)
+
+    return parsed ? [parsed] : undefined
   }
 
   return undefined
