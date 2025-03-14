@@ -12,10 +12,12 @@
   },
   "dependencies": {
     "@feedstand/backend": "*",
+    "@tailwindcss/vite": "^4.0.14",
     "@tanstack/react-query": "^5.0.0",
     "hono": "^4.0.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "tailwindcss": "^4.0.14"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",
