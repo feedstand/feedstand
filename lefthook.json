@@ -1,0 +1,23 @@
+{
+  "pre-commit": {
+    "parallel": true,
+    "commands": {
+      "typescript": {
+        "glob": "*.{ts,tsx}",
+        "run": "npm run lint:tsc && npm run lint:prettier:base {staged_files}"
+      },
+      "javascript": {
+        "glob": "*.{js,jsx}",
+        "run": "npm run lint:prettier:base {staged_files}"
+      },
+      "yaml": {
+        "glob": "*.{yml,yaml}",
+        "run": "npm run lint:prettier:base {staged_files}"
+      },
+      "json": {
+        "glob": "*.json",
+        "run": "npm run lint:prettier:base {staged_files}"
+      }
+    }
+  }
+}
