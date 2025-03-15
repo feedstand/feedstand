@@ -133,7 +133,7 @@ describe('isNonEmptyStringOrNumber', () => {
     expect(isNonEmptyStringOrNumber(BigInt(123))).toEqual(false)
   })
 
-  it('should handle edge cases correctly', () => {
+  it('should handle edge cases', () => {
     const stringObject = new String('hello')
     const numberObject = new Number(42)
 
@@ -187,63 +187,63 @@ describe('omitNullish', () => {
 })
 
 describe('parseString', () => {
-  it('should handle array correctly', () => {
+  it('should handle array', () => {
     const value = ['javascript', { another: 'typescript' }]
 
     expect(parseString(value, 'coerce')).toBeUndefined()
     expect(parseString(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle object correctly', () => {
+  it('should handle object', () => {
     const value = { name: 'javascript' }
 
     expect(parseString(value, 'coerce')).toBeUndefined()
     expect(parseString(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle non-empty string correctly', () => {
+  it('should handle non-empty string', () => {
     const value = 'javascript'
 
     expect(parseString(value, 'coerce')).toEqual(value)
     expect(parseString(value, 'skip')).toEqual(value)
   })
 
-  it('should handle empty string correctly', () => {
+  it('should handle empty string', () => {
     const value = ''
 
     expect(parseString(value, 'coerce')).toEqual(value)
     expect(parseString(value, 'skip')).toEqual(value)
   })
 
-  it('should handle HTML entities in string correctly', () => {
+  it('should handle HTML entities in string', () => {
     const value = '&amp;'
 
     expect(parseString(value, 'coerce')).toEqual('&')
     expect(parseString(value, 'skip')).toEqual('&')
   })
 
-  it('should return number correctly', () => {
+  it('should return number', () => {
     const value = 420
 
     expect(parseString(value, 'coerce')).toEqual('420')
     expect(parseString(value, 'skip')).toBeUndefined()
   })
 
-  it('should return boolean correctly', () => {
+  it('should return boolean', () => {
     const value = true
 
     expect(parseString(value, 'coerce')).toBeUndefined()
     expect(parseString(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle null correctly', () => {
+  it('should handle null', () => {
     const value = null
 
     expect(parseString(value, 'coerce')).toBeUndefined()
     expect(parseString(value, 'skip')).toBeUndefined()
   })
 
-  it('should return undefined correctly', () => {
+  it('should return undefined', () => {
     const value = undefined
 
     expect(parseString(value, 'coerce')).toBeUndefined()
@@ -252,56 +252,56 @@ describe('parseString', () => {
 })
 
 describe('parseNumber', () => {
-  it('should handle array correctly', () => {
+  it('should handle array', () => {
     const value = ['javascript', { another: 'typescript' }]
 
     expect(parseNumber(value, 'coerce')).toBeUndefined()
     expect(parseNumber(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle object correctly', () => {
+  it('should handle object', () => {
     const value = { name: 'javascript' }
 
     expect(parseNumber(value, 'coerce')).toBeUndefined()
     expect(parseNumber(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle non-numeric string correctly', () => {
+  it('should handle non-numeric string', () => {
     const value = 'javascript'
 
     expect(parseNumber(value, 'coerce')).toBeUndefined()
     expect(parseNumber(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle numeric string correctly', () => {
+  it('should handle numeric string', () => {
     const value = '36.6'
 
     expect(parseNumber(value, 'coerce')).toEqual(36.6)
     expect(parseNumber(value, 'skip')).toBeUndefined()
   })
 
-  it('should return number correctly', () => {
+  it('should return number', () => {
     const value = 420
 
     expect(parseNumber(value, 'coerce')).toEqual(value)
     expect(parseNumber(value, 'skip')).toEqual(value)
   })
 
-  it('should return boolean correctly', () => {
+  it('should return boolean', () => {
     const value = true
 
     expect(parseNumber(value, 'coerce')).toBeUndefined()
     expect(parseNumber(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle null correctly', () => {
+  it('should handle null', () => {
     const value = null
 
     expect(parseNumber(value, 'coerce')).toBeUndefined()
     expect(parseNumber(value, 'skip')).toBeUndefined()
   })
 
-  it('should return undefined correctly', () => {
+  it('should return undefined', () => {
     const value = undefined
 
     expect(parseNumber(value, 'coerce')).toBeUndefined()
@@ -310,63 +310,63 @@ describe('parseNumber', () => {
 })
 
 describe('parseBoolean', () => {
-  it('should handle array correctly', () => {
+  it('should handle array', () => {
     const value = ['javascript', { another: 'typescript' }]
 
     expect(parseBoolean(value, 'coerce')).toBeUndefined()
     expect(parseBoolean(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle object correctly', () => {
+  it('should handle object', () => {
     const value = { name: 'javascript' }
 
     expect(parseBoolean(value, 'coerce')).toBeUndefined()
     expect(parseBoolean(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle non-boolean string correctly', () => {
+  it('should handle non-boolean string', () => {
     const value = 'javascript'
 
     expect(parseBoolean(value, 'coerce')).toBeUndefined()
     expect(parseBoolean(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle true string correctly', () => {
+  it('should handle true string', () => {
     const value = 'true'
 
     expect(parseBoolean(value, 'coerce')).toEqual(true)
     expect(parseBoolean(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle false string correctly', () => {
+  it('should handle false string', () => {
     const value = 'false'
 
     expect(parseBoolean(value, 'coerce')).toEqual(false)
     expect(parseBoolean(value, 'skip')).toBeUndefined()
   })
 
-  it('should return number correctly', () => {
+  it('should return number', () => {
     const value = 420
 
     expect(parseBoolean(value, 'coerce')).toBeUndefined()
     expect(parseBoolean(value, 'skip')).toBeUndefined()
   })
 
-  it('should return boolean correctly', () => {
+  it('should return boolean', () => {
     const value = true
 
     expect(parseBoolean(value, 'coerce')).toEqual(value)
     expect(parseBoolean(value, 'skip')).toEqual(value)
   })
 
-  it('should handle null correctly', () => {
+  it('should handle null', () => {
     const value = null
 
     expect(parseBoolean(value, 'coerce')).toBeUndefined()
     expect(parseBoolean(value, 'skip')).toBeUndefined()
   })
 
-  it('should return undefined correctly', () => {
+  it('should return undefined', () => {
     const value = undefined
 
     expect(parseBoolean(value, 'coerce')).toBeUndefined()
@@ -375,7 +375,7 @@ describe('parseBoolean', () => {
 })
 
 describe('parseArray', () => {
-  it('should handle arrays correctly', () => {
+  it('should handle arrays', () => {
     const value1 = [] as Array<string>
     const value2 = [1, 2, 3]
     const value3 = new Array(5)
@@ -388,7 +388,7 @@ describe('parseArray', () => {
     expect(parseArray(value3, 'skip')).toEqual(value3)
   })
 
-  it('should handle objects with sequential numeric keys starting from 0 correctly', () => {
+  it('should handle objects with sequential numeric keys starting from 0', () => {
     const value1 = { 0: 'a', 1: 'b', 2: 'c' }
     const value2 = { 0: 'only one item' }
 
@@ -398,7 +398,7 @@ describe('parseArray', () => {
     expect(parseArray(value2, 'skip')).toBeUndefined()
   })
 
-  it('should handle object with length property correctly', () => {
+  it('should handle object with length property', () => {
     const value1 = { 0: 'a', 1: 'b', length: 2 }
     const value2 = { length: 3 }
 
@@ -481,49 +481,49 @@ describe('parseArrayOf', () => {
     return typeof value === 'string' ? value : undefined
   }
 
-  it('should handle string correctly', () => {
+  it('should handle string', () => {
     const value = 'Jack'
 
     expect(parseArrayOf(value, parser, 'coerce')).toEqual(['Jack'])
     expect(parseArrayOf(value, parser, 'skip')).toBeUndefined()
   })
 
-  it('should handle array of strings correctly', () => {
+  it('should handle array of strings', () => {
     const value = ['John', 123]
 
     expect(parseArrayOf(value, parser, 'coerce')).toEqual(['John', '123'])
     expect(parseArrayOf(value, parser, 'skip')).toEqual(['John'])
   })
 
-  it('should handle array of mixed values correctly', () => {
+  it('should handle array of mixed values', () => {
     const value = [true, {}, [], null, 'John', 123]
 
     expect(parseArrayOf(value, parser, 'coerce')).toEqual(['John', '123'])
     expect(parseArrayOf(value, parser, 'skip')).toEqual(['John'])
   })
 
-  it('should handle number correctly', () => {
+  it('should handle number', () => {
     const value = 420
 
     expect(parseArrayOf(value, parser, 'coerce')).toEqual(['420'])
     expect(parseArrayOf(value, parser, 'skip')).toBeUndefined()
   })
 
-  it('should handle boolean correctly', () => {
+  it('should handle boolean', () => {
     const value = true
 
     expect(parseArrayOf(value, parser, 'coerce')).toBeUndefined()
     expect(parseArrayOf(value, parser, 'skip')).toBeUndefined()
   })
 
-  it('should handle null correctly', () => {
+  it('should handle null', () => {
     const value = null
 
     expect(parseArrayOf(value, parser, 'coerce')).toBeUndefined()
     expect(parseArrayOf(value, parser, 'skip')).toBeUndefined()
   })
 
-  it('should return undefined correctly', () => {
+  it('should return undefined', () => {
     const value = undefined
 
     expect(parseArrayOf(value, parser, 'coerce')).toBeUndefined()
@@ -532,63 +532,63 @@ describe('parseArrayOf', () => {
 })
 
 describe('parseTags', () => {
-  it('should handle array of strings correctly', () => {
+  it('should handle array of strings', () => {
     const value = ['javascript', 'typescript']
 
     expect(parseTags(value, 'coerce')).toEqual(value)
     expect(parseTags(value, 'skip')).toEqual(value)
   })
 
-  it('should handle array of mixed values correctly', () => {
+  it('should handle array of mixed values', () => {
     const value = ['javascript', true, 123, {}, [], null]
 
     expect(parseTags(value, 'coerce')).toEqual(['javascript', '123'])
     expect(parseTags(value, 'skip')).toEqual(['javascript'])
   })
 
-  it('should handle object correctly', () => {
+  it('should handle object', () => {
     const value = { name: 'javascript' }
 
     expect(parseTags(value, 'coerce')).toBeUndefined()
     expect(parseTags(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle non-empty string correctly', () => {
+  it('should handle non-empty string', () => {
     const value = 'javascript'
 
     expect(parseTags(value, 'coerce')).toEqual([value])
     expect(parseTags(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle empty string correctly', () => {
+  it('should handle empty string', () => {
     const value = ''
 
     expect(parseTags(value, 'coerce')).toBeUndefined()
     expect(parseTags(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle number correctly', () => {
+  it('should handle number', () => {
     const value = 420
 
     expect(parseTags(value, 'coerce')).toEqual(['420'])
     expect(parseTags(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle boolean correctly', () => {
+  it('should handle boolean', () => {
     const value = true
 
     expect(parseTags(value, 'coerce')).toBeUndefined()
     expect(parseTags(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle null correctly', () => {
+  it('should handle null', () => {
     const value = null
 
     expect(parseTags(value, 'coerce')).toBeUndefined()
     expect(parseTags(value, 'skip')).toBeUndefined()
   })
 
-  it('should return undefined correctly', () => {
+  it('should return undefined', () => {
     const value = undefined
 
     expect(parseTags(value, 'coerce')).toBeUndefined()
@@ -597,28 +597,28 @@ describe('parseTags', () => {
 })
 
 describe('parseAuthor', () => {
-  it('should handle array of strings correctly', () => {
+  it('should handle array of strings', () => {
     const value = ['John', 'James']
 
     expect(parseAuthor(value, 'coerce')).toEqual({ name: 'John' })
     expect(parseAuthor(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle array of mixed values correctly', () => {
+  it('should handle array of mixed values', () => {
     const value = [true, {}, [], null, 'John', 123]
 
     expect(parseAuthor(value, 'coerce')).toEqual({ name: 'John' })
     expect(parseAuthor(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle array of Author objects correctly', () => {
+  it('should handle array of Author objects', () => {
     const value = [{ name: 'John' }, { name: 'James' }]
 
     expect(parseAuthor(value, 'coerce')).toEqual({ name: 'John' })
     expect(parseAuthor(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle Author object correctly', () => {
+  it('should handle Author object', () => {
     const value = { name: 'John', url: 'link', avatar: 123 }
 
     expect(parseAuthor(value, 'coerce')).toEqual({
@@ -633,49 +633,49 @@ describe('parseAuthor', () => {
     })
   })
 
-  it('should handle non-Author object correctly', () => {
+  it('should handle non-Author object', () => {
     const value = { count: 1 }
 
     expect(parseAuthor(value, 'coerce')).toBeUndefined()
     expect(parseAuthor(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle non-empty string correctly', () => {
+  it('should handle non-empty string', () => {
     const value = 'Alice'
 
     expect(parseAuthor(value, 'coerce')).toEqual({ name: 'Alice' })
     expect(parseAuthor(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle empty string correctly', () => {
+  it('should handle empty string', () => {
     const value = ''
 
     expect(parseAuthor(value, 'coerce')).toBeUndefined()
     expect(parseAuthor(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle number correctly', () => {
+  it('should handle number', () => {
     const value = 420
 
     expect(parseAuthor(value, 'coerce')).toEqual({ name: '420' })
     expect(parseAuthor(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle boolean correctly', () => {
+  it('should handle boolean', () => {
     const value = true
 
     expect(parseAuthor(value, 'coerce')).toBeUndefined()
     expect(parseAuthor(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle null correctly', () => {
+  it('should handle null', () => {
     const value = null
 
     expect(parseAuthor(value, 'coerce')).toBeUndefined()
     expect(parseAuthor(value, 'skip')).toBeUndefined()
   })
 
-  it('should return undefined correctly', () => {
+  it('should return undefined', () => {
     const value = undefined
 
     expect(parseAuthor(value, 'coerce')).toBeUndefined()
@@ -684,63 +684,63 @@ describe('parseAuthor', () => {
 })
 
 describe('parseHub', () => {
-  it('should handle array of mixed values correctly', () => {
+  it('should handle array of mixed values', () => {
     const value = [true, {}, [], null, 'John', 123]
 
     expect(parseHub(value, 'coerce')).toBeUndefined()
     expect(parseHub(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle array of non-Hub objects correctly', () => {
+  it('should handle array of non-Hub objects', () => {
     const value = [{ name: 'John' }, { name: 'James' }]
 
     expect(parseHub(value, 'coerce')).toBeUndefined()
     expect(parseHub(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle Hub object correctly', () => {
+  it('should handle Hub object', () => {
     const value = { type: 'pub', url: 33 }
 
     expect(parseHub(value, 'coerce')).toEqual({ type: 'pub', url: '33' })
     expect(parseHub(value, 'skip')).toEqual({ type: 'pub', url: undefined })
   })
 
-  it('should handle non-Hub object correctly', () => {
+  it('should handle non-Hub object', () => {
     const value = { count: 2 }
 
     expect(parseHub(value, 'coerce')).toBeUndefined()
     expect(parseHub(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle string correctly', () => {
+  it('should handle string', () => {
     const value = 'Alice'
 
     expect(parseHub(value, 'coerce')).toBeUndefined()
     expect(parseHub(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle number correctly', () => {
+  it('should handle number', () => {
     const value = 420
 
     expect(parseHub(value, 'coerce')).toBeUndefined()
     expect(parseHub(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle boolean correctly', () => {
+  it('should handle boolean', () => {
     const value = true
 
     expect(parseHub(value, 'coerce')).toBeUndefined()
     expect(parseHub(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle null correctly', () => {
+  it('should handle null', () => {
     const value = null
 
     expect(parseHub(value, 'coerce')).toBeUndefined()
     expect(parseHub(value, 'skip')).toBeUndefined()
   })
 
-  it('should return undefined correctly', () => {
+  it('should return undefined', () => {
     const value = undefined
 
     expect(parseHub(value, 'coerce')).toBeUndefined()
@@ -831,7 +831,7 @@ describe('parseAttachment', () => {
     expect(parseAttachment(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle array correctly', () => {
+  it('should handle array', () => {
     const value = [
       { url: 'https://example.com/image1.jpg' },
       { url: 'https://example.com/image2.jpg' },
@@ -841,42 +841,42 @@ describe('parseAttachment', () => {
     expect(parseAttachment(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle string correctly', () => {
+  it('should handle string', () => {
     const value = 'https://example.com/image.jpg'
 
     expect(parseAttachment(value, 'coerce')).toBeUndefined()
     expect(parseAttachment(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle number correctly', () => {
+  it('should handle number', () => {
     const value = 420
 
     expect(parseAttachment(value, 'coerce')).toBeUndefined()
     expect(parseAttachment(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle boolean correctly', () => {
+  it('should handle boolean', () => {
     const value = true
 
     expect(parseAttachment(value, 'coerce')).toBeUndefined()
     expect(parseAttachment(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle null correctly', () => {
+  it('should handle null', () => {
     const value = null
 
     expect(parseAttachment(value, 'coerce')).toBeUndefined()
     expect(parseAttachment(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle undefined correctly', () => {
+  it('should handle undefined', () => {
     const value = undefined
 
     expect(parseAttachment(value, 'coerce')).toBeUndefined()
     expect(parseAttachment(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle object with invalid url correctly', () => {
+  it('should handle object with invalid url', () => {
     const value = {
       url: true,
       mime_type: 'audio/mpeg',
@@ -887,7 +887,7 @@ describe('parseAttachment', () => {
     expect(parseAttachment(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle object with invalid properties correctly', () => {
+  it('should handle object with invalid properties', () => {
     const value = {
       url: 'https://example.com/document.pdf',
       mime_type: true,
@@ -1002,7 +1002,7 @@ describe('parseItem', () => {
     expect(parseItem(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle invalid author and attachments correctly', () => {
+  it('should handle invalid author and attachments', () => {
     const value = {
       id: 'item-invalid-props',
       author: true,
@@ -1025,7 +1025,7 @@ describe('parseItem', () => {
     expect(parseItem(value, 'skip')).toEqual(expected)
   })
 
-  it('should handle array correctly', () => {
+  it('should handle array', () => {
     const value = [
       { id: 'item-1', title: 'First Item' },
       { id: 'item-2', title: 'Second Item' },
@@ -1035,35 +1035,35 @@ describe('parseItem', () => {
     expect(parseItem(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle string correctly', () => {
+  it('should handle string', () => {
     const value = 'item-123'
 
     expect(parseItem(value, 'coerce')).toBeUndefined()
     expect(parseItem(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle number correctly', () => {
+  it('should handle number', () => {
     const value = 123
 
     expect(parseItem(value, 'coerce')).toBeUndefined()
     expect(parseItem(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle boolean correctly', () => {
+  it('should handle boolean', () => {
     const value = true
 
     expect(parseItem(value, 'coerce')).toBeUndefined()
     expect(parseItem(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle null correctly', () => {
+  it('should handle null', () => {
     const value = null
 
     expect(parseItem(value, 'coerce')).toBeUndefined()
     expect(parseItem(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle undefined correctly', () => {
+  it('should handle undefined', () => {
     const value = undefined
 
     expect(parseItem(value, 'coerce')).toBeUndefined()
@@ -1273,7 +1273,7 @@ describe('parseFeed', () => {
     expect(parseFeed(value, 'skip')).toEqual(value)
   })
 
-  it('should handle invalid nested properties correctly', () => {
+  it('should handle invalid nested properties', () => {
     const value = {
       version: 'https://jsonfeed.org/version/1.1',
       title: 'Feed with Invalid Properties',
@@ -1304,7 +1304,7 @@ describe('parseFeed', () => {
     expect(parseFeed(value, 'skip')).toEqual(expected)
   })
 
-  it('should handle array input correctly', () => {
+  it('should handle array input', () => {
     const value = [
       {
         version: 'https://jsonfeed.org/version/1.1',
@@ -1322,35 +1322,35 @@ describe('parseFeed', () => {
     expect(parseFeed(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle string input correctly', () => {
+  it('should handle string input', () => {
     const value = 'not a feed'
 
     expect(parseFeed(value, 'coerce')).toBeUndefined()
     expect(parseFeed(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle number input correctly', () => {
+  it('should handle number input', () => {
     const value = 123
 
     expect(parseFeed(value, 'coerce')).toBeUndefined()
     expect(parseFeed(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle boolean input correctly', () => {
+  it('should handle boolean input', () => {
     const value = true
 
     expect(parseFeed(value, 'coerce')).toBeUndefined()
     expect(parseFeed(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle null input correctly', () => {
+  it('should handle null input', () => {
     const value = null
 
     expect(parseFeed(value, 'coerce')).toBeUndefined()
     expect(parseFeed(value, 'skip')).toBeUndefined()
   })
 
-  it('should handle undefined input correctly', () => {
+  it('should handle undefined input', () => {
     const value = undefined
 
     expect(parseFeed(value, 'coerce')).toBeUndefined()
