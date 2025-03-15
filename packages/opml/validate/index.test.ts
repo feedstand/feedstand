@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { ZodError } from 'zod'
+import type { ZodError } from 'zod'
 import { validate } from './index'
 
 const readOpmlFile = (filename: string) => {

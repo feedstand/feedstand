@@ -1,4 +1,4 @@
-import { ZodError } from 'zod'
+import type { ZodError } from 'zod'
 import { parser } from '../common'
 import { validatedOpml } from './schemas'
 

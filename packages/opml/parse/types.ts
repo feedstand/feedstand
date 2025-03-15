@@ -1,5 +1,5 @@
 import type { z } from 'zod'
-import { parsedOpml, parsedOpmlHead } from './schemas'
+import type { parsedOpml, parsedOpmlHead } from './schemas'
 
 export type ParsedOpmlOutline = Partial<{
   text: string

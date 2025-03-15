@@ -1,5 +1,5 @@
 import type { z } from 'zod'
-import {
+import type {
   validatedOpml,
   validatedOpml10,
   validatedOpml11,
