@@ -1,5 +1,5 @@
-import { z } from 'zod'
-import { parsedAttachment, parsedAuthor, parsedFeed, parsedHub, parsedItem } from './schemas'
+import type { z } from 'zod'
+import type { parsedAttachment, parsedAuthor, parsedFeed, parsedHub, parsedItem } from './schemas'
 
 export type ParseLevel = 'strict' | 'skip' | 'coerce'
 

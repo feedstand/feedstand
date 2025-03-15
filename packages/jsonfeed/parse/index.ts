@@ -1,6 +1,6 @@
 import { parseFeed } from './functions'
 import { parsedFeed } from './schemas'
-import { ParsedFeed, ParseLevel } from './types'
+import type { ParseLevel, ParsedFeed } from './types'
 
 export type Options = {
   level: ParseLevel

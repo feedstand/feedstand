@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import {
   isNonEmptyStringOrNumber,
   isObject,
@@ -15,7 +15,7 @@ import {
   parseString,
   parseTags,
 } from './functions'
-import { ParseFunction } from './types'
+import type { ParseFunction } from './types'
 
 describe('isObject', () => {
   it('should return true for plain objects', () => {
@@ -49,6 +49,7 @@ describe('isObject', () => {
 
   it('should return false for functions', () => {
     expect(isObject(() => {})).toEqual(false)
+    // biome-ignore lint/complexity/useArrowFunction: It's for testing purposes.
     expect(isObject(function () {})).toEqual(false)
     expect(isObject(Math.sin)).toEqual(false)
   })
@@ -68,6 +69,7 @@ describe('isObject', () => {
     expect(isObject(new Set())).toEqual(false)
     expect(isObject(new WeakMap())).toEqual(false)
     expect(isObject(new WeakSet())).toEqual(false)
+    // biome-ignore lint/complexity/useRegexLiterals: It's for testing purposes.
     expect(isObject(new RegExp('.'))).toEqual(false)
     expect(isObject(new ArrayBuffer(10))).toEqual(false)
   })
@@ -91,8 +93,8 @@ describe('isNonEmptyStringOrNumber', () => {
     expect(isNonEmptyStringOrNumber(0)).toEqual(true)
     expect(isNonEmptyStringOrNumber(-10)).toEqual(true)
     expect(isNonEmptyStringOrNumber(3.14)).toEqual(true)
-    expect(isNonEmptyStringOrNumber(Infinity)).toEqual(true)
-    expect(isNonEmptyStringOrNumber(NaN)).toEqual(true)
+    expect(isNonEmptyStringOrNumber(Number.POSITIVE_INFINITY)).toEqual(true)
+    expect(isNonEmptyStringOrNumber(Number.NaN)).toEqual(true)
   })
 
   it('should return false for arrays', () => {
@@ -119,6 +121,7 @@ describe('isNonEmptyStringOrNumber', () => {
 
   it('should return false for functions', () => {
     expect(isNonEmptyStringOrNumber(() => {})).toEqual(false)
+    // biome-ignore lint/complexity/useArrowFunction: It's for testing purposes.
     expect(isNonEmptyStringOrNumber(function () {})).toEqual(false)
   })
 
@@ -151,7 +154,12 @@ describe('omitNullish', () => {
   })
 
   it('should keep falsy values that are not null or undefined', () => {
-    expect(omitNullish([0, '', false, null, undefined, NaN])).toEqual([0, '', false, NaN])
+    expect(omitNullish([0, '', false, null, undefined, Number.NaN])).toEqual([
+      0,
+      '',
+      false,
+      Number.NaN,
+    ])
   })
 
   it('should work with complex objects', () => {
@@ -613,8 +621,16 @@ describe('parseAuthor', () => {
   it('should handle Author object correctly', () => {
     const value = { name: 'John', url: 'link', avatar: 123 }
 
-    expect(parseAuthor(value, 'coerce')).toEqual({ name: 'John', url: 'link', avatar: '123' })
-    expect(parseAuthor(value, 'skip')).toEqual({ name: 'John', url: 'link', avatar: undefined })
+    expect(parseAuthor(value, 'coerce')).toEqual({
+      name: 'John',
+      url: 'link',
+      avatar: '123',
+    })
+    expect(parseAuthor(value, 'skip')).toEqual({
+      name: 'John',
+      url: 'link',
+      avatar: undefined,
+    })
   })
 
   it('should handle non-Author object correctly', () => {
@@ -1290,8 +1306,16 @@ describe('parseFeed', () => {
 
   it('should handle array input correctly', () => {
     const value = [
-      { version: 'https://jsonfeed.org/version/1.1', title: 'First Feed', items: [] },
-      { version: 'https://jsonfeed.org/version/1.1', title: 'Second Feed', items: [] },
+      {
+        version: 'https://jsonfeed.org/version/1.1',
+        title: 'First Feed',
+        items: [],
+      },
+      {
+        version: 'https://jsonfeed.org/version/1.1',
+        title: 'Second Feed',
+        items: [],
+      },
     ]
 
     expect(parseFeed(value, 'coerce')).toBeUndefined()
@@ -1348,7 +1372,10 @@ describe('parseFeed', () => {
           id: 'item-1',
           title: 'Item with attachments',
           attachments: [
-            { url: 'https://example.com/file1.pdf', mime_type: 'application/pdf' },
+            {
+              url: 'https://example.com/file1.pdf',
+              mime_type: 'application/pdf',
+            },
             { not_a_url: 'Invalid attachment' },
             { url: 'https://example.com/file2.jpg', mime_type: 'image/jpeg' },
           ],

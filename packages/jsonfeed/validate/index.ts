@@ -1,4 +1,4 @@
-import { ZodError } from 'zod'
+import type { ZodError } from 'zod'
 import { validatedFeed } from './schemas'
 
 export type Validate = (json: Record<string, unknown>) => {

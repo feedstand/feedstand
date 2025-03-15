@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { parse } from './index'
-import { ParsedFeed } from './types'
+import type { ParsedFeed } from './types'
 
 describe('parse', () => {
   const validFeedV1 = {
@@ -113,6 +113,7 @@ describe('parse', () => {
   it('should not include unregistered custom fields', () => {
     const result = parse(validFeedV1)
 
+    // biome-ignore lint/suspicious/noExplicitAny: It's for testing purposes.
     expect((result as any).custom_field).toBeUndefined()
   })
 

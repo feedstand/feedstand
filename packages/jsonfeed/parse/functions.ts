@@ -1,12 +1,12 @@
 import { decode } from 'html-entities'
-import {
+import type {
   NonStrictParseLevel,
+  ParseFunction,
   ParsedAttachment,
   ParsedAuthor,
   ParsedFeed,
   ParsedHub,
   ParsedItem,
-  ParseFunction,
 } from './types'
 
 export const isObject = (value: unknown): value is Record<string, unknown> => {
