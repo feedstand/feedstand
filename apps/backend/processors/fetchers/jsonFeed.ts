@@ -1,10 +1,10 @@
-import { ParsedFeed as ParsedJsonFeed, parse as parseJsonFeed } from '@feedstand/jsonfeed'
+import { type JsonFeed, parseJsonFeed } from 'feedsmith'
 import { castArray, get } from 'lodash-es'
-import { FetchFeedProcessor } from '../../actions/fetchFeed'
+import type { FetchFeedProcessor } from '../../actions/fetchFeed'
 import { parseRawFeedChannel, parseRawFeedItems } from '../../helpers/feeds'
-import { FeedChannel, FeedItem } from '../../types/schemas'
+import type { FeedChannel, FeedItem } from '../../types/schemas'
 
-export const jsonFeedChannel = (feed: ParsedJsonFeed): FeedChannel => {
+export const jsonFeedChannel = (feed: JsonFeed): FeedChannel => {
   return parseRawFeedChannel({
     title: feed.title,
     description: feed.description,
@@ -13,7 +13,7 @@ export const jsonFeedChannel = (feed: ParsedJsonFeed): FeedChannel => {
   })
 }
 
-export const jsonFeedItems = (feed: ParsedJsonFeed): Array<FeedItem> => {
+export const jsonFeedItems = (feed: JsonFeed): Array<FeedItem> => {
   if (!feed.items?.length) {
     return []
   }
@@ -37,10 +37,6 @@ export const jsonFeed: FetchFeedProcessor = async (context, next) => {
   try {
     const json = await context.response.json()
     const out = parseJsonFeed(json)
-
-    if (!out) {
-      return await next()
-    }
 
     context.result = {
       meta: {
