@@ -25,7 +25,7 @@ export const users = pgTable(
   (table) => [uniqueIndex('users_email').on(table.email)],
 )
 
-export const channelType = pgEnum('channel_types', ['xml', 'json'])
+export const channelType = pgEnum('channel_types', ['atom', 'json', 'rdf', 'rss'])
 export const channelScanStatus = pgEnum('channel_scan_statuses', ['scanned', 'skipped', 'failed'])
 export const channelFixCheckStatus = pgEnum('channel_fix_check_statuses', [
   'checked',

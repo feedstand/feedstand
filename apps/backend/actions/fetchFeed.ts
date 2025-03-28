@@ -1,14 +1,16 @@
-import { createWorkflow, WorkflowProcessor } from '../helpers/workflows'
+import { type WorkflowProcessor, createWorkflow } from '../helpers/workflows'
 import { failedPage } from '../processors/common/failedPage'
 import { guardedPage } from '../processors/common/guardedPage'
 import { preflightFetch } from '../processors/common/preflightFetch'
 import { responseFetch } from '../processors/common/responseFetch'
+import { atomFeed } from '../processors/fetchers/atomFeed'
 import { invalidFeed } from '../processors/fetchers/invalidFeed'
 import { jsonFeed } from '../processors/fetchers/jsonFeed'
+import { rdfFeed } from '../processors/fetchers/rdfFeed'
 import { redirectPage } from '../processors/fetchers/redirectPage'
+import { rssFeed } from '../processors/fetchers/rssFeed'
 import { soundCloudFeed } from '../processors/fetchers/soundCloudFeed'
-import { xmlFeed } from '../processors/fetchers/xmlFeed'
-import { FeedData } from '../types/schemas'
+import type { FeedData } from '../types/schemas'
 
 export type FetchFeedProcessor = WorkflowProcessor<FeedData>
 
@@ -16,8 +18,10 @@ export const processors: Array<FetchFeedProcessor> = [
   preflightFetch('lastScanEtag', 'lastScannedAt'),
   responseFetch,
   soundCloudFeed,
+  rssFeed,
+  atomFeed,
   jsonFeed,
-  xmlFeed,
+  rdfFeed,
   redirectPage,
   guardedPage,
   invalidFeed,
