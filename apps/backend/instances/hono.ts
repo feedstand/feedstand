@@ -1,6 +1,6 @@
 import { swaggerUI } from '@hono/swagger-ui'
-import { Hook, OpenAPIHono, OpenAPIObjectConfigure } from '@hono/zod-openapi'
-import { Env, ErrorHandler } from 'hono'
+import { type Hook, OpenAPIHono, type OpenAPIObjectConfigure } from '@hono/zod-openapi'
+import type { Env, ErrorHandler } from 'hono'
 import { compress } from 'hono/compress'
 import { cors } from 'hono/cors'
 import { HTTPException } from 'hono/http-exception'
@@ -15,7 +15,7 @@ import * as findFeeds from '../routes/feeds/find'
 import * as previewFeed from '../routes/feeds/preview'
 import * as index from '../routes/index/index'
 import * as listItems from '../routes/items/list'
-import * as suggestFixes from '../routes/opmls/suggestions'
+import * as opmlFixables from '../routes/opmls/fixables'
 import * as createSource from '../routes/sources/create'
 import * as listSources from '../routes/sources/list'
 import * as showSource from '../routes/sources/show'
@@ -75,4 +75,4 @@ export const openapi = hono
   .openapi(updateSource.route, updateSource.handler)
   .openapi(previewFeed.route, previewFeed.handler)
   .openapi(findFeeds.route, findFeeds.handler)
-  .openapi(suggestFixes.route, suggestFixes.handler)
+  .openapi(opmlFixables.route, opmlFixables.handler)
