@@ -1,4 +1,5 @@
-import { FetchFeedProcessor } from '../../actions/fetchFeed'
+import type { FetchFeedProcessor } from '../../actions/fetchFeed'
+import { isJsonLike } from '../../helpers/strings'
 
 type Signature = {
   test: (response: string) => boolean
@@ -9,6 +10,10 @@ const signatures: Array<Signature> = [
   {
     test: (string: string) => /<!DOCTYPE\s+html|<(?:html|head|body)/i.test(string),
     name: 'HTML page',
+  },
+  {
+    test: isJsonLike,
+    name: 'JSON structure',
   },
   {
     test: (string: string) => /^[^<>]+$/u.test(string),
