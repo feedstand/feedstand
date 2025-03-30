@@ -18,6 +18,7 @@ export const jsonFeedItems = (feed: JsonFeed): Array<FeedItem> => {
     return []
   }
 
+  // biome-ignore lint/suspicious/noExplicitAny: Don't need to explain myself.
   return parseRawFeedItems(castArray(feed.items), (item: any) => ({
     link: item.url,
     guid: item.id,
