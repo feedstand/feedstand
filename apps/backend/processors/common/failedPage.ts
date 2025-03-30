@@ -1,4 +1,4 @@
-import { WorkflowProcessor } from '../../helpers/workflows'
+import type { WorkflowProcessor } from '../../helpers/workflows'
 
 export const failedPage: WorkflowProcessor<unknown> = async (context, next) => {
   if (!context.error) {
