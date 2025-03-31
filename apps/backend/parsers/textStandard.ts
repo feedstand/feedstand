@@ -1,4 +1,4 @@
-import { ValueParser } from '../types/system'
+import type { ValueParser } from '../types/system'
 
 export const textStandard: ValueParser<string> = (value) => {
   if (typeof value !== 'string') {

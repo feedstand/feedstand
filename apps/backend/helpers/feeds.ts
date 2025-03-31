@@ -1,10 +1,10 @@
-import { createHash } from 'crypto'
+import { createHash } from 'node:crypto'
 import { authorFromAtom } from '../parsers/authorFromAtom'
 import { dateCustomFormat } from '../parsers/dateCustomFormat'
 import { dateStandard } from '../parsers/dateStandard'
 import { linkFromAtom } from '../parsers/linkFromAtom'
 import { textStandard } from '../parsers/textStandard'
-import { FeedChannel, FeedItem, RawFeedChannel, RawFeedItem } from '../types/schemas'
+import type { FeedChannel, FeedItem, RawFeedChannel, RawFeedItem } from '../types/schemas'
 import { parseValue, trimStrings } from './parsers'
 
 export const generateChecksum = (...values: Array<string | null | undefined>) => {

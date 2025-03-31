@@ -1,5 +1,5 @@
 import { subDays } from 'date-fns'
-import { and, eq, gt, isNull, lte, ne, or, SQL } from 'drizzle-orm'
+import { type SQL, and, eq, gt, isNull, lte, ne, or } from 'drizzle-orm'
 import { tables } from '../database/tables'
 import { db } from '../instances/database'
 import { channelQueue } from '../queues/channel'

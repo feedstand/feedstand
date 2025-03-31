@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { CustomResponse } from '../../actions/fetchUrl'
-import { WorkflowContext } from '../../helpers/workflows'
+import type { WorkflowContext } from '../../helpers/workflows'
 import { failedPage } from './failedPage'
 
 describe('failedPage', () => {

@@ -1,5 +1,5 @@
 import { TZDate } from '@date-fns/tz'
-import { Locale, isValid, parse } from 'date-fns'
+import { type Locale, isValid, parse } from 'date-fns'
 import { de } from 'date-fns/locale/de'
 import { enUS } from 'date-fns/locale/en-US'
 import { fr } from 'date-fns/locale/fr'
@@ -9,12 +9,12 @@ import { ru } from 'date-fns/locale/ru'
 import { sv } from 'date-fns/locale/sv'
 import { tr } from 'date-fns/locale/tr'
 import { zhTW } from 'date-fns/locale/zh-TW'
-import { ValueParser } from '../types/system'
+import type { ValueParser } from '../types/system'
 import { dateStandard } from './dateStandard'
 
 type CustomFormatsReplace = {
   from: string | RegExp
-  to: Parameters<String['replace']>[1]
+  to: Parameters<string['replace']>[1]
 }
 
 type CustomFormats = Array<{

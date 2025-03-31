@@ -41,7 +41,7 @@ describe('parseValue', () => {
   it('should work with different types', () => {
     const numberParser = (value: unknown) => (typeof value === 'number' ? value : undefined)
     const stringToNumberParser = (value: unknown) =>
-      typeof value === 'string' ? parseInt(value, 10) : undefined
+      typeof value === 'string' ? Number.parseInt(value, 10) : undefined
 
     const result = parseValue('123', [numberParser, stringToNumberParser])
 

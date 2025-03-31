@@ -3,7 +3,7 @@ import { findFeeds } from '../actions/findFeeds'
 import { tables } from '../database/tables'
 import { convertErrorToString } from '../helpers/errors'
 import { db } from '../instances/database'
-import { Channel } from '../types/schemas'
+import type { Channel } from '../types/schemas'
 
 export const fixChannel = async (channel: Channel) => {
   const url = channel.siteUrl || channel.feedUrl

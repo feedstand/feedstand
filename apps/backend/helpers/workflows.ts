@@ -1,5 +1,5 @@
-import { CustomResponse } from '../actions/fetchUrl'
-import { Channel } from '../types/schemas'
+import type { CustomResponse } from '../actions/fetchUrl'
+import type { Channel } from '../types/schemas'
 
 export type Workflow<T> = (context: WorkflowContext<T>) => Promise<T>
 

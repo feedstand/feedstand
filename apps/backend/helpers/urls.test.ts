@@ -21,17 +21,17 @@ describe('isAbsoluteUrl', () => {
     '   ',
   ]
 
-  absoluteCases.forEach((url) => {
+  for (const url of absoluteCases) {
     it(`should detect absolute URL: ${url}`, () => {
       expect(isAbsoluteUrl(url)).toBe(true)
     })
-  })
+  }
 
-  relativeCases.forEach((url) => {
+  for (const url of relativeCases) {
     it(`should detect relative URL: ${url || 'empty string'}`, () => {
       expect(isAbsoluteUrl(url)).toBe(false)
     })
-  })
+  }
 })
 
 describe('resolveRelativeUrl', () => {
@@ -40,9 +40,9 @@ describe('resolveRelativeUrl', () => {
   it('should return absolute URLs unchanged', () => {
     const absoluteUrls = ['https://other-domain.com/file.txt', 'ftp://files.com/archive.zip']
 
-    absoluteUrls.forEach((url) => {
+    for (const url of absoluteUrls) {
       expect(resolveRelativeUrl(url, baseUrl)).toBe(url)
-    })
+    }
   })
 
   it('should handle protocol-relative URLs', () => {

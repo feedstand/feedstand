@@ -4,7 +4,7 @@ import { insertItems } from '../actions/insertItems'
 import { tables } from '../database/tables'
 import { convertErrorToString } from '../helpers/errors'
 import { db } from '../instances/database'
-import { Channel } from '../types/schemas'
+import type { Channel } from '../types/schemas'
 
 export const scanChannel = async (channel: Channel) => {
   try {

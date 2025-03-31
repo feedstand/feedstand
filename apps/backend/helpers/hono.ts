@@ -1,7 +1,7 @@
-import { RouteConfig, RouteHandler } from '@hono/zod-openapi'
-import { ValidationTargets } from 'hono'
+import type { RouteConfig, RouteHandler } from '@hono/zod-openapi'
+import type { ValidationTargets } from 'hono'
 import { validator } from 'hono/validator'
-import { z } from 'zod'
+import type { z } from 'zod'
 
 export const validate = <T extends keyof ValidationTargets, S extends z.ZodTypeAny>(
   target: T,

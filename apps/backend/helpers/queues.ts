@@ -1,5 +1,5 @@
 import { withScope } from '@sentry/node'
-import { Processor, Queue, QueueOptions, Worker, WorkerOptions } from 'bullmq'
+import { type Processor, Queue, type QueueOptions, Worker, type WorkerOptions } from 'bullmq'
 import { hasWorkerFeature } from '../constants/features'
 import { connection } from '../instances/queue'
 import { sentry } from '../instances/sentry'
