@@ -33,4 +33,5 @@ export const feedUris = [
   '/f.json',
   '/feed.json',
   '/json',
+  '/comments/feed',
 ]
