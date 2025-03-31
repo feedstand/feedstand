@@ -1,4 +1,4 @@
-import { and, gt, or, SQL } from 'drizzle-orm'
+import { type SQL, and, gt, or } from 'drizzle-orm'
 import { tables } from '../database/tables'
 import { db } from '../instances/database'
 import { channelQueue } from '../queues/channel'
@@ -9,7 +9,6 @@ export const scanChannels = async () => {
   let lastId = 0
 
   const conditions: Array<SQL | undefined> = [
-    or(),
     // TODO: Consider adding support for adjusting scanning frequency based on the actual new
     // items being added to the feed. Elegant solution: https://stackoverflow.com/a/6651638.
     // TODO: Respect syndication tags in Atom feeds, eg.:

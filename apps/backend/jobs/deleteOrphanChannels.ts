@@ -1,5 +1,5 @@
 import { subDays } from 'date-fns'
-import { and, eq, inArray, isNull, lt } from 'drizzle-orm'
+import { and, eq, exists, inArray, isNull, lt, not, or } from 'drizzle-orm'
 import { tables } from '../database/tables'
 import { db } from '../instances/database'
 
@@ -9,10 +9,27 @@ export const deleteOrphanChannels = async () => {
   const orphanChannelsSubquery = db
     .select({ id: tables.channels.id })
     .from(tables.channels)
-    .leftJoin(tables.sources, eq(tables.sources.channelId, tables.channels.id))
-    .where(and(isNull(tables.sources.id), lt(tables.channels.createdAt, oneDayAgo)))
+    .where(
+      and(
+        lt(tables.channels.createdAt, oneDayAgo),
+        not(
+          exists(
+            db
+              .select({ id: tables.sources.id })
+              .from(tables.sources)
+              .innerJoin(
+                tables.aliases,
+                and(
+                  eq(tables.sources.aliasId, tables.aliases.id),
+                  eq(tables.aliases.channelId, tables.channels.id),
+                ),
+              ),
+          ),
+        ),
+      ),
+    )
 
-  await db
+  const deletedChannels = await db
     .delete(tables.channels)
     .where(inArray(tables.channels.id, orphanChannelsSubquery))
     .returning()

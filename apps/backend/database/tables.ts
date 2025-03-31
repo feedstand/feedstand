@@ -130,9 +130,9 @@ export const sources = pgTable(
     userId: integer('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
-    channelId: integer('channel_id')
+    aliasId: integer('alias_id')
       .notNull()
-      .references(() => channels.id, { onDelete: 'cascade' }),
+      .references(() => aliases.id, { onDelete: 'cascade' }),
     name: safeVarchar('name').notNull(),
     // TODO: Also add ability to mark specific items as isReadibilitified. This should be done
     // between the user and the item, so probably in another table linking those two.
@@ -140,7 +140,7 @@ export const sources = pgTable(
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at').notNull().defaultNow(),
   },
-  (table) => [uniqueIndex('sources_user_channel').on(table.userId, table.channelId)],
+  (table) => [uniqueIndex('sources_user_alias').on(table.userId, table.aliasId)],
 )
 
 export const unreads = pgTable(

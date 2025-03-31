@@ -1,5 +1,5 @@
 import { createRoute, z } from '@hono/zod-openapi'
-import { fetchOrCreateChannel } from '../../actions/fetchOrCreateChannel'
+import { upsertChannel } from '../../actions/upsertChannel'
 import { tables } from '../../database/tables'
 import { createHandler } from '../../helpers/hono'
 import { db } from '../../instances/database'
@@ -13,7 +13,7 @@ export const route = createRoute({
     body: {
       content: {
         'application/json': {
-          schema: newSource.omit({ channelId: true }).extend({ url: z.string().url() }),
+          schema: newSource.omit({ aliasId: true }).extend({ url: z.string().url() }),
         },
       },
       required: true,
@@ -31,11 +31,11 @@ export const route = createRoute({
 export const handler = createHandler(route, async (context) => {
   const json = context.req.valid('json')
 
-  const channel = await fetchOrCreateChannel(json.url)
+  const { alias } = await upsertChannel(json.url)
 
   const [source] = await db
     .insert(tables.sources)
-    .values({ ...json, channelId: channel.id })
+    .values({ ...json, aliasId: alias.id })
     .returning()
 
   return context.json(source, 201)

@@ -1,10 +1,11 @@
 import { tables } from '../database/tables'
 import { db } from '../instances/database'
-import { Channel, FeedItem, NewItem } from '../types/schemas'
+import type { Transaction } from '../types/database'
+import type { Channel, FeedItem, NewItem } from '../types/schemas'
 
 const ITEMS_CHUNK_SIZE = 5000
 
-export const insertItems = async (channel: Channel, items: Array<FeedItem>) => {
+export const insertItems = async (channel: Channel, items: Array<FeedItem>, tx?: Transaction) => {
   if (items.length === 0) {
     return
   }
@@ -21,7 +22,7 @@ export const insertItems = async (channel: Channel, items: Array<FeedItem>) => {
   for (let i = 0; i < newItems.length; i += ITEMS_CHUNK_SIZE) {
     const chunkItems = newItems.slice(i, i + ITEMS_CHUNK_SIZE)
 
-    await db
+    await (tx || db)
       .insert(tables.items)
       .values(chunkItems)
       .onConflictDoNothing({

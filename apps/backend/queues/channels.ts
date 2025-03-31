@@ -1,4 +1,4 @@
-import { JobsOptions } from 'bullmq'
+import type { JobsOptions } from 'bullmq'
 import { createQueue } from '../helpers/queues'
 import { deleteOrphanChannels } from '../jobs/deleteOrphanChannels'
 import { fixChannels } from '../jobs/fixChannels'
