@@ -1,6 +1,7 @@
-import { sample } from 'lodash-es'
-import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
+import { createHash } from 'node:crypto'
 import https from 'node:https'
+import axios, { type AxiosError, type AxiosRequestConfig, type AxiosResponse } from 'axios'
+import { sample } from 'lodash-es'
 import {
   avoidedContentTypes,
   commonHeaders,
@@ -11,7 +12,6 @@ import {
 import { isOneOfContentTypes } from '../helpers/responses'
 import { isJson } from '../helpers/strings'
 import { sleep } from '../helpers/system'
-import { createHash } from 'node:crypto'
 
 // TODO:
 // - Increase max header size to 64KB. This is possible in Unidici HTTPS Agent as an option
@@ -72,8 +72,16 @@ export const fetchUrl = async (
     transformResponse: [],
     // Need to use the stream response type to detect streaming services (eg. audio.)
     responseType: 'stream',
-    // Turn off the default preference for application/json in the Accept header.
-    headers: { Accept: '*/*', ...commonHeaders, ...config?.headers },
+    // Customize the headers by always setting default ones and adding option to set custom ones.
+    headers: {
+      ...commonHeaders,
+      // TODO: The below needs to be re-validated as sometimes having */* causes the server to
+      // reject the request.
+      // // Turn off the default preference for application/json in the Accept header.
+      // 'Accept': '*/*',
+      // 'Accept-Encoding': 'identity',
+      ...config?.headers,
+    },
     // Append any custom configuration at the end.
     ...config,
   })

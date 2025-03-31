@@ -2,7 +2,7 @@ export const maxTimeout = 20 * 1000
 
 export const maxContentSize = 100 * 1024 * 1024
 
-export const avoidedContentTypes = ['audio/', 'video/']
+export const avoidedContentTypes = ['audio/', 'video/', 'image/']
 
 export const htmlContentTypes = ['text/html', 'application/xhtml+xml']
 
@@ -20,3 +20,11 @@ export const xmlFeedContentTypes = [
 ]
 
 export const anyFeedContentTypes = [...jsonFeedContentTypes, ...xmlFeedContentTypes]
+
+export const userAgents = [
+  // TODO: Import them from .env?
+]
+
+export const commonHeaders = {
+  // TODO: Import them from .env?
+}
