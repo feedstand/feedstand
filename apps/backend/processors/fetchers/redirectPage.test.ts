@@ -30,9 +30,9 @@ describe('extractRedirectUrl', () => {
       '<meta http-equiv="refresh" content="0 ;url=http://example.com">',
     ]
 
-    variations.forEach((html) => {
+    for (const html of variations) {
       expect(extractRedirectUrl(html)).toBe('http://example.com')
-    })
+    }
   })
 
   it('extracts URL with different delay values', () => {
@@ -42,24 +42,24 @@ describe('extractRedirectUrl', () => {
       '<meta http-equiv="refresh" content="10;url=http://example.com">',
     ]
 
-    variations.forEach((html) => {
+    for (const html of variations) {
       expect(extractRedirectUrl(html)).toBe('http://example.com')
-    })
+    }
   })
 
   it('extracts URL from full HTML document', () => {
     const html = `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta http-equiv="refresh" content="0;url=http://example.com">
-                <title>Redirecting...</title>
-            </head>
-            <body>
-                <p>Redirecting to new page...</p>
-            </body>
-            </html>
-        `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta http-equiv="refresh" content="0;url=http://example.com">
+        <title>Redirecting...</title>
+      </head>
+      <body>
+        <p>Redirecting to new page...</p>
+      </body>
+      </html>
+    `
 
     expect(extractRedirectUrl(html)).toBe('http://example.com')
   })
@@ -73,11 +73,11 @@ describe('extractRedirectUrl', () => {
       '<meta http-equiv="refresh" content="0;url=https://example.com#section">',
     ]
 
-    variations.forEach((html) => {
+    for (const html of variations) {
       const url = html.match(/url=([^"'>]+)/i)?.[1]
 
       expect(extractRedirectUrl(html)).toBe(url)
-    })
+    }
   })
 
   it('returns undefined for HTML without redirect meta tag', () => {
@@ -88,9 +88,9 @@ describe('extractRedirectUrl', () => {
       '<meta http-equiv="content-type" content="text/html">',
     ]
 
-    variations.forEach((html) => {
+    for (const html of variations) {
       expect(extractRedirectUrl(html)).toBeUndefined()
-    })
+    }
   })
 
   it('handles malformed meta tags', () => {
@@ -101,9 +101,9 @@ describe('extractRedirectUrl', () => {
       '<meta http-equiv="refresh" content="0;">',
     ]
 
-    variations.forEach((html) => {
+    for (const html of variations) {
       expect(extractRedirectUrl(html)).toBeUndefined()
-    })
+    }
   })
 
   it('handles case insensitivity', () => {
@@ -113,8 +113,8 @@ describe('extractRedirectUrl', () => {
       '<meta http-equiv="refresh" content="0;URL=http://example.com">',
     ]
 
-    variations.forEach((html) => {
+    for (const html of variations) {
       expect(extractRedirectUrl(html)).toBe('http://example.com')
-    })
+    }
   })
 })
