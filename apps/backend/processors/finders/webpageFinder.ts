@@ -1,9 +1,9 @@
 import { load } from 'cheerio'
 import { fetchFeed } from '../../actions/fetchFeed'
-import { FindFeedsProcessor } from '../../actions/findFeeds'
+import type { FindFeedsProcessor } from '../../actions/findFeeds'
 import { feedLinkSelectors } from '../../constants/finders'
 import { resolveRelativeUrl } from '../../helpers/urls'
-import { FoundFeeds } from '../../types/schemas'
+import type { FoundFeeds } from '../../types/schemas'
 
 export const extractFeedUrls = (html: string, baseUrl: string): Array<string> => {
   const $ = load(html)
@@ -47,12 +47,14 @@ export const webpageFinder: FindFeedsProcessor = async (context, next) => {
     //     continue
     // }
 
-    const feedData = await fetchFeed({ url: feedUrl, channel: context.channel })
+    try {
+      const feedData = await fetchFeed({ url: feedUrl, channel: context.channel })
 
-    feeds.push({
-      title: feedData.channel.title,
-      url: feedData.channel.selfUrl || feedData.meta.responseUrl,
-    })
+      feeds.push({
+        title: feedData.channel.title,
+        url: feedData.channel.selfUrl || feedData.meta.responseUrl,
+      })
+    } catch {}
   }
 
   if (feeds.length) {

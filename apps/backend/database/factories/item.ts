@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { capitalize } from 'lodash-es'
-import { NewItem } from '../../types/schemas'
+import type { NewItem } from '../../types/schemas'
 
 export const generateItem = (item?: Partial<NewItem>): NewItem => {
   const publishedAt = faker.date.between({ from: faker.date.past({ years: 10 }), to: new Date() })

@@ -1,16 +1,15 @@
 import { faker } from '@faker-js/faker'
 import { capitalize } from 'lodash-es'
-import type { NewSource } from '../../types/schemas'
+import type { NewAlias } from '../../types/schemas'
 
-export const generateSource = (source?: Partial<NewSource>): NewSource => {
+export const generateAlias = (alias?: Partial<NewAlias>): NewAlias => {
   const createdAt = faker.date.between({ from: faker.date.past({ years: 10 }), to: new Date() })
 
   return {
-    name: capitalize(faker.lorem.words({ min: 1, max: 4 })),
-    userId: faker.number.int(),
-    aliasId: faker.number.int(),
+    aliasUrl: faker.internet.url(),
+    channelId: faker.number.int(),
     createdAt,
     updatedAt: faker.date.between({ from: createdAt, to: new Date() }),
-    ...source,
+    ...alias,
   }
 }

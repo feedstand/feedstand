@@ -1,4 +1,4 @@
-import { findFeeds, FindFeedsProcessor } from '../../actions/findFeeds'
+import { type FindFeedsProcessor, findFeeds } from '../../actions/findFeeds'
 import { extractRedirectUrl } from '../fetchers/redirectPage'
 
 // TODO: Figure out a way to combine this with redirectPage processor from fetchers.

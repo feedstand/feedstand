@@ -1,19 +1,19 @@
 import { random, sampleSize } from 'lodash-es'
 import { db } from '../../instances/database'
-import { NewSource } from '../../types/schemas'
+import type { NewSource } from '../../types/schemas'
 import { generateSource } from '../factories/source'
 import { tables } from '../tables'
 
 export const seedSources = async () => {
   const newSources: Array<NewSource> = []
   const allUsers = await db.select().from(tables.users)
-  const allChannels = await db.select().from(tables.channels)
+  const allAliases = await db.select().from(tables.aliases)
 
   for (const user of allUsers) {
-    const randomChannels = sampleSize(allChannels, random(1, allChannels.length))
+    const randomAliases = sampleSize(allAliases, random(1, allAliases.length))
 
-    for (const channel of randomChannels) {
-      newSources.push(generateSource({ userId: user.id, channelId: channel.id }))
+    for (const alias of randomAliases) {
+      newSources.push(generateSource({ userId: user.id, aliasId: alias.id }))
     }
   }
 

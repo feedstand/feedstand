@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { CustomResponse } from '../../actions/fetchUrl'
-import { WorkflowContext } from '../../helpers/workflows'
-import { FeedData } from '../../types/schemas'
+import type { WorkflowContext } from '../../helpers/workflows'
+import type { FeedData } from '../../types/schemas'
 import { guardedPage } from './guardedPage'
 
 describe('guardedPage', () => {
@@ -35,7 +35,7 @@ describe('guardedPage', () => {
         meta: {
           etag: null,
           hash: '',
-          type: 'xml',
+          type: 'rss',
           requestUrl: '',
           responseUrl: '',
         },

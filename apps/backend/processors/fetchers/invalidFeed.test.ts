@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { CustomResponse } from '../../actions/fetchUrl'
-import { WorkflowContext } from '../../helpers/workflows'
-import { FeedData } from '../../types/schemas'
+import type { WorkflowContext } from '../../helpers/workflows'
+import type { FeedData } from '../../types/schemas'
 import { invalidFeed } from './invalidFeed'
 
 describe('invalidFeed processor', () => {
@@ -20,7 +20,7 @@ describe('invalidFeed processor', () => {
       meta: {
         etag: null,
         hash: undefined,
-        type: 'xml' as const,
+        type: 'rss' as const,
         requestUrl: '',
         responseUrl: '',
       },
@@ -48,18 +48,18 @@ describe('invalidFeed processor', () => {
       '<body><p>Test</p></body>',
     ]
 
-    testCases.forEach((html) => {
-      it(`detects "${html.slice(0, 30)}..."`, async () => {
+    for (const testCase of testCases) {
+      it(`detects "${testCase.slice(0, 30)}..."`, async () => {
         const context = {
           ...baseContext,
-          response: new CustomResponse(html, { url: '' }),
+          response: new CustomResponse(testCase, { url: '' }),
         }
 
         await expect(invalidFeed(context, next)).rejects.toThrow(
           'Invalid feed, signature: HTML page',
         )
       })
-    })
+    }
   })
 
   describe('should detect plain text', () => {
@@ -70,18 +70,18 @@ describe('invalidFeed processor', () => {
       'Text with special chars: &quot; but no tags',
     ]
 
-    testCases.forEach((text) => {
-      it(`detects "${text.slice(0, 30)}..."`, async () => {
+    for (const testCase of testCases) {
+      it(`detects "${testCase.slice(0, 30)}..."`, async () => {
         const context = {
           ...baseContext,
-          response: new CustomResponse(text, { url: '' }),
+          response: new CustomResponse(testCase, { url: '' }),
         }
 
         await expect(invalidFeed(context, next)).rejects.toThrow(
           'Invalid feed, signature: Plain text',
         )
       })
-    })
+    }
   })
 
   it('should detect empty response', async () => {
@@ -102,7 +102,7 @@ describe('invalidFeed processor', () => {
       '<rss version="2.0"><channel><title>Test</title></channel></rss>',
     ]
 
-    validFeeds.forEach((feed) => {
+    for (const feed of validFeeds) {
       it(`accepts "${feed.slice(0, 30)}..."`, async () => {
         const context = {
           ...baseContext,
@@ -113,6 +113,6 @@ describe('invalidFeed processor', () => {
 
         expect(next).toHaveBeenCalled()
       })
-    })
+    }
   })
 })

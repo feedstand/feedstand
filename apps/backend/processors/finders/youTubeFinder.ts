@@ -1,5 +1,5 @@
 import { fetchFeed } from '../../actions/fetchFeed'
-import { FindFeedsProcessor } from '../../actions/findFeeds'
+import type { FindFeedsProcessor } from '../../actions/findFeeds'
 import { htmlContentTypes } from '../../constants/fetchers'
 import { youTubeDomains } from '../../constants/finders'
 import { extractValueByRegex, isOneOfContentTypes } from '../../helpers/responses'

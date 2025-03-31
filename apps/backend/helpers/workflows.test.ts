@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { CustomResponse } from '../actions/fetchUrl'
-import { Channel } from '../types/schemas'
-import { createWorkflow, type WorkflowContext, type WorkflowProcessor } from './workflows'
+import type { Channel } from '../types/schemas'
+import { type WorkflowContext, type WorkflowProcessor, createWorkflow } from './workflows'
 
 describe('createWorkflow', () => {
   type TestResult = { value: string }
@@ -13,7 +13,7 @@ describe('createWorkflow', () => {
     siteUrl: 'http://site.com',
     selfUrl: null,
     feedUrl: 'http://site.com/feed',
-    feedType: 'xml',
+    feedType: 'rss',
     createdAt: new Date(),
     updatedAt: new Date(),
     lastScannedAt: null,
