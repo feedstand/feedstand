@@ -14,7 +14,7 @@ import type { FeedData } from '../types/schemas'
 
 export type FetchFeedProcessor = WorkflowProcessor<FeedData>
 
-export const processors: Array<FetchFeedProcessor> = [
+export const fetchFeed = createWorkflow<FeedData>([
   preflightFetch('lastScanEtag', 'lastScannedAt'),
   responseFetch,
   soundCloudFeed,
@@ -26,6 +26,4 @@ export const processors: Array<FetchFeedProcessor> = [
   guardedPage,
   invalidFeed,
   failedPage,
-]
-
-export const fetchFeed = createWorkflow<FeedData>(processors)
+])

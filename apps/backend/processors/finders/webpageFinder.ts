@@ -1,14 +1,15 @@
 import { load } from 'cheerio'
 import { fetchFeed } from '../../actions/fetchFeed'
 import type { FindFeedsProcessor } from '../../actions/findFeeds'
-import { feedLinkSelectors } from '../../constants/finders'
+import { feedLinkSelectors, feedUris } from '../../constants/finders'
 import { resolveRelativeUrl } from '../../helpers/urls'
 import type { FoundFeeds } from '../../types/schemas'
 
 export const extractFeedUrls = (html: string, baseUrl: string): Array<string> => {
   const $ = load(html)
-  const linkElements = $(feedLinkSelectors.join())
   const feedUrls: Array<string> = []
+
+  const linkElements = $(feedLinkSelectors.join())
 
   for (const linkElement of linkElements) {
     const linkHref = $(linkElement).attr('href')
@@ -20,7 +21,17 @@ export const extractFeedUrls = (html: string, baseUrl: string): Array<string> =>
     feedUrls.push(resolveRelativeUrl(linkHref, baseUrl))
   }
 
-  return feedUrls
+  for (const feedUri of feedUris) {
+    const linkHref = $(`a[href$="${feedUri}"]`).attr('href')
+
+    if (!linkHref) {
+      continue
+    }
+
+    feedUrls.push(resolveRelativeUrl(linkHref, baseUrl))
+  }
+
+  return [...new Set(feedUrls)]
 }
 
 export const webpageFinder: FindFeedsProcessor = async (context, next) => {
@@ -28,25 +39,11 @@ export const webpageFinder: FindFeedsProcessor = async (context, next) => {
     return await next()
   }
 
-  // TODO: Should content type check be skipped? In the real world, feeds do not always set the
-  // correct content type indicating XML which result in some feeds not being correctly scanned.
-  // if (!isOneOfContentTypes(context.response, htmlContentTypes)) {
-  //     return
-  // }
-
   const html = await context.response.text()
   const feedUrls = extractFeedUrls(html, context.response.url)
   const feeds: FoundFeeds['feeds'] = []
 
   for (const feedUrl of feedUrls) {
-    // TODO: Consider simplifying retrival of the feed title to getting it from the link attr.
-    // const feedTitle = feedLink.getAttribute('title')
-    //
-    // if (feedTitle) {
-    //     feedInfos.push({ url: feedUrl, title: feedTitle })
-    //     continue
-    // }
-
     try {
       const feedData = await fetchFeed({ url: feedUrl, channel: context.channel })
 
