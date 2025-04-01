@@ -6,6 +6,8 @@ export const feedLinkSelectors = anyFeedContentTypes.map(
 
 export const youTubeDomains = ['youtu.be', 'youtube.com']
 
+export const ignoredFeedUris = ['wp-json/oembed/', 'wp-json/wp/']
+
 export const feedUris = [
   '/feed',
   '/rss',
@@ -22,16 +24,17 @@ export const feedUris = [
   '/index.atom',
   '/index.rss.xml',
   '/index.atom.xml',
-  '/?format=rss',
+  '/?format=rss', // I.e. Squarespace.
   '/?format=atom',
-  '/?rss=1',
-  '/?atom=1',
-  '/?feed=rss',
-  '/?feed=rss2',
-  '/?feed=atom',
-  '/.rss',
+  '/?rss=1', // Textpattern.
+  '/?atom=1', // Textpattern.
+  // '/?feed=rss', // WordPress - can be skipped as it redirects to /feed, /feed/atom.
+  // '/?feed=rss2', // WordPress - can be skipped as it redirects to /feed, /feed/atom.
+  // '/?feed=atom', // WordPress - can be skipped as it redirects to /feed, /feed/atom.
+  '/.rss', // I.e. Reddit.
   '/f.json',
+  '/f.rss',
   '/feed.json',
   '/json',
-  '/comments/feed',
+  '/comments/feed', // WordPress.
 ]

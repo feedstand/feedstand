@@ -1,7 +1,7 @@
 import { load } from 'cheerio'
 import { fetchFeed } from '../../actions/fetchFeed'
 import type { FindFeedsProcessor } from '../../actions/findFeeds'
-import { feedLinkSelectors, feedUris } from '../../constants/finders'
+import { feedLinkSelectors, feedUris, ignoredFeedUris } from '../../constants/finders'
 import { resolveRelativeUrl } from '../../helpers/urls'
 import type { FoundFeeds } from '../../types/schemas'
 
@@ -12,26 +12,20 @@ export const extractFeedUrls = (html: string, baseUrl: string): Array<string> =>
   const linkElements = $(feedLinkSelectors.join())
 
   for (const linkElement of linkElements) {
-    const linkHref = $(linkElement).attr('href')
-
-    if (!linkHref) {
-      continue
-    }
-
-    feedUrls.push(resolveRelativeUrl(linkHref, baseUrl))
+    const linkHref = $(linkElement).attr('href') || ''
+    feedUrls.push(linkHref)
   }
 
   for (const feedUri of feedUris) {
-    const linkHref = $(`a[href$="${feedUri}"]`).attr('href')
-
-    if (!linkHref) {
-      continue
-    }
-
-    feedUrls.push(resolveRelativeUrl(linkHref, baseUrl))
+    const anchorHref = $(`a[href$="${feedUri}"]`).attr('href') || ''
+    feedUrls.push(anchorHref)
   }
 
-  return [...new Set(feedUrls)]
+  const uniqueAndResolvedFeedUrls = [...new Set(feedUrls)]
+    .filter((url) => url && !ignoredFeedUris.includes(url))
+    .map((url) => resolveRelativeUrl(url, baseUrl))
+
+  return uniqueAndResolvedFeedUrls
 }
 
 export const webpageFinder: FindFeedsProcessor = async (context, next) => {
@@ -46,11 +40,13 @@ export const webpageFinder: FindFeedsProcessor = async (context, next) => {
   for (const feedUrl of feedUrls) {
     try {
       const feedData = await fetchFeed({ url: feedUrl, channel: context.channel })
+      const finalUrl = feedData.channel.selfUrl || feedData.meta.responseUrl
 
-      feeds.push({
-        title: feedData.channel.title,
-        url: feedData.channel.selfUrl || feedData.meta.responseUrl,
-      })
+      if (feeds.some(({ url }) => url === finalUrl)) {
+        continue
+      }
+
+      feeds.push({ title: feedData.channel.title, url: finalUrl })
     } catch {}
   }
 

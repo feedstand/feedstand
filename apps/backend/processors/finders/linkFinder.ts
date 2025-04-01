@@ -5,7 +5,7 @@ import { resolveRelativeUrl } from '../../helpers/urls'
 import type { FoundFeeds } from '../../types/schemas'
 
 export const linkFinder: FindFeedsProcessor = async (context, next) => {
-  if (!context.response) {
+  if (!context.response || context.result) {
     return await next()
   }
 
@@ -22,13 +22,13 @@ export const linkFinder: FindFeedsProcessor = async (context, next) => {
       }
 
       const feedData = await fetchFeed({ url: requestUrl, channel: context.channel })
-      const feedUrl = feedData.channel.selfUrl || feedData.meta.responseUrl
+      const finalUrl = feedData.channel.selfUrl || feedData.meta.responseUrl
 
-      if (feeds.some(({ url }) => url === feedUrl)) {
+      if (feeds.some(({ url }) => url === finalUrl)) {
         continue
       }
 
-      feeds.push({ title: feedData.channel.title, url: feedUrl })
+      feeds.push({ title: feedData.channel.title, url: finalUrl })
     } catch {}
   }
 
