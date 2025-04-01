@@ -11,6 +11,11 @@
       "quoteStyle": "single"
     }
   },
+  "html": {
+    "formatter": {
+      "enabled": true
+    }
+  },
   "css": {
     "linter": {
       "enabled": true
