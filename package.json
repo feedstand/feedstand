@@ -2,7 +2,7 @@
   "name": "feedstand",
   "type": "module",
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
+    "@biomejs/biome": "^2.0.0-beta.1",
     "lefthook": "^1.11.3",
     "typescript": "^5.0.0"
   },
@@ -20,5 +20,8 @@
     "lint:biome:base": "npx @biomejs/biome check --write --no-errors-on-unmatched --files-ignore-unknown=true",
     "lint:biome": "npm run lint:biome:base -- ."
   },
-  "workspaces": ["apps/*", "packages/*"]
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
 }
