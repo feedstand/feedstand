@@ -13,6 +13,7 @@ const signatures = [
   // Related: https://radar.cloudflare.com/traffic/verified-bots
   // Header: "server: cloudflare"
   { text: '<title>Just a moment...</title>', status: 403, name: 'Cloudflare' },
+  { text: 'Attention Required! | Cloudflare', status: 403, name: 'Cloudflare' },
 
   // Example: https://medzpills.com/feed/
   // Header: "panel: hpanel"
