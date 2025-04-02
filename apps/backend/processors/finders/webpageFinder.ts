@@ -1,4 +1,5 @@
 import { load } from 'cheerio'
+import { chooseFeedUrl } from '../../actions/chooseFeedUrl'
 import { fetchFeed } from '../../actions/fetchFeed'
 import type { FindFeedsProcessor } from '../../actions/findFeeds'
 import { feedLinkSelectors, feedUris, ignoredFeedUris } from '../../constants/finders'
@@ -40,13 +41,13 @@ export const webpageFinder: FindFeedsProcessor = async (context, next) => {
   for (const feedUrl of feedUrls) {
     try {
       const feedData = await fetchFeed({ url: feedUrl, channel: context.channel })
-      const finalUrl = feedData.channel.selfUrl || feedData.meta.responseUrl
+      const chosenUrl = await chooseFeedUrl(feedData)
 
-      if (feeds.some(({ url }) => url === finalUrl)) {
+      if (feeds.some(({ url }) => url === chosenUrl)) {
         continue
       }
 
-      feeds.push({ title: feedData.channel.title, url: finalUrl })
+      feeds.push({ title: feedData.channel.title, url: chosenUrl })
     } catch {}
   }
 

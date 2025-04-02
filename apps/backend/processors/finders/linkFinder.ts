@@ -1,3 +1,4 @@
+import { chooseFeedUrl } from '../../actions/chooseFeedUrl'
 import { fetchFeed } from '../../actions/fetchFeed'
 import type { FindFeedsProcessor } from '../../actions/findFeeds'
 import { feedUris } from '../../constants/finders'
@@ -22,13 +23,13 @@ export const linkFinder: FindFeedsProcessor = async (context, next) => {
       }
 
       const feedData = await fetchFeed({ url: requestUrl, channel: context.channel })
-      const finalUrl = feedData.channel.selfUrl || feedData.meta.responseUrl
+      const chosenUrl = await chooseFeedUrl(feedData)
 
-      if (feeds.some(({ url }) => url === finalUrl)) {
+      if (feeds.some(({ url }) => url === chosenUrl)) {
         continue
       }
 
-      feeds.push({ title: feedData.channel.title, url: finalUrl })
+      feeds.push({ title: feedData.channel.title, url: chosenUrl })
     } catch {}
   }
 
