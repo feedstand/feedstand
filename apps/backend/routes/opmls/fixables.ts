@@ -1,4 +1,4 @@
-import { parse as parseOpml } from '@feedstand/opml'
+// import { parse as parseOpml } from '@feedstand/opml'
 import { createRoute, z } from '@hono/zod-openapi'
 import { suggestFixes } from '../../actions/suggestFixes'
 import { createHandler } from '../../helpers/hono'
@@ -51,8 +51,8 @@ export const handler = createHandler(route, async (context) => {
     opmlContent = opmlText
   }
 
-  const opml = parseOpml(opmlContent)
-  const fixables = await suggestFixes(opml)
+  // const opml = parseOpml(opmlContent)
+  // const fixables = await suggestFixes(opml)
 
-  return context.json(fixables, 200)
+  return context.json([], 200)
 })

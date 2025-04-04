@@ -1,32 +1,33 @@
-import type { ParsedOpml } from '@feedstand/opml'
+// import type { ParsedOpml } from '@feedstand/opml'
 import { and, eq, inArray, ne } from 'drizzle-orm'
 import { tables } from '../database/tables'
 import { db } from '../instances/database'
 import type { Fixable, NewFixable } from '../types/schemas'
 import { upsertChannel } from './upsertChannel'
 
-export const suggestFixes = async (opml: ParsedOpml): Promise<Array<Fixable>> => {
-  const suggestedFixables: Array<NewFixable> = []
-  const opmlFeedUrls: Array<string> = []
-  const opmlSiteUrls: Map<string, string> = new Map()
+// export const suggestFixes = async (opml: ParsedOpml): Promise<Array<Fixable>> => {
+export const suggestFixes = async (): Promise<Array<Fixable>> => {
+  // const suggestedFixables: Array<NewFixable> = []
+  // const opmlFeedUrls: Array<string> = []
+  // const opmlSiteUrls: Map<string, string> = new Map()
 
-  // 1. Collect all the feed and site URLs from the OPML structure for later use.
-  for (const outline of opml?.body.outlines || []) {
-    if (outline.xmlUrl) {
-      opmlFeedUrls.push(outline.xmlUrl)
+  // // 1. Collect all the feed and site URLs from the OPML structure for later use.
+  // for (const outline of opml?.body.outlines || []) {
+  //   if (outline.xmlUrl) {
+  //     opmlFeedUrls.push(outline.xmlUrl)
 
-      if (outline.htmlUrl) {
-        opmlSiteUrls.set(outline.xmlUrl, outline.htmlUrl)
-      }
-    }
-  }
+  //     if (outline.htmlUrl) {
+  //       opmlSiteUrls.set(outline.xmlUrl, outline.htmlUrl)
+  //     }
+  //   }
+  // }
 
-  // 2. Find URLs that exist in the OPML file but are not yet in the database.
-  const existingChannels = await db
-    .select({ feedUrl: tables.channels.feedUrl })
-    .from(tables.channels)
-    .where(inArray(tables.channels.feedUrl, opmlFeedUrls))
-  const existingFeedUrls = new Set(existingChannels.map(({ feedUrl }) => feedUrl))
+  // // 2. Find URLs that exist in the OPML file but are not yet in the database.
+  // const existingChannels = await db
+  //   .select({ feedUrl: tables.channels.feedUrl })
+  //   .from(tables.channels)
+  //   .where(inArray(tables.channels.feedUrl, opmlFeedUrls))
+  // const existingFeedUrls = new Set(existingChannels.map(({ feedUrl }) => feedUrl))
 
   // for (const opmlFeedUrl of opmlFeedUrls) {
   //   if (existingFeedUrls.has(opmlFeedUrl)) {
