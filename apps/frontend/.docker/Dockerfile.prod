@@ -10,6 +10,7 @@ RUN npm ci -w apps/frontend --ignore-scripts
 
 COPY tsconfig.json .
 COPY apps/backend apps/backend/
+COPY packages/opml packages/opml/
 COPY apps/frontend apps/frontend/
 COPY apps/frontend/.docker/.env.prod apps/frontend/
 RUN npm run build -w apps/frontend
