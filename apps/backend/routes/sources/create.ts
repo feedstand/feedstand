@@ -31,7 +31,7 @@ export const route = createRoute({
 export const handler = createHandler(route, async (context) => {
   const json = context.req.valid('json')
 
-  const { alias } = await upsertChannel(json.url)
+  const { alias } = await upsertChannel({ url: json.url })
 
   const [source] = await db
     .insert(tables.sources)

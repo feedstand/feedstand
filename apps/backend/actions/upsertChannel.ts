@@ -3,9 +3,20 @@ import { fetchFeed } from '../actions/fetchFeed'
 import { tables } from '../database/tables'
 import { db } from '../instances/database'
 import { chooseFeedUrl } from './chooseFeedUrl'
+import { CustomResponse } from './fetchUrl'
 import { insertItems } from './insertItems'
 
-export const upsertChannel = async (requestUrl: string) => {
+export type UpsertResponseContext = {
+  url: string
+  response?: CustomResponse
+  omitsInsertingItems?: boolean
+}
+
+export const upsertChannel = async ({
+  url: requestUrl,
+  response,
+  omitsInsertingItems,
+}: UpsertResponseContext) => {
   return db.transaction(async (tx) => {
     const fetchExistingChannelAndAlias = async (aliasUrl: string) => {
       const [existingChannelAndAlias] = await tx
@@ -27,7 +38,7 @@ export const upsertChannel = async (requestUrl: string) => {
       return existingChannelAndAliasByRequestUrl
     }
 
-    const feedData = await fetchFeed({ url: requestUrl })
+    const feedData = await fetchFeed({ url: requestUrl, response })
 
     const existingChannelAndAliasByResponseUrl = await fetchExistingChannelAndAlias(
       feedData.meta.responseUrl,
@@ -80,7 +91,9 @@ export const upsertChannel = async (requestUrl: string) => {
       })
       .returning()
 
-    insertItems(channel, feedData.items, tx)
+    if (!omitsInsertingItems) {
+      insertItems(channel, feedData.items, tx)
+    }
 
     return { channel, alias }
   })
