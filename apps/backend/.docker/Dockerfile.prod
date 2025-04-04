@@ -9,7 +9,6 @@ COPY tsconfig.json .
 COPY apps/backend/package.json apps/backend/
 RUN npm ci -w apps/backend --ignore-scripts --only=production
 
-COPY packages/opml packages/opml/
 COPY apps/backend apps/backend/
 EXPOSE 4001
 CMD ["npm", "run", "start", "-w", "apps/backend"]

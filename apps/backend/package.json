@@ -20,7 +20,6 @@
   "dependencies": {
     "@bull-board/hono": "^6.0.0",
     "@date-fns/tz": "^1.0.0",
-    "@feedstand/opml": "*",
     "@hono/node-server": "^1.0.0",
     "@hono/swagger-ui": "^0.5.0",
     "@hono/zod-openapi": "^0.18.0",
