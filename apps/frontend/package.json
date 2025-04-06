@@ -23,6 +23,7 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.0.0",
+    "npm-run-path": "^4.0.1",
     "vite": "^6.0.0",
     "vite-plugin-checker": "^0.8.0"
   }

@@ -6,7 +6,7 @@ ENV VERSION_TAG=test
 COPY package*.json .
 COPY tsconfig.json .
 COPY apps/backend/package.json apps/backend/
-RUN npm ci -w apps/backend --ignore-scripts
+RUN npm ci -w apps/backend
 
 COPY . .
 CMD ["npm", "run", "test", "-w", "apps/backend"]
