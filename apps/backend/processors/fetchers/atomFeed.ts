@@ -3,11 +3,15 @@ import type { FetchFeedProcessor } from '../../actions/fetchFeed'
 import { parseRawFeedChannel, parseRawFeedItems } from '../../helpers/feeds'
 import type { FeedChannel, FeedItem } from '../../types/schemas'
 
+export const findAlternateLink = (links: AtomFeed['links']) => {
+  return links?.find((link) => (!link.rel || link.rel === 'alternate') && link.href)?.href
+}
+
 export const atomFeedChannel = (feed: AtomFeed): FeedChannel => {
   return parseRawFeedChannel({
     title: feed.title,
     description: feed.subtitle,
-    siteUrl: feed.links?.find((link) => link.rel === 'alternate')?.href,
+    siteUrl: findAlternateLink(feed.links),
     selfUrl: feed.links?.find((link) => link.rel === 'self')?.href,
   })
 }
@@ -18,7 +22,7 @@ export const atomFeedItems = (feed: AtomFeed): Array<FeedItem> => {
   }
 
   return parseRawFeedItems(feed.entries, (item) => ({
-    link: feed.links?.find((link) => link.rel === 'alternate')?.href,
+    link: findAlternateLink(item.links),
     guid: item.id,
     title: item.title,
     description: item.summary || item.dc?.description,
