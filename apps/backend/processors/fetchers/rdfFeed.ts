@@ -1,14 +1,19 @@
-import { type RdfFeed, parseRdfFeed } from 'feedsmith'
+import { parseRdfFeed, type RdfFeed } from 'feedsmith'
 import type { FetchFeedProcessor } from '../../actions/fetchFeed'
-import { parseRawFeedChannel, parseRawFeedItems } from '../../helpers/feeds'
+import {
+  parseRawFeedChannel,
+  parseRawFeedItems,
+  retreiveAlternateLink,
+  retreiveSelfLink,
+} from '../../helpers/feeds'
 import type { FeedChannel, FeedItem } from '../../types/schemas'
 
 export const rdfFeedChannel = (feed: RdfFeed): FeedChannel => {
   return parseRawFeedChannel({
     title: feed.title,
     description: feed.description,
-    siteUrl: feed.link,
-    selfUrl: feed.atom?.links?.find((link) => link.rel === 'self')?.href,
+    siteUrl: feed.link || retreiveAlternateLink(feed.atom?.links),
+    selfUrl: retreiveSelfLink(feed.atom?.links),
   })
 }
 
@@ -17,15 +22,19 @@ export const rdfFeedItems = (feed: RdfFeed): Array<FeedItem> => {
     return []
   }
 
-  return parseRawFeedItems(feed.items, (item) => ({
-    link: item.link,
-    guid: item.link,
-    title: item.title,
-    description: item.description || item.atom?.summary || item.dc?.description,
-    author: item.atom?.authors?.[0]?.name || item.dc?.creator,
-    content: item.content?.encoded,
-    publishedAt: item.atom?.published || item.dc?.date,
-  }))
+  return parseRawFeedItems(feed.items, (item) => {
+    const link = item.link || retreiveAlternateLink(item.atom?.links)
+
+    return {
+      link,
+      guid: link,
+      title: item.title,
+      description: item.description || item.atom?.summary || item.dc?.description,
+      author: item.atom?.authors?.[0]?.name || item.dc?.creator,
+      content: item.content?.encoded,
+      publishedAt: item.atom?.published || item.dc?.date || item.atom?.updated,
+    }
+  })
 }
 
 export const rdfFeed: FetchFeedProcessor = async (context, next) => {

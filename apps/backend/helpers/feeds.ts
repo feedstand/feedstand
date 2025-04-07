@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto'
+import { AtomFeed } from 'feedsmith'
 import { authorFromAtom } from '../parsers/authorFromAtom'
 import { dateCustomFormat } from '../parsers/dateCustomFormat'
 import { dateStandard } from '../parsers/dateStandard'
@@ -9,6 +10,14 @@ import { parseValue, trimStrings } from './parsers'
 
 export const generateChecksum = (...values: Array<string | null | undefined>) => {
   return createHash('md5').update(values.join('')).digest('hex')
+}
+
+export const retreiveAlternateLink = (links: AtomFeed['links']) => {
+  return links?.find((link) => (!link.rel || link.rel === 'alternate') && link.href)?.href
+}
+
+export const retreiveSelfLink = (links: AtomFeed['links']) => {
+  return links?.find((link) => link.rel === 'self' && link.href)?.href
 }
 
 export const parseRawFeedChannel = (rawChannel: RawFeedChannel): FeedChannel => {

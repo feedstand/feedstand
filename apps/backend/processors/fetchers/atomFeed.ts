@@ -1,18 +1,19 @@
 import { type AtomFeed, parseAtomFeed } from 'feedsmith'
 import type { FetchFeedProcessor } from '../../actions/fetchFeed'
-import { parseRawFeedChannel, parseRawFeedItems } from '../../helpers/feeds'
+import {
+  parseRawFeedChannel,
+  parseRawFeedItems,
+  retreiveAlternateLink,
+  retreiveSelfLink,
+} from '../../helpers/feeds'
 import type { FeedChannel, FeedItem } from '../../types/schemas'
-
-export const findAlternateLink = (links: AtomFeed['links']) => {
-  return links?.find((link) => (!link.rel || link.rel === 'alternate') && link.href)?.href
-}
 
 export const atomFeedChannel = (feed: AtomFeed): FeedChannel => {
   return parseRawFeedChannel({
     title: feed.title,
     description: feed.subtitle,
-    siteUrl: findAlternateLink(feed.links),
-    selfUrl: feed.links?.find((link) => link.rel === 'self')?.href,
+    siteUrl: retreiveAlternateLink(feed.links),
+    selfUrl: retreiveSelfLink(feed.links),
   })
 }
 
@@ -21,15 +22,19 @@ export const atomFeedItems = (feed: AtomFeed): Array<FeedItem> => {
     return []
   }
 
-  return parseRawFeedItems(feed.entries, (item) => ({
-    link: findAlternateLink(item.links),
-    guid: item.id,
-    title: item.title,
-    description: item.summary || item.dc?.description,
-    author: item.authors?.[0]?.name || item.dc?.creator,
-    content: item.content,
-    publishedAt: item.published || item.dc?.date,
-  }))
+  return parseRawFeedItems(feed.entries, (item) => {
+    const link = retreiveAlternateLink(item.links)
+
+    return {
+      link,
+      guid: item.id || link,
+      title: item.title,
+      description: item.summary || item.dc?.description,
+      author: item.authors?.[0]?.name || item.dc?.creator,
+      content: item.content,
+      publishedAt: item.published || item.dc?.date || item.updated,
+    }
+  })
 }
 
 export const atomFeed: FetchFeedProcessor = async (context, next) => {
