@@ -13,9 +13,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "lint": "npm run lint:tsc",
-    "lint:tsc": "tsc --pretty --noEmit",
-    "lint:prettier:base": "prettier --write",
-    "lint:prettier": "npm run lint:prettier:base -- ."
+    "lint:tsc": "tsc --pretty --noEmit"
   },
   "dependencies": {
     "@bull-board/hono": "^6.0.0",

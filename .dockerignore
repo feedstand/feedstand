@@ -10,7 +10,8 @@
 !**/.docker/entrypoint.sh
 !**/.docker/nginx.conf
 !**/.docker/.env.prod
-**/lint-staged.config.js
-**/prettier.config.js
+**/lefthook.json
+**/release.json
+**/biome.json
 # **/vite.config.js # TODO: Only ignore when running docker-compose.prod.yml.
 **/node_modules
