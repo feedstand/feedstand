@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { datesInCustomFormat } from './dateCustomFormat.mock.json'
-import { dateStandard } from './dateStandard'
-import { datesInStandardFormat, datesInvalid } from './dateStandard.mock.json'
+import dateCustomFormatJson from './dateCustomFormat.mock.json' with { type: 'json' }
+import { dateStandard } from './dateStandard.js'
+import dateStandardJson from './dateStandard.mock.json' with { type: 'json' }
+
+const { datesInCustomFormat } = dateCustomFormatJson
+const { datesInStandardFormat, datesInvalid } = dateStandardJson
 
 describe('parsers/dateStandard', () => {
   it('should parse valid date string', () => {

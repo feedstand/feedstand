@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isAbsoluteUrl, resolveRelativeUrl } from './urls'
+import { isAbsoluteUrl, resolveRelativeUrl } from './urls.js'
 
 describe('isAbsoluteUrl', () => {
   const absoluteCases = [

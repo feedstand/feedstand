@@ -1,8 +1,8 @@
 import { count, inArray } from 'drizzle-orm'
 import { readMigrationFiles } from 'drizzle-orm/migrator'
 import { integer, pgTable, text, timestamp } from 'drizzle-orm/pg-core'
-import * as databaseConstants from '../../constants/database'
-import { client, db } from '../../instances/database'
+import * as databaseConstants from '../../constants/database.js'
+import { client, db } from '../../instances/database.js'
 
 export const checkMigrationsReady = async () => {
   let exitCode = 1

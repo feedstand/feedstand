@@ -1,5 +1,5 @@
 import { customType } from 'drizzle-orm/pg-core'
-import { removeNullBytes } from '../../helpers/strings'
+import { removeNullBytes } from '../../helpers/strings.js'
 
 export const safeText = customType<{ data: string; driverData: string }>({
   dataType: () => {

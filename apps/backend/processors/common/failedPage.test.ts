@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { CustomResponse } from '../../actions/fetchUrl'
-import type { WorkflowContext } from '../../helpers/workflows'
-import { failedPage } from './failedPage'
+import { CustomResponse } from '../../actions/fetchUrl.js'
+import type { WorkflowContext } from '../../helpers/workflows.js'
+import { failedPage } from './failedPage.js'
 
 describe('failedPage', () => {
   const mockNext = vi.fn().mockResolvedValue(undefined)

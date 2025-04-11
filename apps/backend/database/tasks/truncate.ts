@@ -1,6 +1,6 @@
 import { getTableName, sql } from 'drizzle-orm'
-import { client, db } from '../../instances/database'
-import { tables } from '../tables'
+import { client, db } from '../../instances/database.js'
+import { tables } from '../tables.js'
 
 const tableNames = Object.values(tables).map(getTableName)
 const tableIdentifiers = tableNames.map(sql.identifier)

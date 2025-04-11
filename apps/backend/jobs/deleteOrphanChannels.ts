@@ -1,7 +1,7 @@
 import { subDays } from 'date-fns'
 import { and, eq, exists, inArray, isNull, lt, not, or } from 'drizzle-orm'
-import { tables } from '../database/tables'
-import { db } from '../instances/database'
+import { tables } from '../database/tables.js'
+import { db } from '../instances/database.js'
 
 export const deleteOrphanChannels = async () => {
   const oneDayAgo = subDays(new Date(), 1)

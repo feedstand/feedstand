@@ -8,8 +8,8 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core'
-import { safeText } from './types/safeText'
-import { safeVarchar } from './types/safeVarchar'
+import { safeText } from './types/safeText.js'
+import { safeVarchar } from './types/safeVarchar.js'
 
 export const users = pgTable(
   'users',

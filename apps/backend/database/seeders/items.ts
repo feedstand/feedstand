@@ -1,8 +1,8 @@
 import { random } from 'lodash-es'
-import { db } from '../../instances/database'
-import type { NewItem } from '../../types/schemas'
-import { generateItem } from '../factories/item'
-import { tables } from '../tables'
+import { db } from '../../instances/database.js'
+import type { NewItem } from '../../types/schemas.js'
+import { generateItem } from '../factories/item.js'
+import { tables } from '../tables.js'
 
 export const seedItems = async () => {
   const newItems: Array<NewItem> = []

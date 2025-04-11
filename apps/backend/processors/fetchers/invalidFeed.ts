@@ -1,5 +1,5 @@
-import type { FetchFeedProcessor } from '../../actions/fetchFeed'
-import { isJsonLike } from '../../helpers/strings'
+import type { FetchFeedProcessor } from '../../actions/fetchFeed.js'
+import { isJsonLike } from '../../helpers/strings.js'
 
 type Signature = {
   test: (response: string) => boolean

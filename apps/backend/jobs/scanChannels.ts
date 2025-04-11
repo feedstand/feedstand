@@ -1,7 +1,7 @@
-import { type SQL, and, gt, or } from 'drizzle-orm'
-import { tables } from '../database/tables'
-import { db } from '../instances/database'
-import { channelQueue } from '../queues/channel'
+import { and, gt, type SQL } from 'drizzle-orm'
+import { tables } from '../database/tables.js'
+import { db } from '../instances/database.js'
+import { channelQueue } from '../queues/channel.js'
 
 const CHANNELS_CHUNK_SIZE = 5000
 

@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { dateCustomFormat } from './dateCustomFormat'
-import { datesInCustomFormat, datesInvalid } from './dateCustomFormat.mock.json'
+import { dateCustomFormat } from './dateCustomFormat.js'
+import dateCustomFormatJson from './dateCustomFormat.mock.json' with { type: 'json' }
+
+const { datesInCustomFormat, datesInvalid } = dateCustomFormatJson
 
 describe('parsers/dateCustomFormat', () => {
   for (const [input, output] of Object.entries(datesInCustomFormat)) {

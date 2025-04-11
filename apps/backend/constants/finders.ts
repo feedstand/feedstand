@@ -1,4 +1,4 @@
-import { anyFeedContentTypes } from './fetchers'
+import { anyFeedContentTypes } from './fetchers.js'
 
 export const feedLinkSelectors = anyFeedContentTypes.map(
   (contentType) => `link[type*="${contentType}"][rel="alternate"]`,

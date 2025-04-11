@@ -1,12 +1,12 @@
 import { createHash } from 'node:crypto'
 import { AtomFeed } from 'feedsmith'
-import { authorFromAtom } from '../parsers/authorFromAtom'
-import { dateCustomFormat } from '../parsers/dateCustomFormat'
-import { dateStandard } from '../parsers/dateStandard'
-import { linkFromAtom } from '../parsers/linkFromAtom'
-import { textStandard } from '../parsers/textStandard'
-import type { FeedChannel, FeedItem, RawFeedChannel, RawFeedItem } from '../types/schemas'
-import { parseValue, trimStrings } from './parsers'
+import { authorFromAtom } from '../parsers/authorFromAtom.js'
+import { dateCustomFormat } from '../parsers/dateCustomFormat.js'
+import { dateStandard } from '../parsers/dateStandard.js'
+import { linkFromAtom } from '../parsers/linkFromAtom.js'
+import { textStandard } from '../parsers/textStandard.js'
+import type { FeedChannel, FeedItem, RawFeedChannel, RawFeedItem } from '../types/schemas.js'
+import { parseValue, trimStrings } from './parsers.js'
 
 export const generateChecksum = (...values: Array<string | null | undefined>) => {
   return createHash('md5').update(values.join('')).digest('hex')

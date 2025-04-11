@@ -1,7 +1,7 @@
-import { tables } from '../database/tables'
-import { db } from '../instances/database'
-import type { Transaction } from '../types/database'
-import type { Channel, FeedItem, NewItem } from '../types/schemas'
+import { tables } from '../database/tables.js'
+import { db } from '../instances/database.js'
+import type { Transaction } from '../types/database.js'
+import type { Channel, FeedItem, NewItem } from '../types/schemas.js'
 
 const ITEMS_CHUNK_SIZE = 5000
 

@@ -1,6 +1,6 @@
-import { isUrlFresh } from '../../actions/isUrlFresh'
-import type { WorkflowProcessor } from '../../helpers/workflows'
-import type { Channel } from '../../types/schemas'
+import { isUrlFresh } from '../../actions/isUrlFresh.js'
+import type { WorkflowProcessor } from '../../helpers/workflows.js'
+import type { Channel } from '../../types/schemas.js'
 
 export const preflightFetch: (
   etagProperty: keyof Channel,

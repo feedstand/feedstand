@@ -1,10 +1,10 @@
 import { eq } from 'drizzle-orm'
-import { fetchFeed } from '../actions/fetchFeed'
-import { tables } from '../database/tables'
-import { db } from '../instances/database'
-import { chooseFeedUrl } from './chooseFeedUrl'
-import { CustomResponse } from './fetchUrl'
-import { insertItems } from './insertItems'
+import { fetchFeed } from '../actions/fetchFeed.js'
+import { tables } from '../database/tables.js'
+import { db } from '../instances/database.js'
+import { chooseFeedUrl } from './chooseFeedUrl.js'
+import { CustomResponse } from './fetchUrl.js'
+import { insertItems } from './insertItems.js'
 
 export type UpsertResponseContext = {
   url: string

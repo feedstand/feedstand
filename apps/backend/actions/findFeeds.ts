@@ -1,12 +1,12 @@
-import { type WorkflowProcessor, createWorkflow } from '../helpers/workflows'
-import { preflightFetch } from '../processors/common/preflightFetch'
-import { responseFetch } from '../processors/common/responseFetch'
-import { directFinder } from '../processors/finders/directFinder'
-import { linkFinder } from '../processors/finders/linkFinder'
-import { redirectPage } from '../processors/finders/redirectPage'
-import { webpageFinder } from '../processors/finders/webpageFinder'
-import { youTubeFinder } from '../processors/finders/youTubeFinder'
-import type { FoundFeeds } from '../types/schemas'
+import { createWorkflow, type WorkflowProcessor } from '../helpers/workflows.js'
+import { preflightFetch } from '../processors/common/preflightFetch.js'
+import { responseFetch } from '../processors/common/responseFetch.js'
+import { directFinder } from '../processors/finders/directFinder.js'
+import { linkFinder } from '../processors/finders/linkFinder.js'
+import { redirectPage } from '../processors/finders/redirectPage.js'
+import { webpageFinder } from '../processors/finders/webpageFinder.js'
+import { youTubeFinder } from '../processors/finders/youTubeFinder.js'
+import type { FoundFeeds } from '../types/schemas.js'
 
 export type FindFeedsProcessor = WorkflowProcessor<FoundFeeds>
 

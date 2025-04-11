@@ -1,11 +1,11 @@
 import { serve } from '@hono/node-server'
 import { migrate } from 'drizzle-orm/postgres-js/migrator'
-import * as databaseConstants from './constants/database'
-import { hasMigratorFeature, hasServerFeature } from './constants/features'
-import * as serverConstants from './constants/server'
-import { importFilesFromDirectory } from './helpers/files'
-import { db } from './instances/database'
-import { hono } from './instances/hono'
+import * as databaseConstants from './constants/database.js'
+import { hasMigratorFeature, hasServerFeature } from './constants/features.js'
+import * as serverConstants from './constants/server.js'
+import { importFilesFromDirectory } from './helpers/files.js'
+import { db } from './instances/database.js'
+import { hono } from './instances/hono.js'
 
 await importFilesFromDirectory('./queues')
 

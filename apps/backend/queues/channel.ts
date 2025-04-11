@@ -1,6 +1,6 @@
-import { createQueue } from '../helpers/queues'
-import { fixChannel } from '../jobs/fixChannel'
-import { scanChannel } from '../jobs/scanChannel'
+import { createQueue } from '../helpers/queues.js'
+import { fixChannel } from '../jobs/fixChannel.js'
+import { scanChannel } from '../jobs/scanChannel.js'
 
 export const channelQueue = createQueue(
   'channel',

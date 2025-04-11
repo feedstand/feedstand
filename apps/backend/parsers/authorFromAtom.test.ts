@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { authorFromAtom } from './authorFromAtom'
+import { authorFromAtom } from './authorFromAtom.js'
 
 describe('authorFromAtom', () => {
   it('should extract author name from valid atom feed author', () => {

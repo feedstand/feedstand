@@ -1,5 +1,5 @@
 import { TZDate } from '@date-fns/tz'
-import { type Locale, isValid, parse } from 'date-fns'
+import { isValid, type Locale, parse } from 'date-fns'
 import { de } from 'date-fns/locale/de'
 import { enUS } from 'date-fns/locale/en-US'
 import { fr } from 'date-fns/locale/fr'
@@ -9,8 +9,8 @@ import { ru } from 'date-fns/locale/ru'
 import { sv } from 'date-fns/locale/sv'
 import { tr } from 'date-fns/locale/tr'
 import { zhTW } from 'date-fns/locale/zh-TW'
-import type { ValueParser } from '../types/system'
-import { dateStandard } from './dateStandard'
+import type { ValueParser } from '../types/system.js'
+import { dateStandard } from './dateStandard.js'
 
 type CustomFormatsReplace = {
   from: string | RegExp

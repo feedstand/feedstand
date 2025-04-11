@@ -1,10 +1,10 @@
 import { createRoute, z } from '@hono/zod-openapi'
 import { eq } from 'drizzle-orm'
 import { HTTPException } from 'hono/http-exception'
-import { tables } from '../../database/tables'
-import { createHandler } from '../../helpers/hono'
-import { db } from '../../instances/database'
-import { channel } from '../../schemas/channel'
+import { tables } from '../../database/tables.js'
+import { createHandler } from '../../helpers/hono.js'
+import { db } from '../../instances/database.js'
+import { channel } from '../../schemas/channel.js'
 
 export const route = createRoute({
   method: 'get',

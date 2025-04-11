@@ -1,9 +1,9 @@
-import { chooseFeedUrl } from '../../actions/chooseFeedUrl'
-import { fetchFeed } from '../../actions/fetchFeed'
-import type { FindFeedsProcessor } from '../../actions/findFeeds'
-import { feedUris } from '../../constants/finders'
-import { resolveRelativeUrl } from '../../helpers/urls'
-import type { FoundFeeds } from '../../types/schemas'
+import { chooseFeedUrl } from '../../actions/chooseFeedUrl.js'
+import { fetchFeed } from '../../actions/fetchFeed.js'
+import type { FindFeedsProcessor } from '../../actions/findFeeds.js'
+import { feedUris } from '../../constants/finders.js'
+import { resolveRelativeUrl } from '../../helpers/urls.js'
+import type { FoundFeeds } from '../../types/schemas.js'
 
 export const linkFinder: FindFeedsProcessor = async (context, next) => {
   if (!context.response || context.result) {

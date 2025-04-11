@@ -1,7 +1,7 @@
 import { z } from 'zod'
-import { channelType } from './channelType'
-import { feedChannel } from './feedChannel'
-import { feedItem } from './feedItem'
+import { channelType } from './channelType.js'
+import { feedChannel } from './feedChannel.js'
+import { feedItem } from './feedItem.js'
 
 export const feedData = z.object({
   meta: z.object({

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { textStandard } from './textStandard'
+import { textStandard } from './textStandard.js'
 
 describe('textStandard', () => {
   it('should return string value when input is string', () => {

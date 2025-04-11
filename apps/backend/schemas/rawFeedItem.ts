@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { feedItem } from './feedItem'
+import { feedItem } from './feedItem.js'
 
 export const rawFeedItem = feedItem
   .omit({

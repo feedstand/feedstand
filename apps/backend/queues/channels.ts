@@ -1,8 +1,8 @@
 import type { JobsOptions } from 'bullmq'
-import { createQueue } from '../helpers/queues'
-import { deleteOrphanChannels } from '../jobs/deleteOrphanChannels'
-import { fixChannels } from '../jobs/fixChannels'
-import { scanChannels } from '../jobs/scanChannels'
+import { createQueue } from '../helpers/queues.js'
+import { deleteOrphanChannels } from '../jobs/deleteOrphanChannels.js'
+import { fixChannels } from '../jobs/fixChannels.js'
+import { scanChannels } from '../jobs/scanChannels.js'
 
 export const channelsQueue = createQueue('channels', {
   deleteOrphanChannels,

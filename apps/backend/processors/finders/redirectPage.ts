@@ -1,5 +1,5 @@
-import { type FindFeedsProcessor, findFeeds } from '../../actions/findFeeds'
-import { extractRedirectUrl } from '../fetchers/redirectPage'
+import { type FindFeedsProcessor, findFeeds } from '../../actions/findFeeds.js'
+import { extractRedirectUrl } from '../fetchers/redirectPage.js'
 
 // TODO: Figure out a way to combine this with redirectPage processor from fetchers.
 // The only thing they differ with is what function (workflow) they trigger if url exists.

@@ -1,6 +1,6 @@
 import { AxiosError } from 'axios'
 import { describe, expect, it } from 'vitest'
-import { convertErrorToString, isAggregateError } from './errors'
+import { convertErrorToString, isAggregateError } from './errors.js'
 
 describe('isAggregateError', () => {
   it('should identify native AggregateError', () => {

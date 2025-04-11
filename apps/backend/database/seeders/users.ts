@@ -1,6 +1,6 @@
-import { tables } from '../../database/tables'
-import { db } from '../../instances/database'
-import { generateUser } from '../factories/user'
+import { tables } from '../../database/tables.js'
+import { db } from '../../instances/database.js'
+import { generateUser } from '../factories/user.js'
 
 export const seedUsers = async () => {
   await db.insert(tables.users).values([

@@ -1,10 +1,10 @@
 import { eq } from 'drizzle-orm'
-import { fetchFeed } from '../actions/fetchFeed'
-import { insertItems } from '../actions/insertItems'
-import { tables } from '../database/tables'
-import { convertErrorToString } from '../helpers/errors'
-import { db } from '../instances/database'
-import type { Channel } from '../types/schemas'
+import { fetchFeed } from '../actions/fetchFeed.js'
+import { insertItems } from '../actions/insertItems.js'
+import { tables } from '../database/tables.js'
+import { convertErrorToString } from '../helpers/errors.js'
+import { db } from '../instances/database.js'
+import type { Channel } from '../types/schemas.js'
 
 export const scanChannel = async (channel: Channel) => {
   try {
