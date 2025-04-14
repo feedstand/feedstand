@@ -31,7 +31,7 @@
     "date-fns": "^4.0.0",
     "drizzle-kit": "^0.30.0",
     "drizzle-orm": "^0.38.0",
-    "drizzle-zod": "^0.6.0",
+    "drizzle-zod": "^0.7.1",
     "feedsmith": "^1.0.0",
     "hono": "^4.0.0",
     "ioredis": "^5.0.0",
