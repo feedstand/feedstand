@@ -36,5 +36,6 @@ export const feedUris = [
   '/f.rss',
   '/feed.json',
   '/json',
+  '/.feed',
   '/comments/feed', // WordPress.
 ]
