@@ -1,6 +1,5 @@
 import { createHash } from 'node:crypto'
 import { AtomFeed } from 'feedsmith'
-import { authorFromAtom } from '../parsers/authorFromAtom.js'
 import { dateCustomFormat } from '../parsers/dateCustomFormat.js'
 import { dateStandard } from '../parsers/dateStandard.js'
 import { linkFromAtom } from '../parsers/linkFromAtom.js'
@@ -61,7 +60,7 @@ export const parseRawFeedItems = <I>(
       guid: parsedGuid,
       title: parseValue(rawItem.title, [textStandard]),
       description: parseValue(rawItem.description, [textStandard]),
-      author: parseValue(rawItem.author, [textStandard, authorFromAtom]),
+      author: parseValue(rawItem.author, [textStandard]),
       content: parsedContent,
       itemHash,
       contentHash,
