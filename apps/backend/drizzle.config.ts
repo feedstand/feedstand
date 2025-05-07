@@ -1,5 +1,5 @@
 import { defineConfig } from 'drizzle-kit'
-import * as databaseConstants from './constants/database.js'
+import * as databaseConstants from './constants/database.ts'
 
 export default defineConfig({
   dialect: databaseConstants.dialect,

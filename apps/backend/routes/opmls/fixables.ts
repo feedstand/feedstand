@@ -1,8 +1,8 @@
 import { createRoute, z } from '@hono/zod-openapi'
 import { parseOpml } from 'feedsmith'
-import { suggestFixes } from '../../actions/suggestFixes.js'
-import { createHandler } from '../../helpers/hono.js'
-import { fixable } from '../../schemas/fixable.js'
+import { suggestFixes } from '../../actions/suggestFixes.ts'
+import { createHandler } from '../../helpers/hono.ts'
+import { fixable } from '../../schemas/fixable.ts'
 
 export const route = createRoute({
   method: 'post',

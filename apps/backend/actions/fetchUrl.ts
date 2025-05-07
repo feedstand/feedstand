@@ -8,10 +8,10 @@ import {
   maxContentSize,
   maxTimeout,
   userAgents,
-} from '../constants/fetchers.js'
-import { isOneOfContentTypes } from '../helpers/responses.js'
-import { isJson } from '../helpers/strings.js'
-import { sleep } from '../helpers/system.js'
+} from '../constants/fetchers.ts'
+import { isOneOfContentTypes } from '../helpers/responses.ts'
+import { isJson } from '../helpers/strings.ts'
+import { sleep } from '../helpers/system.ts'
 
 // TODO:
 // - Increase max header size to 64KB. This is possible in Unidici HTTPS Agent as an option

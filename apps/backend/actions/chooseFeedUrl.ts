@@ -1,7 +1,7 @@
 import normalizeUrl from 'normalize-url'
-import { isAbsoluteUrl } from '../helpers/urls.js'
-import type { FeedData } from '../types/schemas.js'
-import { type CustomResponse, fetchUrl } from './fetchUrl.js'
+import { isAbsoluteUrl } from '../helpers/urls.ts'
+import type { FeedData } from '../types/schemas.ts'
+import { type CustomResponse, fetchUrl } from './fetchUrl.ts'
 
 export const chooseFeedUrl = async (feedData: FeedData) => {
   console.debug('[chooseFeedUrl]', {

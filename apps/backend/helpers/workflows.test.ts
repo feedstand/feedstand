@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { CustomResponse } from '../actions/fetchUrl.js'
-import type { Channel } from '../types/schemas.js'
-import { createWorkflow, type WorkflowContext, type WorkflowProcessor } from './workflows.js'
+import { CustomResponse } from '../actions/fetchUrl.ts'
+import type { Channel } from '../types/schemas.ts'
+import { createWorkflow, type WorkflowContext, type WorkflowProcessor } from './workflows.ts'
 
 describe('createWorkflow', () => {
   type TestResult = { value: string }

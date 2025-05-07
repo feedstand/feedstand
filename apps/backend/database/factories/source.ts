@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { capitalize } from 'lodash-es'
-import type { NewSource } from '../../types/schemas.js'
+import type { NewSource } from '../../types/schemas.ts'
 
 export const generateSource = (source?: Partial<NewSource>): NewSource => {
   const createdAt = faker.date.between({ from: faker.date.past({ years: 10 }), to: new Date() })

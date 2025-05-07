@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { CustomResponse } from '../../actions/fetchUrl.js'
-import type { WorkflowContext } from '../../helpers/workflows.js'
-import type { FeedData } from '../../types/schemas.js'
-import { invalidFeed } from './invalidFeed.js'
+import { CustomResponse } from '../../actions/fetchUrl.ts'
+import type { WorkflowContext } from '../../helpers/workflows.ts'
+import type { FeedData } from '../../types/schemas.ts'
+import { invalidFeed } from './invalidFeed.ts'
 
 describe('invalidFeed processor', () => {
   const next = vi.fn()

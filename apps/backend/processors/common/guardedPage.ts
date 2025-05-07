@@ -1,4 +1,4 @@
-import type { WorkflowProcessor } from '../../helpers/workflows.js'
+import type { WorkflowProcessor } from '../../helpers/workflows.ts'
 
 const signatures = [
   // Example: https://dogbiscuitphotos.com/feed/

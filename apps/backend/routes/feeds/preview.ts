@@ -1,7 +1,7 @@
 import { createRoute, z } from '@hono/zod-openapi'
-import { fetchFeed } from '../../actions/fetchFeed.js'
-import { createHandler } from '../../helpers/hono.js'
-import { feedData } from '../../schemas/feedData.js'
+import { fetchFeed } from '../../actions/fetchFeed.ts'
+import { createHandler } from '../../helpers/hono.ts'
+import { feedData } from '../../schemas/feedData.ts'
 
 export const route = createRoute({
   method: 'post',

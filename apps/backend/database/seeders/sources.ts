@@ -1,8 +1,8 @@
 import { random, sampleSize } from 'lodash-es'
-import { db } from '../../instances/database.js'
-import type { NewSource } from '../../types/schemas.js'
-import { generateSource } from '../factories/source.js'
-import { tables } from '../tables.js'
+import { db } from '../../instances/database.ts'
+import type { NewSource } from '../../types/schemas.ts'
+import { generateSource } from '../factories/source.ts'
+import { tables } from '../tables.ts'
 
 export const seedSources = async () => {
   const newSources: Array<NewSource> = []

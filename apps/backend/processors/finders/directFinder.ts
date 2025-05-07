@@ -1,5 +1,5 @@
-import { fetchFeed } from '../../actions/fetchFeed.js'
-import type { FindFeedsProcessor } from '../../actions/findFeeds.js'
+import { fetchFeed } from '../../actions/fetchFeed.ts'
+import type { FindFeedsProcessor } from '../../actions/findFeeds.ts'
 
 export const directFinder: FindFeedsProcessor = async (context, next) => {
   if (!context.response?.ok) {

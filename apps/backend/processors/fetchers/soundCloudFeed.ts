@@ -1,4 +1,4 @@
-import { type FetchFeedProcessor, fetchFeed } from '../../actions/fetchFeed.js'
+import { type FetchFeedProcessor, fetchFeed } from '../../actions/fetchFeed.ts'
 
 // Details: https://help.soundcloud.com/hc/en-us/articles/115003564088.
 export const extractRedirectUrl = (text: string): string | undefined => {

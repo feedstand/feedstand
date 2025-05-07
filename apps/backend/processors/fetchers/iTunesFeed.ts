@@ -1,4 +1,4 @@
-import type { FetchFeedProcessor } from '../../actions/fetchFeed.js'
+import type { FetchFeedProcessor } from '../../actions/fetchFeed.ts'
 
 export const iTunesFeed: FetchFeedProcessor = async (_, next) => {
   // TODO: Implement extracting the new feed URL.

@@ -3,6 +3,9 @@
     "target": "esnext",
     "module": "esnext",
     "strict": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true
   }
 }

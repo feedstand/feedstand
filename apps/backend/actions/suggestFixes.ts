@@ -1,9 +1,9 @@
 import { and, eq, inArray, ne } from 'drizzle-orm'
 import type { Opml } from 'feedsmith'
-import { tables } from '../database/tables.js'
-import { db } from '../instances/database.js'
-import type { Fixable, NewFixable } from '../types/schemas.js'
-import { upsertChannel } from './upsertChannel.js'
+import { tables } from '../database/tables.ts'
+import { db } from '../instances/database.ts'
+import type { Fixable, NewFixable } from '../types/schemas.ts'
+import { upsertChannel } from './upsertChannel.ts'
 
 export const suggestFixes = async (opml: Opml): Promise<Array<Fixable>> => {
   // const suggestedFixables: Array<NewFixable> = []

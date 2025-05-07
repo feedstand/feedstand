@@ -1,10 +1,10 @@
 import { createRoute, z } from '@hono/zod-openapi'
-import { upsertChannel } from '../../actions/upsertChannel.js'
-import { tables } from '../../database/tables.js'
-import { createHandler } from '../../helpers/hono.js'
-import { db } from '../../instances/database.js'
-import { newSource } from '../../schemas/newSource.js'
-import { source } from '../../schemas/source.js'
+import { upsertChannel } from '../../actions/upsertChannel.ts'
+import { tables } from '../../database/tables.ts'
+import { createHandler } from '../../helpers/hono.ts'
+import { db } from '../../instances/database.ts'
+import { newSource } from '../../schemas/newSource.ts'
+import { source } from '../../schemas/source.ts'
 
 export const route = createRoute({
   method: 'post',

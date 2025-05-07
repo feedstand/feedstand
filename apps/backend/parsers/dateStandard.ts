@@ -1,5 +1,5 @@
 import { type DateArg, isValid, toDate } from 'date-fns'
-import type { ValueParser } from '../types/system.js'
+import type { ValueParser } from '../types/system.ts'
 
 export const dateStandard: ValueParser<Date, DateArg<Date> | null | undefined> = (value) => {
   if (!value) {

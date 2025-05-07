@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import dateCustomFormatJson from './dateCustomFormat.mock.json' with { type: 'json' }
-import { dateStandard } from './dateStandard.js'
 import dateStandardJson from './dateStandard.mock.json' with { type: 'json' }
+import { dateStandard } from './dateStandard.ts'
 
 const { datesInCustomFormat } = dateCustomFormatJson
 const { datesInStandardFormat, datesInvalid } = dateStandardJson

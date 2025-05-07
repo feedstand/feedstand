@@ -1,8 +1,8 @@
 import { type JsonFeed, parseJsonFeed } from 'feedsmith'
 import { castArray, get } from 'lodash-es'
-import type { FetchFeedProcessor } from '../../actions/fetchFeed.js'
-import { parseRawFeedChannel, parseRawFeedItems } from '../../helpers/feeds.js'
-import type { FeedChannel, FeedItem } from '../../types/schemas.js'
+import type { FetchFeedProcessor } from '../../actions/fetchFeed.ts'
+import { parseRawFeedChannel, parseRawFeedItems } from '../../helpers/feeds.ts'
+import type { FeedChannel, FeedItem } from '../../types/schemas.ts'
 
 export const jsonFeedChannel = (feed: JsonFeed): FeedChannel => {
   return parseRawFeedChannel({

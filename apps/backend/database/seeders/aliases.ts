@@ -1,8 +1,8 @@
 import { random } from 'lodash-es'
-import { db } from '../../instances/database.js'
-import type { NewAlias } from '../../types/schemas.js'
-import { generateAlias } from '../factories/alias.js'
-import { tables } from '../tables.js'
+import { db } from '../../instances/database.ts'
+import type { NewAlias } from '../../types/schemas.ts'
+import { generateAlias } from '../factories/alias.ts'
+import { tables } from '../tables.ts'
 
 export const seedAliases = async () => {
   const newAliases: Array<NewAlias> = []

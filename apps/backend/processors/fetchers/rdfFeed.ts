@@ -1,12 +1,12 @@
 import { parseRdfFeed, type RdfFeed } from 'feedsmith'
-import type { FetchFeedProcessor } from '../../actions/fetchFeed.js'
+import type { FetchFeedProcessor } from '../../actions/fetchFeed.ts'
 import {
   parseRawFeedChannel,
   parseRawFeedItems,
   retreiveAlternateLink,
   retreiveSelfLink,
-} from '../../helpers/feeds.js'
-import type { FeedChannel, FeedItem } from '../../types/schemas.js'
+} from '../../helpers/feeds.ts'
+import type { FeedChannel, FeedItem } from '../../types/schemas.ts'
 
 export const rdfFeedChannel = (feed: RdfFeed): FeedChannel => {
   return parseRawFeedChannel({

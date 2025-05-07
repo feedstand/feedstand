@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { extractValueByRegex, isOneOfContentTypes } from './responses.js'
+import { extractValueByRegex, isOneOfContentTypes } from './responses.ts'
 
 describe('isOneOfContentTypes', () => {
   const mockResponse: Response = new Response(null, {

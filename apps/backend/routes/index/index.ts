@@ -1,6 +1,6 @@
 import { createRoute, z } from '@hono/zod-openapi'
-import { version } from '../../constants/app.js'
-import { createHandler } from '../../helpers/hono.js'
+import { version } from '../../constants/app.ts'
+import { createHandler } from '../../helpers/hono.ts'
 
 export const route = createRoute({
   method: 'get',

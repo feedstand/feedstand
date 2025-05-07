@@ -2,13 +2,13 @@
   "name": "@feedstand/backend",
   "type": "module",
   "scripts": {
-    "dev": "tsx --env-file=.env --watch index.ts",
-    "play": "tsx --env-file=.env --watch play.ts",
+    "dev": "node --experimental-transform-types --env-file=.env --watch index.ts",
+    "play": "node --experimental-transform-types --env-file=.env --watch play.ts",
     "test": "vitest run",
-    "start": "tsx index.ts",
-    "db:seed": "tsx database/tasks/seed.ts",
-    "db:truncate": "tsx database/tasks/truncate.ts",
-    "db:ready": "tsx database/tasks/ready.ts",
+    "start": "node --experimental-transform-types index.ts",
+    "db:seed": "node --experimental-transform-types database/tasks/seed.ts",
+    "db:truncate": "node --experimental-transform-types database/tasks/truncate.ts",
+    "db:ready": "node --experimental-transform-types database/tasks/ready.ts",
     "db:push": "drizzle-kit push",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
@@ -36,7 +36,6 @@
     "lodash-es": "^4.0.0",
     "normalize-url": "^8.0.0",
     "postgres": "^3.0.0",
-    "tsx": "^4.0.2",
     "zod": "^3.0.0"
   },
   "devDependencies": {

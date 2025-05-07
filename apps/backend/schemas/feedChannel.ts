@@ -1,4 +1,4 @@
-import { newChannel } from './newChannel.js'
+import { newChannel } from './newChannel.ts'
 
 export const feedChannel = newChannel.pick({
   title: true,

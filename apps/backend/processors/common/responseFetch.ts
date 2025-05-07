@@ -1,5 +1,5 @@
-import { fetchUrl } from '../../actions/fetchUrl.js'
-import type { WorkflowProcessor } from '../../helpers/workflows.js'
+import { fetchUrl } from '../../actions/fetchUrl.ts'
+import type { WorkflowProcessor } from '../../helpers/workflows.ts'
 
 export const responseFetch: WorkflowProcessor<unknown> = async (context, next) => {
   if (context.response) {

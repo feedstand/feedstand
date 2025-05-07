@@ -1,4 +1,4 @@
-import { type CustomResponse, fetchUrl } from '../actions/fetchUrl.js'
+import { type CustomResponse, fetchUrl } from '../actions/fetchUrl.ts'
 
 export type IsUrlFresh = (
   url: string,

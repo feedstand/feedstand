@@ -1,8 +1,8 @@
-import { fetchFeed } from '../../actions/fetchFeed.js'
-import type { FindFeedsProcessor } from '../../actions/findFeeds.js'
-import { htmlContentTypes } from '../../constants/fetchers.js'
-import { youTubeDomains } from '../../constants/finders.js'
-import { extractValueByRegex, isOneOfContentTypes } from '../../helpers/responses.js'
+import { fetchFeed } from '../../actions/fetchFeed.ts'
+import type { FindFeedsProcessor } from '../../actions/findFeeds.ts'
+import { htmlContentTypes } from '../../constants/fetchers.ts'
+import { youTubeDomains } from '../../constants/finders.ts'
+import { extractValueByRegex, isOneOfContentTypes } from '../../helpers/responses.ts'
 
 export const youTubeFinder: FindFeedsProcessor = async (context, next) => {
   if (!context.response?.ok) {

@@ -1,4 +1,4 @@
-import { newItem } from './newItem.js'
+import { newItem } from './newItem.ts'
 
 export const feedItem = newItem.pick({
   link: true,

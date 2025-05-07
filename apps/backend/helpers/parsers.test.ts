@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { parseValue, trimStrings } from './parsers.js'
+import { parseValue, trimStrings } from './parsers.ts'
 
 describe('parseValue', () => {
   it('should return first successful parsed value', () => {

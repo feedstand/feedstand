@@ -1,12 +1,12 @@
 import { type AtomFeed, parseAtomFeed } from 'feedsmith'
-import type { FetchFeedProcessor } from '../../actions/fetchFeed.js'
+import type { FetchFeedProcessor } from '../../actions/fetchFeed.ts'
 import {
   parseRawFeedChannel,
   parseRawFeedItems,
   retreiveAlternateLink,
   retreiveSelfLink,
-} from '../../helpers/feeds.js'
-import type { FeedChannel, FeedItem } from '../../types/schemas.js'
+} from '../../helpers/feeds.ts'
+import type { FeedChannel, FeedItem } from '../../types/schemas.ts'
 
 export const atomFeedChannel = (feed: AtomFeed): FeedChannel => {
   return parseRawFeedChannel({

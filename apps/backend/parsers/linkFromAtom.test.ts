@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { linkFromAtom } from './linkFromAtom.js'
+import { linkFromAtom } from './linkFromAtom.ts'
 
 describe('linkFromAtom', () => {
   it('should extract href when xmlns is Atom', () => {

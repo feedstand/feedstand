@@ -1,3 +1,3 @@
-import { feedChannel } from './feedChannel.js'
+import { feedChannel } from './feedChannel.ts'
 
 export const rawFeedChannel = feedChannel.partial()

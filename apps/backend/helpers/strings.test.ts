@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isJson, removeNullBytes } from './strings.js'
+import { isJson, removeNullBytes } from './strings.ts'
 
 describe('removeNullBytes', () => {
   describe('string inputs', () => {

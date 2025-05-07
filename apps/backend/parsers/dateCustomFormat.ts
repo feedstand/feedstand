@@ -9,8 +9,8 @@ import { ru } from 'date-fns/locale/ru'
 import { sv } from 'date-fns/locale/sv'
 import { tr } from 'date-fns/locale/tr'
 import { zhTW } from 'date-fns/locale/zh-TW'
-import type { ValueParser } from '../types/system.js'
-import { dateStandard } from './dateStandard.js'
+import type { ValueParser } from '../types/system.ts'
+import { dateStandard } from './dateStandard.ts'
 
 type CustomFormatsReplace = {
   from: string | RegExp

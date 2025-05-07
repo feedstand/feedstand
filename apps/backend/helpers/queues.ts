@@ -1,8 +1,8 @@
 import { withScope } from '@sentry/node'
 import { type Processor, Queue, type QueueOptions, Worker, type WorkerOptions } from 'bullmq'
-import { hasWorkerFeature } from '../constants/features.js'
-import { connection } from '../instances/queue.js'
-import { sentry } from '../instances/sentry.js'
+import { hasWorkerFeature } from '../constants/features.ts'
+import { connection } from '../instances/queue.ts'
+import { sentry } from '../instances/sentry.ts'
 
 export const createQueue = <Data, Result, Name extends string>(
   name: string,

@@ -1,9 +1,9 @@
 import { and, eq, notInArray } from 'drizzle-orm'
-import { findFeeds } from '../actions/findFeeds.js'
-import { tables } from '../database/tables.js'
-import { convertErrorToString } from '../helpers/errors.js'
-import { db } from '../instances/database.js'
-import type { Channel } from '../types/schemas.js'
+import { findFeeds } from '../actions/findFeeds.ts'
+import { tables } from '../database/tables.ts'
+import { convertErrorToString } from '../helpers/errors.ts'
+import { db } from '../instances/database.ts'
+import type { Channel } from '../types/schemas.ts'
 
 export const fixChannel = async (channel: Channel) => {
   const url = channel.siteUrl || channel.feedUrl

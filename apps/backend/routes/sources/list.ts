@@ -1,9 +1,9 @@
 import { createRoute, z } from '@hono/zod-openapi'
 import { desc } from 'drizzle-orm'
-import { tables } from '../../database/tables.js'
-import { createHandler } from '../../helpers/hono.js'
-import { db } from '../../instances/database.js'
-import { source } from '../../schemas/source.js'
+import { tables } from '../../database/tables.ts'
+import { createHandler } from '../../helpers/hono.ts'
+import { db } from '../../instances/database.ts'
+import { source } from '../../schemas/source.ts'
 
 export const route = createRoute({
   method: 'get',

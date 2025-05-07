@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { extractRedirectUrl } from './redirectPage.js'
+import { extractRedirectUrl } from './redirectPage.ts'
 
 describe('extractRedirectUrl', () => {
   it('extracts URL from double-quoted attributes', () => {

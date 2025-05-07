@@ -1,4 +1,4 @@
-import { type FetchFeedProcessor, fetchFeed } from '../../actions/fetchFeed.js'
+import { type FetchFeedProcessor, fetchFeed } from '../../actions/fetchFeed.ts'
 
 export const extractRedirectUrl = (html: string): string | undefined => {
   const metaRegex = /<meta[^>]*?(?=.*?http-equiv\b)(?=.*?refresh\b)[^>]*>/i

@@ -1,8 +1,8 @@
 import { subDays } from 'date-fns'
 import { and, eq, gt, isNull, lte, ne, or, type SQL } from 'drizzle-orm'
-import { tables } from '../database/tables.js'
-import { db } from '../instances/database.js'
-import { channelQueue } from '../queues/channel.js'
+import { tables } from '../database/tables.ts'
+import { db } from '../instances/database.ts'
+import { channelQueue } from '../queues/channel.ts'
 
 const CHANNELS_CHUNK_SIZE = 5000
 
