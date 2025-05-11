@@ -30,7 +30,7 @@ const validationHook: Hook<unknown, Env, string, unknown> = (result) => {
 }
 
 const errorHandler: ErrorHandler = (error, context) => {
-  sentry?.captureException(error)
+  sentry?.captureException?.(error)
 
   if (error instanceof HTTPException) {
     return context.json({ message: error.message, cause: error.cause }, error.status)

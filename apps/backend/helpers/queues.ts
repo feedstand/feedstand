@@ -21,14 +21,14 @@ export const createQueue = <Data, Result, Name extends string>(
 
   const worker = new Worker<Data, Result, Name>(name, processor, { ...opts?.worker, connection })
 
-  queue.on('error', (error) => sentry?.captureException(error))
-  worker.on('error', (error) => sentry?.captureException(error))
+  queue.on('error', (error) => sentry?.captureException?.(error))
+  worker.on('error', (error) => sentry?.captureException?.(error))
   worker.on('failed', (job, error) => {
     withScope((scope) => {
       scope.setTag('job.id', job?.id)
       scope.setTag('job.name', job?.name)
       scope.setTag('job.queueName', job?.queueName)
-      sentry?.captureException(error, undefined, scope)
+      sentry?.captureException?.(error, undefined, scope)
     })
   })
 

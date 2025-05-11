@@ -11,15 +11,14 @@ export const route = createRoute({
     body: {
       content: {
         'multipart/form-data': {
-          schema: z
-            .object({
-              file: z.instanceof(File).optional().openapi({ type: 'string', format: 'binary' }),
-              text: z.string().optional(),
-            })
-            .refine((data) => !!data.file !== !!data.text, {
-              message: 'You must provide either an XML file or XML string.',
-              path: ['file'],
-            }),
+          schema: z.object({
+            file: z.instanceof(File).optional().openapi({ type: 'string', format: 'binary' }),
+            text: z.string().optional(),
+          }),
+          // .refine((data) => !!data.file !== !!data.text, {
+          //   message: 'You must provide either an XML file or XML string.',
+          //   path: ['file'],
+          // }),
         },
       },
       required: true,
@@ -39,11 +38,11 @@ export const route = createRoute({
 })
 
 export const handler = createHandler(route, async (context) => {
-  let opmlContent = ''
-
   const formData = await context.req.formData()
   const opmlFile = formData.get('file')
   const opmlText = formData.get('text')
+
+  let opmlContent = ''
 
   if (opmlFile instanceof File) {
     opmlContent = await opmlFile.text()
