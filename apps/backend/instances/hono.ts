@@ -13,6 +13,7 @@ import { sentry } from '../instances/sentry.ts'
 import * as showChannel from '../routes/channels/show.ts'
 import * as findFeeds from '../routes/feeds/find.ts'
 import * as previewFeed from '../routes/feeds/preview.ts'
+import * as imports from '../routes/imports/index.ts'
 import * as index from '../routes/index/index.ts'
 import * as listItems from '../routes/items/list.ts'
 import * as opmlFixables from '../routes/opmls/fixables.ts'
@@ -76,3 +77,4 @@ export const openapi = hono
   .openapi(previewFeed.route, previewFeed.handler)
   .openapi(findFeeds.route, findFeeds.handler)
   .openapi(opmlFixables.route, opmlFixables.handler)
+  .openapi(imports.route, imports.handler)

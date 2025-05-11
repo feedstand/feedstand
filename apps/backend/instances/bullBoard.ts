@@ -5,11 +5,16 @@ import { serveStatic } from '@hono/node-server/serve-static'
 import { path } from '../constants/bullBoard.ts'
 import { channelQueue } from '../queues/channel.ts'
 import { channelsQueue } from '../queues/channels.ts'
+import { importQueue } from '../queues/import.ts'
 
 export const serverAdapter = new HonoAdapter(serveStatic).setBasePath(path)
 
 export const bullBoard = createBullBoard({
-  queues: [new BullMQAdapter(channelsQueue), new BullMQAdapter(channelQueue)],
+  queues: [
+    new BullMQAdapter(channelsQueue),
+    new BullMQAdapter(channelQueue),
+    new BullMQAdapter(importQueue),
+  ],
   serverAdapter,
 })
 
