@@ -2,7 +2,6 @@ import { createHash } from 'node:crypto'
 import type { AtomFeed } from 'feedsmith'
 import { dateCustomFormat } from '../parsers/dateCustomFormat.ts'
 import { dateStandard } from '../parsers/dateStandard.ts'
-import { linkFromAtom } from '../parsers/linkFromAtom.ts'
 import { textStandard } from '../parsers/textStandard.ts'
 import type { FeedChannel, FeedItem, RawFeedChannel, RawFeedItem } from '../types/schemas.ts'
 import { parseValue, trimStrings } from './parsers.ts'
@@ -23,8 +22,8 @@ export const parseRawFeedChannel = (rawChannel: RawFeedChannel): FeedChannel => 
   return trimStrings({
     title: parseValue(rawChannel.title, [textStandard]),
     description: parseValue(rawChannel.description, [textStandard]),
-    siteUrl: parseValue(rawChannel.siteUrl, [textStandard, linkFromAtom]),
-    selfUrl: parseValue(rawChannel.selfUrl, [textStandard, linkFromAtom]),
+    siteUrl: parseValue(rawChannel.siteUrl, [textStandard]),
+    selfUrl: parseValue(rawChannel.selfUrl, [textStandard]),
   })
 }
 

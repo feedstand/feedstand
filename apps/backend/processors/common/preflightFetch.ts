@@ -2,10 +2,12 @@ import { isUrlFresh } from '../../actions/isUrlFresh.ts'
 import type { WorkflowProcessor } from '../../helpers/workflows.ts'
 import type { Channel } from '../../types/schemas.ts'
 
-export const preflightFetch: (
+export type PreflightFetch = <T>(
   etagProperty: keyof Channel,
   dateProperty: keyof Channel,
-) => WorkflowProcessor<unknown> = (etagProperty, dateProperty) => {
+) => WorkflowProcessor<T>
+
+export const preflightFetch: PreflightFetch = (etagProperty, dateProperty) => {
   return async (context, next) => {
     const etag = context.channel?.[etagProperty]
     const date = context.channel?.[dateProperty]

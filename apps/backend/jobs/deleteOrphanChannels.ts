@@ -1,5 +1,5 @@
 import { subDays } from 'date-fns'
-import { and, eq, exists, inArray, isNull, lt, not, or } from 'drizzle-orm'
+import { and, eq, exists, inArray, lt, not } from 'drizzle-orm'
 import { tables } from '../database/tables.ts'
 import { db } from '../instances/database.ts'
 
@@ -29,8 +29,5 @@ export const deleteOrphanChannels = async () => {
       ),
     )
 
-  const deletedChannels = await db
-    .delete(tables.channels)
-    .where(inArray(tables.channels.id, orphanChannelsSubquery))
-    .returning()
+  await db.delete(tables.channels).where(inArray(tables.channels.id, orphanChannelsSubquery))
 }

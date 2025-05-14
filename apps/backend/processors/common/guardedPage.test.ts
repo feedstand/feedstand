@@ -6,6 +6,7 @@ import { guardedPage } from './guardedPage.ts'
 
 describe('guardedPage', () => {
   const mockNext = vi.fn()
+  const mockSelf = vi.fn()
   const baseUrl = 'https://example.com/feed'
 
   const createContext = (responseBody: string, status: number): WorkflowContext<FeedData> => ({
@@ -20,7 +21,7 @@ describe('guardedPage', () => {
   it('should pass through when no response is present', async () => {
     const context: WorkflowContext<FeedData> = { url: baseUrl }
 
-    await guardedPage(context, mockNext)
+    await guardedPage(context, mockNext, mockSelf)
     expect(mockNext).toHaveBeenCalledTimes(1)
   })
 
@@ -44,20 +45,22 @@ describe('guardedPage', () => {
       },
     }
 
-    await guardedPage(context, mockNext)
+    await guardedPage(context, mockNext, mockSelf)
     expect(mockNext).toHaveBeenCalledTimes(1)
   })
 
   it('should detect one of the guard signatures', async () => {
     const context = createContext('Verifying that you are not a robot...', 200)
 
-    await expect(guardedPage(context, mockNext)).rejects.toThrow('Guarded page, signature: Unknown')
+    await expect(guardedPage(context, mockNext, mockSelf)).rejects.toThrow(
+      'Guarded page, signature: Unknown',
+    )
   })
 
   it('should pass through when no guarded signature detected', async () => {
     const context = createContext('Regular content', 403)
 
-    await guardedPage(context, mockNext)
+    await guardedPage(context, mockNext, mockSelf)
     expect(mockNext).toHaveBeenCalledTimes(1)
   })
 
@@ -65,7 +68,7 @@ describe('guardedPage', () => {
     const context = createContext('regular content', 200)
     const originalResponse = context.response
 
-    await guardedPage(context, mockNext)
+    await guardedPage(context, mockNext, mockSelf)
     expect(context.response).toBe(originalResponse)
   })
 })

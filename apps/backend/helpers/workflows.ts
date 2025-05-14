@@ -16,10 +16,11 @@ export type WorkflowNext = () => Promise<void>
 export type WorkflowProcessor<T> = (
   context: WorkflowContext<T>,
   next: WorkflowNext,
+  self: Workflow<T>,
 ) => Promise<void>
 
 export const createWorkflow = <T>(processors: Array<WorkflowProcessor<T>>): Workflow<T> => {
-  return async (context) => {
+  const workflow: Workflow<T> = async (context) => {
     let index = 0
 
     const next: WorkflowNext = async () => {
@@ -29,7 +30,7 @@ export const createWorkflow = <T>(processors: Array<WorkflowProcessor<T>>): Work
         return
       }
 
-      await processor(context, next)
+      await processor(context, next, workflow)
     }
 
     await next()
@@ -46,4 +47,6 @@ export const createWorkflow = <T>(processors: Array<WorkflowProcessor<T>>): Work
       cause: context.response?.status,
     })
   }
+
+  return workflow
 }

@@ -1,4 +1,4 @@
-import { type FetchFeedProcessor, fetchFeed } from '../../actions/fetchFeed.ts'
+import type { WorkflowProcessor } from '../../helpers/workflows.ts'
 
 export const extractRedirectUrl = (html: string): string | undefined => {
   const metaRegex = /<meta[^>]*?(?=.*?http-equiv\b)(?=.*?refresh\b)[^>]*>/i
@@ -14,7 +14,8 @@ export const extractRedirectUrl = (html: string): string | undefined => {
   return contentAttr || undefined
 }
 
-export const redirectPage: FetchFeedProcessor = async (context, next) => {
+// biome-ignore lint/suspicious/noExplicitAny: Don't need to explain myself.
+export const redirectPage: WorkflowProcessor<any> = async (context, next, self) => {
   if (!context.response?.ok || context.result) {
     return await next()
   }
@@ -29,7 +30,7 @@ export const redirectPage: FetchFeedProcessor = async (context, next) => {
   if (url) {
     context.url = url
     context.response = undefined
-    context.result = await fetchFeed(context)
+    context.result = await self(context)
   }
 
   await next()

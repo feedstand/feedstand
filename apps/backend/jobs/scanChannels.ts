@@ -11,7 +11,7 @@ export const scanChannels = async () => {
   const conditions: Array<SQL | undefined> = [
     // TODO: Consider adding support for adjusting scanning frequency based on the actual new
     // items being added to the feed. Elegant solution: https://stackoverflow.com/a/6651638.
-    // TODO: Respect syndication tags in Atom feeds, eg.:
+    // TODO: Respect syndication tags, eg.:
     // <sy:updatePeriod>hourly</sy:updatePeriod>,
     // <sy:updateFrequency>1</sy:updateFrequency>.
   ]

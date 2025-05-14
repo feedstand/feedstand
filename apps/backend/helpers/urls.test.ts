@@ -89,9 +89,9 @@ describe('resolveRelativeUrl', () => {
 
   it('should handle different base URL formats', () => {
     const bases = [
-      'http://example.com', // Without trailing slash
-      'https://example.com/blog/', // With trailing slash
-      'https://user:pass@example.com', // With credentials
+      'http://example.com', // Without trailing slash.
+      'https://example.com/blog/', // With trailing slash.
+      'https://user:pass@example.com', // With credentials.
     ]
 
     const expectations = [

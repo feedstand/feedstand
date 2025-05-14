@@ -5,14 +5,15 @@ import type { FeedData } from '../../types/schemas.ts'
 import { invalidFeed } from './invalidFeed.ts'
 
 describe('invalidFeed processor', () => {
-  const next = vi.fn()
+  const mockNext = vi.fn()
+  const mockSelf = vi.fn()
   const baseContext: WorkflowContext<FeedData> = {
     url: 'https://example.com',
     response: new CustomResponse(null, { url: '' }),
   }
 
   beforeEach(() => {
-    next.mockClear()
+    mockNext.mockClear()
   })
 
   it('should pass through when result exists', async () => {
@@ -33,9 +34,9 @@ describe('invalidFeed processor', () => {
       result,
     }
 
-    await invalidFeed(context, next)
+    await invalidFeed(context, mockNext, mockSelf)
 
-    expect(next).toHaveBeenCalled()
+    expect(mockNext).toHaveBeenCalled()
   })
 
   describe('should detect HTML pages', () => {
@@ -55,7 +56,7 @@ describe('invalidFeed processor', () => {
           response: new CustomResponse(testCase, { url: '' }),
         }
 
-        await expect(invalidFeed(context, next)).rejects.toThrow(
+        await expect(invalidFeed(context, mockNext, mockSelf)).rejects.toThrow(
           'Invalid feed, signature: HTML page',
         )
       })
@@ -77,7 +78,7 @@ describe('invalidFeed processor', () => {
           response: new CustomResponse(testCase, { url: '' }),
         }
 
-        await expect(invalidFeed(context, next)).rejects.toThrow(
+        await expect(invalidFeed(context, mockNext, mockSelf)).rejects.toThrow(
           'Invalid feed, signature: Plain text',
         )
       })
@@ -90,7 +91,7 @@ describe('invalidFeed processor', () => {
       response: new CustomResponse('', { url: '' }),
     }
 
-    await expect(invalidFeed(context, next)).rejects.toThrow(
+    await expect(invalidFeed(context, mockNext, mockSelf)).rejects.toThrow(
       'Invalid feed, signature: Empty response',
     )
   })
@@ -109,9 +110,9 @@ describe('invalidFeed processor', () => {
           response: new CustomResponse(feed, { url: '' }),
         }
 
-        await invalidFeed(context, next)
+        await invalidFeed(context, mockNext, mockSelf)
 
-        expect(next).toHaveBeenCalled()
+        expect(mockNext).toHaveBeenCalled()
       })
     }
   })
