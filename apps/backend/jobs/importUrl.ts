@@ -1,10 +1,11 @@
 import { findFeeds } from '../actions/findFeeds.ts'
-import { importQueue } from '../queues/import.ts'
+import { upsertChannel } from '../actions/upsertChannel.ts'
 
 export const importUrl = async (url: string) => {
   const { feeds } = await findFeeds({ url })
 
-  feeds.forEach((feed) => {
-    importQueue.add('importFeed', feed.url)
-  })
+  for (const feed of feeds) {
+    await upsertChannel({ url: feed.url })
+    // importQueue.add('importFeed', feed.url)
+  }
 }
