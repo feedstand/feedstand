@@ -3,7 +3,7 @@ import { fetchFeed } from '../actions/fetchFeed.ts'
 import { tables } from '../database/tables.ts'
 import { db } from '../instances/database.ts'
 import { chooseFeedUrl } from './chooseFeedUrl.ts'
-import { CustomResponse } from './fetchUrl.ts'
+import type { CustomResponse } from './fetchUrl.ts'
 import { insertItems } from './insertItems.ts'
 
 export type UpsertResponseContext = {
