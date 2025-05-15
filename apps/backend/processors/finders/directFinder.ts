@@ -1,3 +1,4 @@
+import { chooseFeedUrl } from '../../actions/chooseFeedUrl.ts'
 import { fetchFeed } from '../../actions/fetchFeed.ts'
 import type { FindFeedsProcessor } from '../../actions/findFeeds.ts'
 
@@ -12,6 +13,7 @@ export const directFinder: FindFeedsProcessor = async (context, next) => {
       response: context.response,
       channel: context.channel,
     })
+    const feedUrl = await chooseFeedUrl(feedData)
 
     context.result = {
       meta: {
@@ -21,7 +23,7 @@ export const directFinder: FindFeedsProcessor = async (context, next) => {
       feeds: [
         {
           title: feedData.channel.title,
-          url: feedData.channel.selfUrl || feedData.meta.responseUrl,
+          url: feedUrl,
         },
       ],
     }
