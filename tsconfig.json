@@ -1,11 +1,10 @@
 {
+  "files": [],
+  "references": [{ "path": "./apps/backend" }, { "path": "./apps/frontend" }],
   "compilerOptions": {
     "target": "esnext",
-    "module": "esnext",
     "strict": true,
     "skipLibCheck": true,
-    "resolveJsonModule": true,
-    "noEmit": true,
-    "allowImportingTsExtensions": true
+    "noEmit": true
   }
 }

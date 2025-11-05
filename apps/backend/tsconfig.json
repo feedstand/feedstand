@@ -1,6 +1,9 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "module": "nodenext"
+    "composite": true,
+    "module": "nodenext",
+    "resolveJsonModule": true,
+    "allowImportingTsExtensions": true
   }
 }

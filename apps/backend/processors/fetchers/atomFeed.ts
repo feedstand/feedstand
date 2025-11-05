@@ -1,4 +1,5 @@
-import { type AtomFeed, parseAtomFeed } from 'feedsmith'
+import { parseAtomFeed } from 'feedsmith'
+import type { Atom } from 'feedsmith/types'
 import type { FetchFeedProcessor } from '../../actions/fetchFeed.ts'
 import {
   parseRawFeedChannel,
@@ -8,7 +9,7 @@ import {
 } from '../../helpers/feeds.ts'
 import type { FeedChannel, FeedItem } from '../../types/schemas.ts'
 
-export const atomFeedChannel = (feed: AtomFeed): FeedChannel => {
+export const atomFeedChannel = (feed: Atom.Feed<string>): FeedChannel => {
   return parseRawFeedChannel({
     title: feed.title,
     description: feed.subtitle,
@@ -17,7 +18,7 @@ export const atomFeedChannel = (feed: AtomFeed): FeedChannel => {
   })
 }
 
-export const atomFeedItems = (feed: AtomFeed): Array<FeedItem> => {
+export const atomFeedItems = (feed: Atom.Feed<string>): Array<FeedItem> => {
   if (!feed.entries?.length) {
     return []
   }

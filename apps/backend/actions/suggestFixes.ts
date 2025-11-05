@@ -1,11 +1,11 @@
 import { inArray } from 'drizzle-orm'
-import type { Opml } from 'feedsmith'
+import type { Opml } from 'feedsmith/types'
 import { tables } from '../database/tables.ts'
 import { db } from '../instances/database.ts'
 import type { Fixable, NewFixable } from '../types/schemas.ts'
 import { upsertChannel } from './upsertChannel.ts'
 
-export const suggestFixes = async (opml: Opml): Promise<Array<Fixable>> => {
+export const suggestFixes = async (opml: Opml.Document<string>): Promise<Array<Fixable>> => {
   const suggestedFixables: Array<NewFixable> = []
   const opmlFeedUrls: Array<string> = []
   const opmlSiteUrls: Map<string, string> = new Map()
@@ -48,7 +48,7 @@ export const suggestFixes = async (opml: Opml): Promise<Array<Fixable>> => {
           channelId: channel.id,
         })
       }
-    } catch (error) {
+    } catch {
       // 4. If the feed is not valid, look for fixables looking at both feed and site URLs.
       // TODO: Implement.
     }

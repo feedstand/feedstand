@@ -11,9 +11,7 @@
     "db:ready": "node --experimental-transform-types database/tasks/ready.ts",
     "db:push": "drizzle-kit push",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "lint": "npm run lint:tsc",
-    "lint:tsc": "tsc --pretty --noEmit"
+    "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
     "@bull-board/hono": "^6.0.0",
@@ -30,7 +28,7 @@
     "drizzle-kit": "^0.30.0",
     "drizzle-orm": "^0.38.0",
     "drizzle-zod": "^0.6.0",
-    "feedsmith": "^1.0.0",
+    "feedsmith": "^2.2.0",
     "hono": "^4.0.0",
     "ioredis": "^5.0.0",
     "lodash-es": "^4.0.0",

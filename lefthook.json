@@ -1,27 +1,13 @@
 {
-  "$schema": "https://json.schemastore.org/lefthook.json",
+  "extends": [
+    "node_modules/kvalita/configs/lefthook-biome.json",
+    "node_modules/kvalita/configs/lefthook-typescript.json"
+  ],
   "pre-commit": {
-    "parallel": true,
     "commands": {
       "typescript": {
-        "glob": "*.{ts,tsx}",
-        "run": "npm run lint:tsc && npm run lint:biome:base {staged_files}",
-        "stage_fixed": true
-      },
-      "javascript": {
-        "glob": "*.{js,jsx}",
-        "run": "npm run lint:biome:base {staged_files}",
-        "stage_fixed": true
-      },
-      "yaml": {
-        "glob": "*.{yml,yaml}",
-        "run": "npm run lint:biome:base {staged_files}",
-        "stage_fixed": true
-      },
-      "json": {
-        "glob": "*.json",
-        "run": "npm run lint:biome:base {staged_files}",
-        "stage_fixed": true
+        "glob": "*",
+        "run": "npx tsc --build"
       }
     }
   }

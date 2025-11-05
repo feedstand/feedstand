@@ -1,10 +1,11 @@
-import { type JsonFeed, parseJsonFeed } from 'feedsmith'
+import { parseJsonFeed } from 'feedsmith'
+import type { Json } from 'feedsmith/types'
 import { castArray, get } from 'lodash-es'
 import type { FetchFeedProcessor } from '../../actions/fetchFeed.ts'
 import { parseRawFeedChannel, parseRawFeedItems } from '../../helpers/feeds.ts'
 import type { FeedChannel, FeedItem } from '../../types/schemas.ts'
 
-export const jsonFeedChannel = (feed: JsonFeed): FeedChannel => {
+export const jsonFeedChannel = (feed: Json.Feed): FeedChannel => {
   return parseRawFeedChannel({
     title: feed.title,
     description: feed.description,
@@ -13,7 +14,7 @@ export const jsonFeedChannel = (feed: JsonFeed): FeedChannel => {
   })
 }
 
-export const jsonFeedItems = (feed: JsonFeed): Array<FeedItem> => {
+export const jsonFeedItems = (feed: Json.Feed): Array<FeedItem> => {
   if (!feed.items?.length) {
     return []
   }

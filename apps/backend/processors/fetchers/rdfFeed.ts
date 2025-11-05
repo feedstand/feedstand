@@ -1,4 +1,5 @@
-import { parseRdfFeed, type RdfFeed } from 'feedsmith'
+import { parseRdfFeed } from 'feedsmith'
+import type { Rdf } from 'feedsmith/types'
 import type { FetchFeedProcessor } from '../../actions/fetchFeed.ts'
 import {
   parseRawFeedChannel,
@@ -8,7 +9,7 @@ import {
 } from '../../helpers/feeds.ts'
 import type { FeedChannel, FeedItem } from '../../types/schemas.ts'
 
-export const rdfFeedChannel = (feed: RdfFeed): FeedChannel => {
+export const rdfFeedChannel = (feed: Rdf.Feed<string>): FeedChannel => {
   return parseRawFeedChannel({
     title: feed.title,
     description: feed.description,
@@ -17,7 +18,7 @@ export const rdfFeedChannel = (feed: RdfFeed): FeedChannel => {
   })
 }
 
-export const rdfFeedItems = (feed: RdfFeed): Array<FeedItem> => {
+export const rdfFeedItems = (feed: Rdf.Feed<string>): Array<FeedItem> => {
   if (!feed.items?.length) {
     return []
   }

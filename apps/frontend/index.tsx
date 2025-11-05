@@ -1,5 +1,5 @@
 import { QueryClientProvider, useQuery } from '@tanstack/react-query'
-import React, { FC } from 'react'
+import type { FC } from 'react'
 import { createRoot } from 'react-dom/client'
 import { loadChannel } from './apis/channels'
 import { client } from './instances/query'
