@@ -1,34 +1,34 @@
 import { parseRssFeed } from 'feedsmith'
-import type { Rss } from 'feedsmith/types'
+import type { DeepPartial, Rss } from 'feedsmith/types'
 import type { FetchFeedProcessor } from '../../actions/fetchFeed.ts'
 import {
   parseRawFeedChannel,
   parseRawFeedItems,
-  retreiveAlternateLink,
-  retreiveSelfLink,
+  retrieveAlternateLink,
+  retrieveSelfLink,
 } from '../../helpers/feeds.ts'
 import type { FeedChannel, FeedItem } from '../../types/schemas.ts'
 
-export const rssFeedChannel = (feed: Rss.Feed<string>): FeedChannel => {
+export const rssFeedChannel = (feed: DeepPartial<Rss.Feed<string>>): FeedChannel => {
   return parseRawFeedChannel({
     title: feed.title,
     description: feed.description,
-    siteUrl: feed.link || retreiveAlternateLink(feed.atom?.links),
-    selfUrl: retreiveSelfLink(feed.atom?.links),
+    siteUrl: feed.link || retrieveAlternateLink(feed.atom?.links),
+    selfUrl: retrieveSelfLink(feed.atom?.links),
   })
 }
 
-export const rssFeedItems = (feed: Rss.Feed<string>): Array<FeedItem> => {
+export const rssFeedItems = (feed: DeepPartial<Rss.Feed<string>>): Array<FeedItem> => {
   if (!feed.items?.length) {
     return []
   }
 
   return parseRawFeedItems(feed.items, (item) => {
-    const link = item.link || retreiveAlternateLink(item.atom?.links)
+    const link = item.link || retrieveAlternateLink(item.atom?.links)
 
     return {
       link,
-      guid: item.guid || link,
+      guid: item.guid?.value || link,
       title: item.title,
       description: item.description || item.atom?.summary || item.dc?.description,
       author: item.authors?.[0] || item.atom?.authors?.[0]?.name || item.dc?.creator,

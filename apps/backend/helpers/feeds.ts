@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import type { Atom } from 'feedsmith/types'
+import type { Atom, DeepPartial } from 'feedsmith/types'
 import { dateCustomFormat } from '../parsers/dateCustomFormat.ts'
 import { dateStandard } from '../parsers/dateStandard.ts'
 import { textStandard } from '../parsers/textStandard.ts'
@@ -10,11 +10,11 @@ export const generateChecksum = (...values: Array<string | null | undefined>) =>
   return createHash('md5').update(values.join('')).digest('hex')
 }
 
-export const retreiveAlternateLink = (links: Atom.Feed<string>['links']) => {
+export const retrieveAlternateLink = (links?: Array<DeepPartial<Atom.Link<string>>>) => {
   return links?.find((link) => (!link.rel || link.rel === 'alternate') && link.href)?.href
 }
 
-export const retreiveSelfLink = (links: Atom.Feed<string>['links']) => {
+export const retrieveSelfLink = (links?: Array<DeepPartial<Atom.Link<string>>>) => {
   return links?.find((link) => link.rel === 'self' && link.href)?.href
 }
 

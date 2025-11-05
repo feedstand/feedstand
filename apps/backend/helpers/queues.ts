@@ -7,9 +7,9 @@ import { sentry } from '../instances/sentry.ts'
 export const createQueue = <Data, Result, Name extends string>(
   name: string,
   actions: Record<Name, (data: Data) => Result>,
-  opts?: { queue?: Partial<QueueOptions>; worker?: Partial<WorkerOptions> },
+  options?: { queue?: Partial<QueueOptions>; worker?: Partial<WorkerOptions> },
 ) => {
-  const queue: Queue<Data, Result, Name> = new Queue(name, { ...opts?.queue, connection })
+  const queue: Queue<Data, Result, Name> = new Queue(name, { ...options?.queue, connection })
 
   if (!hasWorkerFeature) {
     return queue
@@ -19,7 +19,7 @@ export const createQueue = <Data, Result, Name extends string>(
     return await actions[job.name](job.data)
   }
 
-  const worker = new Worker<Data, Result, Name>(name, processor, { ...opts?.worker, connection })
+  const worker = new Worker<Data, Result, Name>(name, processor, { ...options?.worker, connection })
 
   queue.on('error', (error) => sentry?.captureException?.(error))
   worker.on('error', (error) => sentry?.captureException?.(error))

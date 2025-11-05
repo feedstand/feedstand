@@ -1,5 +1,4 @@
 import { faker } from '@faker-js/faker'
-import { capitalize } from 'lodash-es'
 import type { NewAlias } from '../../types/schemas.ts'
 
 export const generateAlias = (alias?: Partial<NewAlias>): NewAlias => {

@@ -1,30 +1,30 @@
 import { parseAtomFeed } from 'feedsmith'
-import type { Atom } from 'feedsmith/types'
+import type { Atom, DeepPartial } from 'feedsmith/types'
 import type { FetchFeedProcessor } from '../../actions/fetchFeed.ts'
 import {
   parseRawFeedChannel,
   parseRawFeedItems,
-  retreiveAlternateLink,
-  retreiveSelfLink,
+  retrieveAlternateLink,
+  retrieveSelfLink,
 } from '../../helpers/feeds.ts'
 import type { FeedChannel, FeedItem } from '../../types/schemas.ts'
 
-export const atomFeedChannel = (feed: Atom.Feed<string>): FeedChannel => {
+export const atomFeedChannel = (feed: DeepPartial<Atom.Feed<string>>): FeedChannel => {
   return parseRawFeedChannel({
     title: feed.title,
     description: feed.subtitle,
-    siteUrl: retreiveAlternateLink(feed.links),
-    selfUrl: retreiveSelfLink(feed.links),
+    siteUrl: retrieveAlternateLink(feed.links),
+    selfUrl: retrieveSelfLink(feed.links),
   })
 }
 
-export const atomFeedItems = (feed: Atom.Feed<string>): Array<FeedItem> => {
+export const atomFeedItems = (feed: DeepPartial<Atom.Feed<string>>): Array<FeedItem> => {
   if (!feed.entries?.length) {
     return []
   }
 
   return parseRawFeedItems(feed.entries, (item) => {
-    const link = retreiveAlternateLink(item.links)
+    const link = retrieveAlternateLink(item.links)
 
     return {
       link,

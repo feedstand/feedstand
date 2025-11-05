@@ -1,11 +1,10 @@
 import { parseJsonFeed } from 'feedsmith'
-import type { Json } from 'feedsmith/types'
-import { castArray, get } from 'lodash-es'
+import type { DeepPartial, Json } from 'feedsmith/types'
 import type { FetchFeedProcessor } from '../../actions/fetchFeed.ts'
 import { parseRawFeedChannel, parseRawFeedItems } from '../../helpers/feeds.ts'
 import type { FeedChannel, FeedItem } from '../../types/schemas.ts'
 
-export const jsonFeedChannel = (feed: Json.Feed): FeedChannel => {
+export const jsonFeedChannel = (feed: DeepPartial<Json.Feed<string>>): FeedChannel => {
   return parseRawFeedChannel({
     title: feed.title,
     description: feed.description,
@@ -14,18 +13,17 @@ export const jsonFeedChannel = (feed: Json.Feed): FeedChannel => {
   })
 }
 
-export const jsonFeedItems = (feed: Json.Feed): Array<FeedItem> => {
+export const jsonFeedItems = (feed: DeepPartial<Json.Feed<string>>): Array<FeedItem> => {
   if (!feed.items?.length) {
     return []
   }
 
-  // biome-ignore lint/suspicious/noExplicitAny: Don't need to explain myself.
-  return parseRawFeedItems(castArray(feed.items), (item: any) => ({
+  return parseRawFeedItems(feed.items, (item) => ({
     link: item.url,
     guid: item.id,
     title: item.title,
     description: item.summary,
-    author: get(item.authors, '0.name'),
+    author: item.authors?.[0]?.name,
     content: item.content_html || item.content_text,
     publishedAt: item.date_published || item.date_modified,
   }))
