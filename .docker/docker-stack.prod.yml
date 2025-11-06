@@ -52,13 +52,6 @@ services:
       placement:
         constraints:
           - node.role == manager
-      labels:
-        - traefik.enable=true
-        - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
-        - traefik.http.routers.http-catchall.rule=hostregexp(`{host:.+}`)
-        - traefik.http.routers.http-catchall.entrypoints=web
-        - traefik.http.routers.http-catchall.middlewares=redirect-to-https@swarm
-        - traefik.http.routers.http-catchall.priority=1
     ports:
       - target: 80
         published: 80
@@ -102,6 +95,11 @@ services:
         - traefik.http.middlewares.dozzle-secure.headers.sslRedirect=true
         - traefik.http.middlewares.dozzle-secure.headers.stsSeconds=31536000
         - traefik.http.middlewares.dozzle-secure.headers.stsPreload=true
+        - traefik.http.routers.dozzle-http.rule=Host(`logs.feedstand.com`)
+        - traefik.http.routers.dozzle-http.entrypoints=web
+        - traefik.http.routers.dozzle-http.middlewares=dozzle-redirect@swarm
+        - traefik.http.middlewares.dozzle-redirect.redirectscheme.scheme=https
+        - traefik.http.middlewares.dozzle-redirect.redirectscheme.permanent=true
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     logging:
@@ -248,7 +246,7 @@ services:
       - "--auto-aof-rewrite-percentage 100"
       - "--auto-aof-rewrite-min-size 256mb"
       - "--aof-rewrite-incremental-fsync yes"
-      - "--maxmemory-policy allkeys-lru"
+      - "--maxmemory-policy noeviction"
       - "--aof-use-rdb-preamble yes"
     deploy:
       <<: *common-deploy
