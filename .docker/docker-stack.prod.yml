@@ -64,19 +64,6 @@ services:
       placement:
         constraints:
           - node.role == manager
-      labels:
-        # Replaces: Cloudflare HSTS, Automatic HTTPS Rewrites
-        - traefik.http.middlewares.shared-security.headers.stsSeconds=31536000
-        - traefik.http.middlewares.shared-security.headers.stsIncludeSubdomains=true
-        - traefik.http.middlewares.shared-security.headers.stsPreload=true
-        - traefik.http.middlewares.shared-security.headers.forceSTSHeader=true
-        - traefik.http.middlewares.shared-security.headers.contentSecurityPolicy=upgrade-insecure-requests
-        - traefik.http.middlewares.shared-security.headers.frameDeny=true
-        - traefik.http.middlewares.shared-security.headers.contentTypeNosniff=true
-        - traefik.http.middlewares.shared-security.headers.referrerPolicy=strict-origin-when-cross-origin
-        - traefik.http.middlewares.shared-security.headers.customResponseHeaders.server=
-        # Enable GZIP Compression
-        - traefik.http.middlewares.compression.compress=true
     ports:
       - target: 80
         published: 80
@@ -91,6 +78,28 @@ services:
       - letsencrypt_data:/letsencrypt
     networks:
       - public
+    logging:
+      <<: *common-logging
+
+  middlewares:
+    image: alpine:latest
+    command: sleep infinity
+    deploy:
+      replicas: 0
+      labels:
+        - traefik.enable=true
+        # Replaces: Cloudflare HSTS, Automatic HTTPS Rewrites
+        - traefik.http.middlewares.shared-security.headers.stsSeconds=31536000
+        - traefik.http.middlewares.shared-security.headers.stsIncludeSubdomains=true
+        - traefik.http.middlewares.shared-security.headers.stsPreload=true
+        - traefik.http.middlewares.shared-security.headers.forceSTSHeader=true
+        - traefik.http.middlewares.shared-security.headers.contentSecurityPolicy=upgrade-insecure-requests
+        - traefik.http.middlewares.shared-security.headers.frameDeny=true
+        - traefik.http.middlewares.shared-security.headers.contentTypeNosniff=true
+        - traefik.http.middlewares.shared-security.headers.referrerPolicy=strict-origin-when-cross-origin
+        - traefik.http.middlewares.shared-security.headers.customResponseHeaders.server=
+        # Enable GZIP Compression
+        - traefik.http.middlewares.compression.compress=true
     logging:
       <<: *common-logging
 
@@ -113,7 +122,7 @@ services:
         - traefik.http.routers.dozzle.entrypoints=websecure
         - traefik.http.routers.dozzle.tls=true
         - traefik.http.routers.dozzle.tls.certresolver=letsencrypt
-        - traefik.http.routers.dozzle.middlewares=shared-security
+        - traefik.http.routers.dozzle.middlewares=shared-security@swarm
         - traefik.http.services.dozzle.loadbalancer.server.port=8080
         # ⚠️ Add HTTP Basic Authentication
     volumes:
@@ -140,7 +149,7 @@ services:
         - traefik.http.routers.frontend.entrypoints=websecure
         - traefik.http.routers.frontend.tls=true
         - traefik.http.routers.frontend.tls.certresolver=letsencrypt
-        - traefik.http.routers.frontend.middlewares=shared-security
+        - traefik.http.routers.frontend.middlewares=shared-security@swarm
         - traefik.http.services.frontend.loadbalancer.server.port=4000
     healthcheck:
       <<: *common-healthcheck
@@ -167,7 +176,7 @@ services:
         - traefik.http.routers.backend.entrypoints=websecure
         - traefik.http.routers.backend.tls=true
         - traefik.http.routers.backend.tls.certresolver=letsencrypt
-        - traefik.http.routers.backend.middlewares=shared-security
+        - traefik.http.routers.backend.middlewares=shared-security@swarm
         - traefik.http.services.backend.loadbalancer.server.port=4001
     healthcheck:
       <<: *common-healthcheck
