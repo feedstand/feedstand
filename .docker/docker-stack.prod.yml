@@ -75,6 +75,7 @@ services:
   dozzle:
     image: amir20/dozzle:latest
     environment:
+      DOZZLE_MODE: swarm
       DOZZLE_LEVEL: info
       DOZZLE_TAILSIZE: 300
       DOZZLE_FILTER: "name=feedstand_*"
