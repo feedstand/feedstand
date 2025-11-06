@@ -38,7 +38,7 @@ services:
   traefik:
     image: traefik:3
     environment:
-      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
+      - CLOUDFLARE_DNS_API_TOKEN=${CLOUDFLARE_API_TOKEN}
     command:
       # Swarm Provider
       - --providers.docker=false
