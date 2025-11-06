@@ -11,6 +11,12 @@ x-common-healthcheck: &common-healthcheck
   retries: 3
   start_period: 30s
 
+x-common-logging: &common-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 x-backend-config: &backend-config
   image: ghcr.io/feedstand/backend:${VERSION_TAG:-latest}
   depends_on:
@@ -63,6 +69,39 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - letsencrypt_data:/letsencrypt
+    logging:
+      <<: *common-logging
+
+  dozzle:
+    image: amir20/dozzle:latest
+    environment:
+      DOZZLE_LEVEL: info
+      DOZZLE_TAILSIZE: 300
+      DOZZLE_FILTER: "name=feedstand_*"
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.dozzle.rule=Host(`logs.feedstand.com`)
+        - traefik.http.routers.dozzle.entrypoints=websecure
+        - traefik.http.routers.dozzle.tls=true
+        - traefik.http.routers.dozzle.tls.certresolver=letsencrypt
+        - traefik.http.routers.dozzle.middlewares=dozzle-secure@swarm
+        - traefik.http.services.dozzle.loadbalancer.server.port=8080
+        - traefik.http.middlewares.dozzle-secure.headers.sslRedirect=true
+        - traefik.http.middlewares.dozzle-secure.headers.stsSeconds=31536000
+        - traefik.http.middlewares.dozzle-secure.headers.stsPreload=true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    logging:
+      <<: *common-logging
 
   frontend:
     image: ghcr.io/feedstand/frontend:${VERSION_TAG:-latest}
@@ -89,6 +128,8 @@ services:
     healthcheck:
       <<: *common-healthcheck
       test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:4000"]
+    logging:
+      <<: *common-logging
 
   backend-server:
     <<: *backend-config
@@ -115,6 +156,8 @@ services:
     healthcheck:
       <<: *common-healthcheck
       test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:4001"]
+    logging:
+      <<: *common-logging
 
   backend-worker:
     <<: *backend-config
@@ -134,6 +177,8 @@ services:
           - node.labels.worker == true
         preferences:
           - spread: node.id
+    logging:
+      <<: *common-logging
 
   pgbouncer:
     image: edoburu/pgbouncer
@@ -165,6 +210,8 @@ services:
       test: ["CMD", "pg_isready", "-h", "localhost", "-U", "${DATABASE_USER}"]
     depends_on:
       - database
+    logging:
+      <<: *common-logging
 
   database:
     image: postgres:17-alpine
@@ -182,6 +229,8 @@ services:
     healthcheck:
       <<: *common-healthcheck
       test: ["CMD", "pg_isready", "-h", "localhost", "-U", "${DATABASE_USER}"]
+    logging:
+      <<: *common-logging
 
   queue:
     image: redis:7-alpine
@@ -206,6 +255,8 @@ services:
     healthcheck:
       <<: *common-healthcheck
       test: ["CMD", "redis-cli", "ping"]
+    logging:
+      <<: *common-logging
 
 volumes:
   letsencrypt_data:
