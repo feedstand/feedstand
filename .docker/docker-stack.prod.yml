@@ -154,8 +154,8 @@ services:
     <<: *backend-config
     environment:
       <<: *backend-environment
-      FEATURE_MIGRATOR: "true"
-      FEATURE_SERVER: "true"
+      FEATURE_MIGRATOR: true
+      FEATURE_SERVER: true
     deploy:
       <<: *common-deploy
       placement:
@@ -182,7 +182,7 @@ services:
     <<: *backend-config
     environment:
       <<: *backend-environment
-      FEATURE_WORKER: "true"
+      FEATURE_WORKER: true
     deploy:
       <<: *common-deploy
       replicas: 30
