@@ -58,6 +58,7 @@ services:
       - --providers.docker=false
       - --providers.swarm=true
       - --providers.swarm.exposedbydefault=false
+      - --providers.swarm.network=public
       # Entrypoints
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
@@ -222,7 +223,10 @@ services:
       ADMIN_USERS: ${BACKEND_DATABASE_USER}
       AUTH_TYPE: scram-sha-256
     ports:
-      - "127.0.0.1:5432:5432"
+      - target: 5432
+        published: 5432
+        protocol: tcp
+        mode: host
     deploy:
       <<: *common-deploy
       placement:
