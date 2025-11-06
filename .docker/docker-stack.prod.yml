@@ -84,11 +84,6 @@ services:
         published: 443
         protocol: tcp
         mode: host
-      # ⚠️ Remove public access to database
-      - target: 5432
-        published: 5432
-        protocol: tcp
-        mode: host
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - letsencrypt_data:/letsencrypt
@@ -214,11 +209,6 @@ services:
       placement:
         constraints:
           - node.role == manager
-      labels:
-        - traefik.enable=true
-        - traefik.tcp.routers.pgbouncer.rule=HostSNI(`*`)
-        - traefik.tcp.routers.pgbouncer.entrypoints=pgbouncer
-        - traefik.tcp.services.pgbouncer.loadbalancer.server.port=5432
     healthcheck:
       <<: *common-healthcheck
       test: ["CMD", "pg_isready", "-h", "localhost", "-U", "${BACKEND_DATABASE_USER}"]
