@@ -78,11 +78,8 @@ services:
       DOZZLE_MODE: swarm
       DOZZLE_LEVEL: info
       DOZZLE_TAILSIZE: 300
-      DOZZLE_FILTER: "name=feedstand_*"
     deploy:
-      placement:
-        constraints:
-          - node.role == manager
+      mode: global
       resources:
         limits:
           memory: 128M
@@ -167,12 +164,13 @@ services:
       FEATURE_WORKER: "true"
     deploy:
       <<: *common-deploy
-      replicas: 10
+      replicas: 30
       update_config:
         parallelism: 4
         delay: 30s
         order: start-first
       placement:
+        max_replicas_per_node: 10
         constraints:
           - node.role != manager
           - node.labels.worker == true
