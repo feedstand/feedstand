@@ -131,7 +131,7 @@ services:
         - traefik.http.middlewares.frontend-secure.headers.stsPreload=true
     healthcheck:
       <<: *common-healthcheck
-      test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:4000"]
+      test: ["CMD", "wget", "-q", "--spider", "--method=HEAD", "http://0.0.0.0:4000/health"]
     logging:
       <<: *common-logging
 
