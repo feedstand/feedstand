@@ -82,6 +82,7 @@ export const upsertChannel = async ({
         lastScanHash: feedData.meta.hash,
         lastScanError: null,
       })
+      .onConflictDoNothing()
       .returning()
     const [alias] = await tx
       .insert(tables.aliases)
