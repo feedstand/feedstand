@@ -65,7 +65,6 @@ services:
         constraints:
           - node.role == manager
       labels:
-        - traefik.enable=true
         # Replaces: Cloudflare HSTS, Automatic HTTPS Rewrites
         - traefik.http.middlewares.shared-security.headers.stsSeconds=31536000
         - traefik.http.middlewares.shared-security.headers.stsIncludeSubdomains=true
@@ -114,7 +113,7 @@ services:
         - traefik.http.routers.dozzle.entrypoints=websecure
         - traefik.http.routers.dozzle.tls=true
         - traefik.http.routers.dozzle.tls.certresolver=letsencrypt
-        - traefik.http.routers.dozzle.middlewares=shared-security@swarm
+        - traefik.http.routers.dozzle.middlewares=shared-security
         - traefik.http.services.dozzle.loadbalancer.server.port=8080
         # ⚠️ Add HTTP Basic Authentication
     volumes:
@@ -141,7 +140,7 @@ services:
         - traefik.http.routers.frontend.entrypoints=websecure
         - traefik.http.routers.frontend.tls=true
         - traefik.http.routers.frontend.tls.certresolver=letsencrypt
-        - traefik.http.routers.frontend.middlewares=shared-security@swarm
+        - traefik.http.routers.frontend.middlewares=shared-security
         - traefik.http.services.frontend.loadbalancer.server.port=4000
     healthcheck:
       <<: *common-healthcheck
@@ -168,7 +167,7 @@ services:
         - traefik.http.routers.backend.entrypoints=websecure
         - traefik.http.routers.backend.tls=true
         - traefik.http.routers.backend.tls.certresolver=letsencrypt
-        - traefik.http.routers.backend.middlewares=shared-security@swarm
+        - traefik.http.routers.backend.middlewares=shared-security
         - traefik.http.services.backend.loadbalancer.server.port=4001
     healthcheck:
       <<: *common-healthcheck
