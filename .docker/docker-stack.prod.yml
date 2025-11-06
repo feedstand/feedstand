@@ -54,6 +54,8 @@ services:
     environment:
       - CLOUDFLARE_DNS_API_TOKEN=${CLOUDFLARE_API_TOKEN}
     command:
+      # Global
+      - --global.sendAnonymousUsage=true
       # Swarm Provider
       - --providers.docker=false
       - --providers.swarm=true
