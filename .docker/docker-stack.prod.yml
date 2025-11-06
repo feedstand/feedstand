@@ -60,7 +60,7 @@ services:
       - --providers.docker=false
       - --providers.swarm=true
       - --providers.swarm.exposedbydefault=false
-      - --providers.swarm.network=public
+      - --providers.swarm.network=feedstand_public
       # Entrypoints
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
