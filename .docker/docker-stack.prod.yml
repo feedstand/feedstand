@@ -65,6 +65,7 @@ services:
         constraints:
           - node.role == manager
       labels:
+        - traefik.enable=true
         # Replaces: Cloudflare HSTS, Automatic HTTPS Rewrites
         - traefik.http.middlewares.shared-security.headers.stsSeconds=31536000
         - traefik.http.middlewares.shared-security.headers.stsIncludeSubdomains=true
