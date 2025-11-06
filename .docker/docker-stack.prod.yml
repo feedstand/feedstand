@@ -224,11 +224,6 @@ services:
       RESERVE_POOL_TIMEOUT: 5
       ADMIN_USERS: ${BACKEND_DATABASE_USER}
       AUTH_TYPE: scram-sha-256
-    ports:
-      - target: 5432
-        published: 5432
-        protocol: tcp
-        mode: host
     deploy:
       <<: *common-deploy
       placement:
