@@ -38,20 +38,43 @@ services:
   traefik:
     image: traefik:3
     command:
+      # Swarm Provider
       - --providers.docker=false
       - --providers.swarm=true
       - --providers.swarm.exposedbydefault=false
+      # Entrypoints
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
       - --entrypoints.pgbouncer.address=:5432
+      # Global HTTP → HTTPS Redirect
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.web.http.redirections.entrypoint.permanent=true
+      # Let's Encrypt with TLS Challenge
+      - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
       - --certificatesresolvers.letsencrypt.acme.email=${TRAEFIK_ACME_EMAIL}
       - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
-      - --certificatesresolvers.letsencrypt.acme.httpchallenge=true
-      - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
+      # Logging
+      - --log.level=INFO
+      - --accesslog.filepath=/logs/access.log
+      - --accesslog.bufferingsize=100
     deploy:
       placement:
         constraints:
           - node.role == manager
+      labels:
+        # Replaces: Cloudflare HSTS, Automatic HTTPS Rewrites
+        - traefik.http.middlewares.shared-security.headers.stsSeconds=31536000
+        - traefik.http.middlewares.shared-security.headers.stsIncludeSubdomains=true
+        - traefik.http.middlewares.shared-security.headers.stsPreload=true
+        - traefik.http.middlewares.shared-security.headers.forceSTSHeader=true
+        - traefik.http.middlewares.shared-security.headers.contentSecurityPolicy=upgrade-insecure-requests
+        - traefik.http.middlewares.shared-security.headers.frameDeny=true
+        - traefik.http.middlewares.shared-security.headers.contentTypeNosniff=true
+        - traefik.http.middlewares.shared-security.headers.referrerPolicy=strict-origin-when-cross-origin
+        - traefik.http.middlewares.shared-security.headers.customResponseHeaders.server=
+        # Enable GZIP Compression
+        - traefik.http.middlewares.compression.compress=true
     ports:
       - target: 80
         published: 80
@@ -61,6 +84,7 @@ services:
         published: 443
         protocol: tcp
         mode: host
+      # ⚠️ Remove public access to database
       - target: 5432
         published: 5432
         protocol: tcp
@@ -90,16 +114,9 @@ services:
         - traefik.http.routers.dozzle.entrypoints=websecure
         - traefik.http.routers.dozzle.tls=true
         - traefik.http.routers.dozzle.tls.certresolver=letsencrypt
-        - traefik.http.routers.dozzle.middlewares=dozzle-secure@swarm
+        - traefik.http.routers.dozzle.middlewares=shared-security@swarm
         - traefik.http.services.dozzle.loadbalancer.server.port=8080
-        - traefik.http.middlewares.dozzle-secure.headers.sslRedirect=true
-        - traefik.http.middlewares.dozzle-secure.headers.stsSeconds=31536000
-        - traefik.http.middlewares.dozzle-secure.headers.stsPreload=true
-        - traefik.http.routers.dozzle-http.rule=Host(`logs.feedstand.com`)
-        - traefik.http.routers.dozzle-http.entrypoints=web
-        - traefik.http.routers.dozzle-http.middlewares=dozzle-redirect@swarm
-        - traefik.http.middlewares.dozzle-redirect.redirectscheme.scheme=https
-        - traefik.http.middlewares.dozzle-redirect.redirectscheme.permanent=true
+        # ⚠️ Add HTTP Basic Authentication
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     logging:
@@ -122,11 +139,8 @@ services:
         - traefik.http.routers.frontend.entrypoints=websecure
         - traefik.http.routers.frontend.tls=true
         - traefik.http.routers.frontend.tls.certresolver=letsencrypt
-        - traefik.http.routers.frontend.middlewares=frontend-secure@swarm
+        - traefik.http.routers.frontend.middlewares=shared-security@swarm
         - traefik.http.services.frontend.loadbalancer.server.port=4000
-        - traefik.http.middlewares.frontend-secure.headers.sslRedirect=true
-        - traefik.http.middlewares.frontend-secure.headers.stsSeconds=31536000
-        - traefik.http.middlewares.frontend-secure.headers.stsPreload=true
     healthcheck:
       <<: *common-healthcheck
       test: ["CMD", "wget", "-q", "--spider", "--method=HEAD", "http://0.0.0.0:4000/health"]
@@ -150,11 +164,8 @@ services:
         - traefik.http.routers.backend.entrypoints=websecure
         - traefik.http.routers.backend.tls=true
         - traefik.http.routers.backend.tls.certresolver=letsencrypt
-        - traefik.http.routers.backend.middlewares=backend-secure@swarm
+        - traefik.http.routers.backend.middlewares=shared-security@swarm
         - traefik.http.services.backend.loadbalancer.server.port=4001
-        - traefik.http.middlewares.backend-secure.headers.sslRedirect=true
-        - traefik.http.middlewares.backend-secure.headers.stsSeconds=31536000
-        - traefik.http.middlewares.backend-secure.headers.stsPreload=true
     healthcheck:
       <<: *common-healthcheck
       test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:4001"]
