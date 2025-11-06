@@ -85,7 +85,7 @@ services:
     image: alpine:latest
     command: sleep infinity
     deploy:
-      replicas: 0
+      replicas: 1
       labels:
         - traefik.enable=true
         # Replaces: Cloudflare HSTS, Automatic HTTPS Rewrites
