@@ -60,7 +60,7 @@ services:
       - --providers.docker=false
       - --providers.swarm=true
       - --providers.swarm.exposedbydefault=false
-      - --providers.swarm.network=feedstand_public
+      # - --providers.swarm.network=feedstand_public
       # Entrypoints
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
@@ -98,8 +98,8 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - letsencrypt_data:/letsencrypt
-    networks:
-      - public
+    # networks:
+    #   - public
     logging:
       <<: *common-logging
 
@@ -128,8 +128,8 @@ services:
         # ⚠️ Add HTTP Basic Authentication
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-    networks:
-      - public
+    # networks:
+    #   - public
     logging:
       <<: *common-logging
 
@@ -156,8 +156,8 @@ services:
     healthcheck:
       <<: *common-healthcheck
       test: ["CMD", "wget", "-q", "--spider", "--method=HEAD", "http://0.0.0.0:4000/health"]
-    networks:
-      - public
+    # networks:
+    #   - public
     logging:
       <<: *common-logging
 
@@ -184,9 +184,9 @@ services:
     healthcheck:
       <<: *common-healthcheck
       test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:4001"]
-    networks:
-      - public
-      - internal
+    # networks:
+    #   - public
+    #   - internal
     logging:
       <<: *common-logging
 
@@ -209,8 +209,8 @@ services:
           - node.labels.worker == true
         preferences:
           - spread: node.id
-    networks:
-      - internal
+    # networks:
+    #   - internal
     logging:
       <<: *common-logging
 
@@ -231,7 +231,7 @@ services:
       AUTH_TYPE: scram-sha-256
     deploy:
       <<: *common-deploy
-      endpoint_mode: dnsrr
+      # endpoint_mode: dnsrr
       placement:
         constraints:
           - node.role == manager
@@ -245,9 +245,9 @@ services:
       test: ["CMD", "pg_isready", "-h", "localhost", "-U", "${BACKEND_DATABASE_USER}"]
     depends_on:
       - database
-    networks:
-      - public
-      - internal
+    # networks:
+    #   - public
+    #   - internal
     logging:
       <<: *common-logging
 
@@ -264,8 +264,8 @@ services:
           - node.role == manager
     volumes:
       - database_data:/var/lib/postgresql/data
-    networks:
-      - internal
+    # networks:
+    #   - internal
     healthcheck:
       <<: *common-healthcheck
       test: ["CMD", "pg_isready", "-h", "localhost", "-U", "${BACKEND_DATABASE_USER}"]
@@ -292,8 +292,8 @@ services:
           - node.role == manager
     volumes:
       - queue_data:/data
-    networks:
-      - internal
+    # networks:
+    #   - internal
     healthcheck:
       <<: *common-healthcheck
       test: ["CMD", "redis-cli", "ping"]
@@ -308,10 +308,10 @@ volumes:
   queue_data:
     driver: local
 
-networks:
-  public:
-    driver: overlay
-    attachable: true
-  internal:
-    driver: overlay
-    internal: true
+# networks:
+#   public:
+#     driver: overlay
+#     attachable: true
+#   internal:
+#     driver: overlay
+#     internal: true
