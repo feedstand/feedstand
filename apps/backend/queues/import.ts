@@ -17,6 +17,11 @@ export const importQueue = createQueue(
         },
       },
     },
-    worker: { concurrency: 10 },
+    worker: {
+      concurrency: 10,
+      lockDuration: 180000,
+      maxStalledCount: 5,
+      stalledInterval: 60000,
+    },
   },
 )
