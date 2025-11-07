@@ -13,6 +13,10 @@ import { isOneOfContentTypes } from '../helpers/responses.ts'
 import { isJson } from '../helpers/strings.ts'
 import { sleep } from '../helpers/system.ts'
 
+interface CustomAxiosRequestConfig extends AxiosRequestConfig {
+  retriesCount?: number
+}
+
 // TODO:
 // - Increase max header size to 64KB. This is possible in Unidici HTTPS Agent as an option
 //   maxHeaderSize: 65536. See analogous thing in Axios.
@@ -50,82 +54,98 @@ export class CustomResponse extends Response {
   }
 }
 
-export const fetchUrl = async (
-  url: string,
-  config?: AxiosRequestConfig,
-): Promise<CustomResponse> => {
-  let retriesCount = 0
-  const maxRetries = 3
+const axiosInstance = axios.create({
+  timeout: maxTimeout,
+  // Enables lenient HTTP parsing for non-standard server responses where Content-Length or
+  // Transfer-Encoding headers might be malformed (common with legacy RSS feeds and
+  // misconfigured servers).
+  insecureHTTPParser: true,
+  // Allows getting RSS feed from URLs with unverified certificate.
+  // Enable connection pooling for better performance.
+  httpsAgent: new https.Agent({
+    rejectUnauthorized: false,
+    keepAlive: true,
+    maxSockets: 100,
+  }),
+  // Always return a response instead of throwing an exception. This allows for later use
+  // of the erroneous response to detect the type of error in parsing middlewares.
+  validateStatus: () => true,
+  // Do not automatically transform JSON response to JSON object.
+  transformResponse: [],
+  // Need to use the stream response type to detect streaming services (eg. audio.)
+  responseType: 'stream',
+  // Default headers (will be merged with per-request headers)
+  headers: commonHeaders,
+})
 
-  const instance = axios.create({
-    timeout: maxTimeout,
-    // Enables lenient HTTP parsing for non-standard server responses where Content-Length or
-    // Transfer-Encoding headers might be malformed (common with legacy RSS feeds and
-    // misconfigured servers).
-    insecureHTTPParser: true,
-    // Allows getting RSS feed from URLs with unverified certificate.
-    httpsAgent: new https.Agent({ rejectUnauthorized: false }),
-    // Always return a response instead of throwing an exception. This allows for later use
-    // of the erroneous response to detect the type of error in parsing middlewares.
-    validateStatus: () => true,
-    // Do not automatically transform JSON response to JSON object.
-    transformResponse: [],
-    // Need to use the stream response type to detect streaming services (eg. audio.)
-    responseType: 'stream',
-    // Customize the headers by always setting default ones and adding option to set custom ones.
-    headers: {
-      ...commonHeaders,
-      // TODO: The below needs to be re-validated as sometimes having */* causes the server to
-      // reject the request.
-      // // Turn off the default preference for application/json in the Accept header.
-      // 'Accept': '*/*',
-      // 'Accept-Encoding': 'identity',
-      ...config?.headers,
-    },
-    // Append any custom configuration at the end.
-    ...config,
-  })
+const maxRetries = 3
 
-  // Try other user agent header as the server might require recognizable string.
-  const userAgentInterceptor = async (response: AxiosResponse) => {
+// Try other user agent header as the server might require recognizable string.
+axiosInstance.interceptors.response.use(
+  async (response: AxiosResponse) => {
+    const config = response.config as CustomAxiosRequestConfig
+    const retriesCount = config.retriesCount || 0
+
     if (response.status === 403 && retriesCount < maxRetries) {
-      retriesCount++
-      response.config.headers['User-Agent'] = sample(userAgents)
+      const newRetriesCount = retriesCount + 1
+      const newConfig: CustomAxiosRequestConfig = {
+        ...config,
+        retriesCount: newRetriesCount,
+      }
+      newConfig.headers = { ...config.headers, 'User-Agent': sample(userAgents) }
 
       // Exponential backoff with jitter to avoid thundering herd.
-      await sleep(retriesCount * 1000 + Math.random() * 1000)
+      await sleep(newRetriesCount * 1000 + Math.random() * 1000)
 
-      return instance(response.config)
+      return axiosInstance(newConfig)
     }
 
     return response
-  }
-
+  },
   // Some servers have misconfigured IPv6 setup (AAAA DNS records exist but no actual IPv6
   // connectivity). When this happens, the first request attempts both IPv6 and IPv4, resulting
   // in ENETUNREACH or ETIMEDOUT errors. This retry logic forces IPv4-only (family: 4) on
   // subsequent attempts, which typically resolves the connection issues for such servers.
-  const ipFamilyInterceptor = async (error: AxiosError) => {
-    if (
-      error.config &&
-      (error.code === 'ENETUNREACH' || error.code === 'ETIMEDOUT') &&
-      retriesCount < maxRetries
-    ) {
-      retriesCount++
-      error.config.family = 4
+  async (error: AxiosError) => {
+    if (!error.config) {
+      return Promise.reject(error)
+    }
+
+    const config = error.config as CustomAxiosRequestConfig
+    const retriesCount = config.retriesCount || 0
+
+    if ((error.code === 'ENETUNREACH' || error.code === 'ETIMEDOUT') && retriesCount < maxRetries) {
+      const newRetriesCount = retriesCount + 1
+      const newConfig: CustomAxiosRequestConfig = {
+        ...config,
+        retriesCount: newRetriesCount,
+        family: 4,
+      }
 
       // Exponential backoff with jitter to avoid thundering herd.
-      await sleep(retriesCount * 1000 + Math.random() * 1000)
+      await sleep(newRetriesCount * 1000 + Math.random() * 1000)
 
-      return instance(error.config)
+      return axiosInstance(newConfig)
     }
 
     return Promise.reject(error)
+  },
+)
+
+export const fetchUrl = async (
+  url: string,
+  config?: AxiosRequestConfig,
+): Promise<CustomResponse> => {
+  const requestConfig: CustomAxiosRequestConfig = {
+    ...config,
+    retriesCount: 0,
+    headers: {
+      ...commonHeaders,
+      ...config?.headers,
+    },
   }
 
-  instance.interceptors.response.use(userAgentInterceptor, ipFamilyInterceptor)
-
-  const response = await instance(url)
+  const response = await axiosInstance(url, requestConfig)
   const contentType = String(response.headers['content-type'])
 
   // If it's not text, abort right away and destroy the stream so we don't keep reading.
