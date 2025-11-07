@@ -46,9 +46,9 @@ export const rssFeed: FetchFeedProcessor = async (context, next) => {
   try {
     const xml = await context.response.text()
 
-    if (!detectRssFeed(xml)) {
-      return await next()
-    }
+    // if (!detectRssFeed(xml)) {
+    //   return await next()
+    // }
 
     const feed = parseRssFeed(xml)
 

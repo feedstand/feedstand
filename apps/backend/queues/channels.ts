@@ -1,4 +1,4 @@
-import type { JobsOptions } from 'bullmq'
+// import type { JobsOptions } from 'bullmq'
 import { createQueue } from '../helpers/queues.ts'
 import { deleteOrphanChannels } from '../jobs/deleteOrphanChannels.ts'
 import { fixChannels } from '../jobs/fixChannels.ts'
@@ -10,11 +10,11 @@ export const channelsQueue = createQueue('channels', {
   fixChannels,
 })
 
-const repeatableJobOptions: JobsOptions = {
-  repeat: { pattern: '*/15 * * * *' },
-  removeOnComplete: false,
-  removeOnFail: false,
-}
+// const repeatableJobOptions: JobsOptions = {
+//   repeat: { pattern: '*/15 * * * *' },
+//   removeOnComplete: false,
+//   removeOnFail: false,
+// }
 
 const addRepeatableJobs = () => {
   // channelsQueue.add('deleteOrphanChannels', undefined, repeatableJobOptions)
