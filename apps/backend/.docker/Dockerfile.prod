@@ -1,4 +1,5 @@
-FROM node:24-alpine
+# Use Debian-based image (not Alpine) - Sentry profiling requires glibc.
+FROM node:24-slim
 WORKDIR /home/node
 
 ARG VERSION_TAG
@@ -7,7 +8,8 @@ ENV VERSION_TAG=${VERSION_TAG}
 COPY package*.json .
 COPY tsconfig.json .
 COPY apps/backend/package.json apps/backend/
-RUN npm ci --ignore-scripts -w apps/backend --only=production
+# Allow scripts to run - needed to build @sentry/profiling-node native bindings.
+RUN npm ci -w apps/backend --only=production
 
 COPY apps/backend apps/backend/
 EXPOSE 4001
