@@ -6,6 +6,7 @@ import * as serverConstants from './constants/server.ts'
 import { db } from './instances/database.ts'
 import { hono } from './instances/hono.ts'
 
+import './instances/sentry.ts'
 import './queues/channel.ts'
 import './queues/channels.ts'
 import './queues/import.ts'
