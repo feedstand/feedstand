@@ -46,9 +46,9 @@ export const atomFeed: FetchFeedProcessor = async (context, next) => {
   try {
     const xml = await context.response.text()
 
-    // if (!detectAtomFeed(xml)) {
-    //   return await next()
-    // }
+    if (!detectAtomFeed(xml)) {
+      return await next()
+    }
 
     const feed = parseAtomFeed(xml)
 

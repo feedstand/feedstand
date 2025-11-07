@@ -37,9 +37,9 @@ export const jsonFeed: FetchFeedProcessor = async (context, next) => {
   try {
     const json = await context.response.json()
 
-    // if (!detectJsonFeed(json)) {
-    //   return await next()
-    // }
+    if (!detectJsonFeed(json)) {
+      return await next()
+    }
 
     const feed = parseJsonFeed(json)
 

@@ -46,9 +46,9 @@ export const rdfFeed: FetchFeedProcessor = async (context, next) => {
   try {
     const xml = await context.response.text()
 
-    // if (!detectRdfFeed(xml)) {
-    //   return await next()
-    // }
+    if (!detectRdfFeed(xml)) {
+      return await next()
+    }
 
     const feed = parseRdfFeed(xml)
 
