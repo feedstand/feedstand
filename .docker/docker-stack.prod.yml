@@ -197,13 +197,13 @@ services:
       FEATURE_WORKER: "true"
     deploy:
       <<: *common-deploy
-      replicas: 30
+      replicas: 25
       update_config:
         parallelism: 4
         delay: 30s
         order: start-first
       placement:
-        max_replicas_per_node: 10
+        # max_replicas_per_node: 10
         constraints:
           - node.role != manager
           - node.labels.worker == true
