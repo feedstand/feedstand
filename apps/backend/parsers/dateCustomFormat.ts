@@ -25,7 +25,7 @@ type CustomFormats = Array<{
   replace?: Array<CustomFormatsReplace>
 }>
 
-const commonTzRegex: RegExp = /([A-Za-z\/_]+)$/
+const commonTzRegex: RegExp = /([A-Za-z/_]+)$/
 
 const fixMidnight: CustomFormatsReplace = {
   from: /\b24:(\d{2}(?::\d{2})?)\b/,
@@ -1067,7 +1067,7 @@ const customFormats: CustomFormats = [
   // Example: Sat, 09 Feb 2008 12:51:02 -05000202
   {
     format: 'EEE, dd MMM yyyy HH:mm:ss xx',
-    replace: [{ from: /\-\d{8}/, to: (match) => match.substring(0, 5) }],
+    replace: [{ from: /-\d{8}/, to: (match) => match.substring(0, 5) }],
   },
 
   // Example: Mon, 24 Arp 2023 06:50:00 MDT
@@ -1177,15 +1177,24 @@ export const dateCustomFormat: ValueParser<Date> = (value) => {
     return
   }
 
+  let globalizedValue = value
+
+  for (const { from, to } of globalReplaces) {
+    globalizedValue =
+      typeof from === 'string'
+        ? globalizedValue.replaceAll(from, to)
+        : globalizedValue.replace(from, to)
+  }
+
   for (const { format, locale, tzRegex, matchRegex, replace: replaces = [] } of customFormats) {
     let extractedTimezone: string | undefined = '+0000'
-    let customizedValue = value
+    let customizedValue = globalizedValue
 
-    if (matchRegex && !value.match(matchRegex)) {
+    if (matchRegex && !globalizedValue.match(matchRegex)) {
       continue
     }
 
-    for (const { from, to } of [...globalReplaces, ...replaces]) {
+    for (const { from, to } of replaces) {
       customizedValue =
         typeof from === 'string'
           ? customizedValue.replaceAll(from, to)
