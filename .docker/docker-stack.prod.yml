@@ -314,3 +314,4 @@ networks:
   internal:
     driver: overlay
     internal: true
+    attachable: true
