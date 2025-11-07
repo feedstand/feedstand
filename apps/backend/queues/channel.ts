@@ -19,7 +19,7 @@ export const channelQueue = createQueue(
     },
     worker: {
       concurrency: 10,
-      lockDuration: 180000,
+      lockDuration: 60000,
       maxStalledCount: 5,
       stalledInterval: 60000,
     },
