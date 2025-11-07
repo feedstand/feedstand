@@ -1,4 +1,4 @@
-import { parseRssFeed } from 'feedsmith'
+import { detectRssFeed, parseRssFeed } from 'feedsmith'
 import type { DeepPartial, Rss } from 'feedsmith/types'
 import type { FetchFeedProcessor } from '../../actions/fetchFeed.ts'
 import {
@@ -45,6 +45,11 @@ export const rssFeed: FetchFeedProcessor = async (context, next) => {
 
   try {
     const xml = await context.response.text()
+
+    if (!detectRssFeed(xml)) {
+      return await next()
+    }
+
     const feed = parseRssFeed(xml)
 
     context.result = {

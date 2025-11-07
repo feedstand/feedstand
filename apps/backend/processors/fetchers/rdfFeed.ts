@@ -1,4 +1,4 @@
-import { parseRdfFeed } from 'feedsmith'
+import { detectRdfFeed, parseRdfFeed } from 'feedsmith'
 import type { DeepPartial, Rdf } from 'feedsmith/types'
 import type { FetchFeedProcessor } from '../../actions/fetchFeed.ts'
 import {
@@ -45,6 +45,11 @@ export const rdfFeed: FetchFeedProcessor = async (context, next) => {
 
   try {
     const xml = await context.response.text()
+
+    if (!detectRdfFeed(xml)) {
+      return await next()
+    }
+
     const feed = parseRdfFeed(xml)
 
     context.result = {

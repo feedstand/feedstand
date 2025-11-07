@@ -1,4 +1,4 @@
-import { parseAtomFeed } from 'feedsmith'
+import { detectAtomFeed, parseAtomFeed } from 'feedsmith'
 import type { Atom, DeepPartial } from 'feedsmith/types'
 import type { FetchFeedProcessor } from '../../actions/fetchFeed.ts'
 import {
@@ -45,6 +45,11 @@ export const atomFeed: FetchFeedProcessor = async (context, next) => {
 
   try {
     const xml = await context.response.text()
+
+    if (!detectAtomFeed(xml)) {
+      return await next()
+    }
+
     const feed = parseAtomFeed(xml)
 
     context.result = {

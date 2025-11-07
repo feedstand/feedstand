@@ -1,4 +1,4 @@
-import { parseJsonFeed } from 'feedsmith'
+import { detectJsonFeed, parseJsonFeed } from 'feedsmith'
 import type { DeepPartial, Json } from 'feedsmith/types'
 import type { FetchFeedProcessor } from '../../actions/fetchFeed.ts'
 import { parseRawFeedChannel, parseRawFeedItems } from '../../helpers/feeds.ts'
@@ -36,7 +36,12 @@ export const jsonFeed: FetchFeedProcessor = async (context, next) => {
 
   try {
     const json = await context.response.json()
-    const out = parseJsonFeed(json)
+
+    if (!detectJsonFeed(json)) {
+      return await next()
+    }
+
+    const feed = parseJsonFeed(json)
 
     context.result = {
       meta: {
@@ -46,8 +51,8 @@ export const jsonFeed: FetchFeedProcessor = async (context, next) => {
         requestUrl: context.url,
         responseUrl: context.response.url,
       },
-      channel: jsonFeedChannel(out),
-      items: jsonFeedItems(out),
+      channel: jsonFeedChannel(feed),
+      items: jsonFeedItems(feed),
     }
   } catch (error) {
     context.error = error
