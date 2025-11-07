@@ -1,4 +1,3 @@
-import { createHash } from 'node:crypto'
 import https from 'node:https'
 import axios, { type AxiosError, type AxiosRequestConfig, type AxiosResponse } from 'axios'
 import { sample } from 'lodash-es'
@@ -9,6 +8,7 @@ import {
   maxTimeout,
   userAgents,
 } from '../constants/fetchers.ts'
+import { createStreamingChecksum } from '../helpers/hashes.ts'
 import { isOneOfContentTypes } from '../helpers/responses.ts'
 import { isJson } from '../helpers/strings.ts'
 import { sleep } from '../helpers/system.ts'
@@ -136,7 +136,7 @@ export const fetchUrl = async (
 
   let body = ''
   let downloadedBytes = 0
-  const hash = createHash('md5')
+  const hash = createStreamingChecksum()
 
   for await (const chunk of response.data) {
     downloadedBytes += chunk.length
@@ -158,6 +158,6 @@ export const fetchUrl = async (
     status: response.status,
     statusText: response.statusText,
     headers: new Headers(response.headers as Record<string, string>),
-    hash: hash.digest('hex'),
+    hash: hash.digest(),
   })
 }
