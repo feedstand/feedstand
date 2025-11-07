@@ -231,6 +231,7 @@ services:
       AUTH_TYPE: scram-sha-256
     deploy:
       <<: *common-deploy
+      endpoint_mode: dnsrr
       placement:
         constraints:
           - node.role == manager
@@ -314,4 +315,3 @@ networks:
   internal:
     driver: overlay
     internal: true
-    attachable: true
