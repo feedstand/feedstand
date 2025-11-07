@@ -38,17 +38,20 @@ export const webpageFinder: FindFeedsProcessor = async (context, next) => {
   const feedUrls = extractFeedUrls(html, context.response.url)
   const feeds: FoundFeeds['feeds'] = []
 
-  for (const feedUrl of feedUrls) {
-    try {
-      const feedData = await fetchFeed({ url: feedUrl, channel: context.channel })
-      const chosenUrl = await chooseFeedUrl(feedData)
+  const feedResults = await Promise.all(
+    feedUrls.map(async (feedUrl) => {
+      try {
+        const feedData = await fetchFeed({ url: feedUrl, channel: context.channel })
+        const chosenUrl = await chooseFeedUrl(feedData)
+        return { title: feedData.channel.title, url: chosenUrl }
+      } catch {}
+    }),
+  )
 
-      if (feeds.some(({ url }) => url === chosenUrl)) {
-        continue
-      }
-
-      feeds.push({ title: feedData.channel.title, url: chosenUrl })
-    } catch {}
+  for (const result of feedResults) {
+    if (!result) continue
+    if (feeds.some(({ url }) => url === result.url)) continue
+    feeds.push(result)
   }
 
   if (feeds.length) {
