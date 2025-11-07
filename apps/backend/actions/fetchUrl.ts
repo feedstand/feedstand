@@ -134,9 +134,10 @@ export const fetchUrl = async (
     throw new Error(`Unwanted content-type: ${contentType}`)
   }
 
-  let body = ''
-  let downloadedBytes = 0
   const hash = createStreamingChecksum()
+  const chunks: Array<Buffer> = []
+
+  let downloadedBytes = 0
 
   for await (const chunk of response.data) {
     downloadedBytes += chunk.length
@@ -150,10 +151,12 @@ export const fetchUrl = async (
     }
 
     hash.update(chunk)
-    body += chunk
+    chunks.push(chunk)
   }
 
-  return new CustomResponse(response.status === 304 ? null : body, {
+  const body = response.status === 304 ? null : Buffer.concat(chunks).toString('utf-8')
+
+  return new CustomResponse(body, {
     url: response.request?.res?.responseUrl || url,
     status: response.status,
     statusText: response.statusText,
