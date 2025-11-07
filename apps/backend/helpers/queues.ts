@@ -1,4 +1,4 @@
-import { withScope } from '@sentry/node'
+import { startSpan, withScope } from '@sentry/node'
 import { type Processor, Queue, type QueueOptions, Worker, type WorkerOptions } from 'bullmq'
 import { hasWorkerFeature } from '../constants/features.ts'
 import { connection } from '../instances/queue.ts'
@@ -16,7 +16,17 @@ export const createQueue = <Data, Result, Name extends string>(
   }
 
   const processor: Processor<Data, Result, Name> = async (job) => {
-    return await actions[job.name](job.data)
+    const options = {
+      op: 'queue.task',
+      name: `${name}.${job.name}`,
+      attributes: {
+        'job.id': job.id,
+        'job.name': job.name,
+        'job.queueName': job.queueName,
+      },
+    }
+
+    return await startSpan(options, () => actions[job.name](job.data))
   }
 
   const worker = new Worker<Data, Result, Name>(name, processor, { ...options?.worker, connection })
