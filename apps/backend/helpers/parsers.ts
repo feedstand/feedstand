@@ -18,12 +18,3 @@ export const parseValue = <
 
   return fallback as NonNullable<ReturnType<P>>
 }
-
-export const trimStrings = <T extends Record<string, unknown>>(data: T): T => {
-  return Object.fromEntries(
-    Object.entries(data).map(([key, value]) => [
-      key,
-      typeof value === 'string' ? value.trim() : value,
-    ]),
-  ) as T
-}

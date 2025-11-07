@@ -1,3 +1,7 @@
+export const isString = (value: unknown): value is string => {
+  return typeof value === 'string'
+}
+
 export const removeNullBytes = (value: unknown): string => {
   return String(value).replace(/\0/g, '')
 }

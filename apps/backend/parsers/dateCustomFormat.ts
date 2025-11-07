@@ -9,6 +9,7 @@ import { ru } from 'date-fns/locale/ru'
 import { sv } from 'date-fns/locale/sv'
 import { tr } from 'date-fns/locale/tr'
 import { zhTW } from 'date-fns/locale/zh-TW'
+import { isString } from '../helpers/strings.ts'
 import type { ValueParser } from '../types/system.ts'
 import { dateStandard } from './dateStandard.ts'
 
@@ -1172,18 +1173,25 @@ const customFormats: CustomFormats = [
   },
 ]
 
+const dateCache = new Map<string, Date>()
+const MAX_CACHE_SIZE = 1000
+
 export const dateCustomFormat: ValueParser<Date> = (value) => {
-  if (typeof value !== 'string') {
+  if (!isString(value)) {
     return
+  }
+
+  const cached = dateCache.get(value)
+  if (cached) {
+    return cached
   }
 
   let globalizedValue = value
 
   for (const { from, to } of globalReplaces) {
-    globalizedValue =
-      typeof from === 'string'
-        ? globalizedValue.replaceAll(from, to)
-        : globalizedValue.replace(from, to)
+    globalizedValue = isString(from)
+      ? globalizedValue.replaceAll(from, to)
+      : globalizedValue.replace(from, to)
   }
 
   for (const { format, locale, tzRegex, matchRegex, replace: replaces = [] } of customFormats) {
@@ -1195,10 +1203,9 @@ export const dateCustomFormat: ValueParser<Date> = (value) => {
     }
 
     for (const { from, to } of replaces) {
-      customizedValue =
-        typeof from === 'string'
-          ? customizedValue.replaceAll(from, to)
-          : customizedValue.replace(from, to)
+      customizedValue = isString(from)
+        ? customizedValue.replaceAll(from, to)
+        : customizedValue.replace(from, to)
     }
 
     if (tzRegex) {
@@ -1215,7 +1222,15 @@ export const dateCustomFormat: ValueParser<Date> = (value) => {
     const validatedDate = dateStandard(parsedDate)
 
     if (validatedDate && isValid(validatedDate)) {
-      return new Date(validatedDate?.toISOString())
+      const result = new Date(validatedDate?.toISOString())
+
+      if (dateCache.size >= MAX_CACHE_SIZE) {
+        const firstKey = dateCache.keys().next().value
+        dateCache.delete(firstKey)
+      }
+      dateCache.set(value, result)
+
+      return result
     }
   }
 }

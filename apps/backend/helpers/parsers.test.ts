@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { parseValue, trimStrings } from './parsers.ts'
+import { parseValue } from './parsers.ts'
 
 describe('parseValue', () => {
   it('should return first successful parsed value', () => {
@@ -46,45 +46,5 @@ describe('parseValue', () => {
     const result = parseValue('123', [numberParser, stringToNumberParser])
 
     expect(result).toBe(123)
-  })
-})
-
-describe('trimStrings', () => {
-  it('should trim string values in object', () => {
-    const input = {
-      name: '  John Doe  ',
-      age: 25,
-      email: ' test@example.com ',
-      bool: true,
-      null: null,
-      undefined: undefined,
-    }
-    const expected = {
-      name: 'John Doe',
-      age: 25,
-      email: 'test@example.com',
-      bool: true,
-      null: null,
-      undefined: undefined,
-    }
-
-    expect(trimStrings(input)).toEqual(expected)
-  })
-
-  it('should return empty object for empty input', () => {
-    expect(trimStrings({})).toEqual({})
-  })
-
-  it('should handle non-string values correctly', () => {
-    const input = {
-      number: 42,
-      bool: true,
-      null: null,
-      undefined: undefined,
-      array: [1, 2, 3],
-    }
-    const expected = input
-
-    expect(trimStrings(input)).toEqual(expected)
   })
 })
