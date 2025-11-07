@@ -5,7 +5,9 @@ import { db } from '../instances/database.ts'
 import type { Fixable, NewFixable } from '../types/schemas.ts'
 import { upsertChannel } from './upsertChannel.ts'
 
-export const suggestFixes = async (opml: Opml.Document<string>): Promise<Array<Fixable>> => {
+export type SuggestFixes = (opml: Opml.Document<string>) => Promise<Array<Fixable>>
+
+export const suggestFixes: SuggestFixes = async (opml) => {
   const suggestedFixables: Array<NewFixable> = []
   const opmlFeedUrls: Array<string> = []
   const opmlSiteUrls: Map<string, string> = new Map()

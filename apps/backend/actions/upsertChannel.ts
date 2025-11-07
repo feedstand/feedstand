@@ -2,21 +2,25 @@ import { eq } from 'drizzle-orm'
 import { fetchFeed } from '../actions/fetchFeed.ts'
 import { tables } from '../database/tables.ts'
 import { db } from '../instances/database.ts'
+import type { Alias, Channel } from '../types/schemas.ts'
 import { chooseFeedUrl } from './chooseFeedUrl.ts'
 import type { CustomResponse } from './fetchUrl.ts'
 import { insertItems } from './insertItems.ts'
 
-export type UpsertResponseContext = {
+export type UpsertResponse = (options: {
   url: string
   response?: CustomResponse
   omitsInsertingItems?: boolean
-}
+}) => Promise<{
+  channel: Channel
+  alias: Alias
+}>
 
-export const upsertChannel = async ({
+export const upsertChannel: UpsertResponse = async ({
   url: requestUrl,
   response,
   omitsInsertingItems,
-}: UpsertResponseContext) => {
+}) => {
   return db.transaction(async (tx) => {
     const fetchExistingChannelAndAlias = async (aliasUrl: string) => {
       const [existingChannelAndAlias] = await tx
