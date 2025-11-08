@@ -13,7 +13,6 @@ services:
   #   volumes:
   #     - ..:/home/node
   #     - /home/node/node_modules
-  #   restart: unless-stopped
   #   depends_on:
   #     - backend
 
@@ -39,7 +38,6 @@ services:
     depends_on:
       - database
       - queue
-    restart: unless-stopped
 
   database:
     image: postgres:17-alpine
@@ -51,7 +49,6 @@ services:
       POSTGRES_PASSWORD: ${DATABASE_PASS}
     volumes:
       - database_data:/var/lib/postgresql/data
-    restart: unless-stopped
 
   queue:
     image: redis:7-alpine
@@ -59,7 +56,6 @@ services:
       - 6379:6379
     volumes:
       - queue_data:/data
-    restart: unless-stopped
 
 volumes:
   database_data:
