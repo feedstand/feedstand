@@ -24,7 +24,8 @@ const signatures = [
   { text: 'Verifying that you are not a robot...', status: 200, name: 'Unknown' },
 ]
 
-export const guardedPage: WorkflowProcessor<unknown> = async (context, next) => {
+// biome-ignore lint/suspicious/noExplicitAny: Don't need to explain myself.
+export const guardedPage: WorkflowProcessor<any> = async (context, next) => {
   if (!context.response || context.result) {
     return await next()
   }
