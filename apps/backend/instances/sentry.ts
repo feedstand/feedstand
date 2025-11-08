@@ -10,7 +10,8 @@ export const sentry = init({
   release: version,
   integrations: [nodeProfilingIntegration()],
   tracesSampleRate: 0.1,
-  profilesSampleRate: 1.0,
+  profileSessionSampleRate: 1.0,
+  profileLifecycle: 'trace',
   enableLogs: true,
   initialScope: {
     tags: {
