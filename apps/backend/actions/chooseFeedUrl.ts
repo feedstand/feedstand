@@ -1,5 +1,4 @@
-import normalizeUrl from 'normalize-url'
-import { isAbsoluteUrl } from '../helpers/urls.ts'
+import { isAbsoluteUrl, isSafePublicUrl, isSimilarUrl } from '../helpers/urls.ts'
 import type { FeedData } from '../types/schemas.ts'
 import { type CustomResponse, fetchUrl } from './fetchUrl.ts'
 
@@ -27,6 +26,15 @@ export const chooseFeedUrl = async (feedData: FeedData) => {
     return feedData.meta.responseUrl
   }
 
+  // Case #3b: selfUrl targets private/internal resources (SSRF protection).
+  if (!isSafePublicUrl(feedData.channel.selfUrl)) {
+    console.warn('[SECURITY] Case #3b: selfUrl targets private/internal resource:', {
+      selfUrl: feedData.channel.selfUrl,
+      responseUrl: feedData.meta.responseUrl,
+    })
+    return feedData.meta.responseUrl
+  }
+
   // TODO: Consider supporting other cases:
   // 1. For non-HTTPS, check if HTTPS version of the link also works and has the same hash.
   // 2. Check if URL contains multiple forward slashes and collapse them into one, then check
@@ -42,29 +50,31 @@ export const chooseFeedUrl = async (feedData: FeedData) => {
     return feedData.meta.responseUrl
   }
 
-  const normalizeOptions = { stripProtocol: true, stripWWW: true, removeTrailingSlash: true }
-  const normalizedSelfUrl = normalizeUrl(feedData.channel.selfUrl, normalizeOptions)
-  const normalizedResponseUrl = normalizeUrl(feedData.meta.responseUrl, normalizeOptions)
-
-  // Case #4: selfUrl is not equal to responseUrl but similar (after normalizing).
-  if (normalizedSelfUrl === normalizedResponseUrl) {
-    console.debug('Case #4: selfUrl is not equal to responseUrl but similar (after normalizing).')
-    return feedData.channel.selfUrl
-  }
-
-  // Case #5: selfUrl is an invalid URL.
+  // Case #4: selfUrl is an invalid URL or returns an error.
   if (!response.ok) {
-    console.debug('Case #5: selfUrl is an invalid URL.')
+    console.debug('Case #4: selfUrl is an invalid URL or returns an error.')
     return feedData.meta.responseUrl
   }
 
-  // Case #6: selfUrl is not equal to responseUrl but the response is the same.
-  if (feedData.meta.hash === response.hash) {
-    console.debug('Case #6: selfUrl is not equal to responseUrl but the response is the same.')
+  // Case #5: selfUrl redirects to responseUrl.
+  if (response.url === feedData.meta.responseUrl) {
+    console.debug('Case #5: selfUrl redirects to responseUrl.')
+    return feedData.meta.responseUrl
+  }
+
+  // Case #6: selfUrl is not equal to responseUrl but similar (after normalizing).
+  if (isSimilarUrl(feedData.channel.selfUrl, feedData.meta.responseUrl)) {
+    console.debug('Case #6: selfUrl is not equal to responseUrl but similar (after normalizing).')
     return feedData.channel.selfUrl
   }
 
-  // Case #7: As a fallback, return the responseUrl.
-  console.debug('Case #7: As a fallback, return the responseUrl.')
+  // Case #7: selfUrl is not equal to responseUrl but the response is the same.
+  if (feedData.meta.hash && response.hash && feedData.meta.hash === response.hash) {
+    console.debug('Case #7: selfUrl is not equal to responseUrl but the response is the same.')
+    return feedData.channel.selfUrl
+  }
+
+  // Case #8: As a fallback, return the responseUrl.
+  console.debug('Case #8: As a fallback, return the responseUrl.')
   return feedData.meta.responseUrl
 }
