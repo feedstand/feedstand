@@ -2,10 +2,25 @@ import { eq } from 'drizzle-orm'
 import { fetchFeed } from '../actions/fetchFeed.ts'
 import { tables } from '../database/tables.ts'
 import { db } from '../instances/database.ts'
+import type { Database, Transaction } from '../types/database.ts'
 import type { Alias, Channel } from '../types/schemas.ts'
 import { chooseFeedUrl } from './chooseFeedUrl.ts'
 import type { CustomResponse } from './fetchUrl.ts'
 import { insertItems } from './insertItems.ts'
+
+const fetchExistingChannelAndAlias = async (aliasUrl: string, dbOrTx: Database | Transaction) => {
+  const [existingChannelAndAlias] = await dbOrTx
+    .select({
+      channel: tables.channels,
+      alias: tables.aliases,
+    })
+    .from(tables.aliases)
+    .innerJoin(tables.channels, eq(tables.aliases.channelId, tables.channels.id))
+    .where(eq(tables.aliases.aliasUrl, aliasUrl))
+    .limit(1)
+
+  return existingChannelAndAlias
+}
 
 export type UpsertResponse = (options: {
   url: string
@@ -21,38 +36,24 @@ export const upsertChannel: UpsertResponse = async ({
   response,
   omitsInsertingItems,
 }) => {
+  const existingChannelAndAliasByRequestUrl = await fetchExistingChannelAndAlias(requestUrl, db)
+
+  if (existingChannelAndAliasByRequestUrl) {
+    return existingChannelAndAliasByRequestUrl
+  }
+
+  const feedData = await fetchFeed({ url: requestUrl, response })
+  const feedUrl = await chooseFeedUrl(feedData)
+
   return db.transaction(async (tx) => {
-    const fetchExistingChannelAndAlias = async (aliasUrl: string) => {
-      const [existingChannelAndAlias] = await tx
-        .select({
-          channel: tables.channels,
-          alias: tables.aliases,
-        })
-        .from(tables.aliases)
-        .innerJoin(tables.channels, eq(tables.aliases.channelId, tables.channels.id))
-        .where(eq(tables.aliases.aliasUrl, aliasUrl))
-        .limit(1)
-
-      return existingChannelAndAlias
-    }
-
-    const existingChannelAndAliasByRequestUrl = await fetchExistingChannelAndAlias(requestUrl)
-
-    if (existingChannelAndAliasByRequestUrl) {
-      return existingChannelAndAliasByRequestUrl
-    }
-
-    const feedData = await fetchFeed({ url: requestUrl, response })
-
     const existingChannelAndAliasByResponseUrl = await fetchExistingChannelAndAlias(
       feedData.meta.responseUrl,
+      tx,
     )
 
     if (existingChannelAndAliasByResponseUrl) {
       return existingChannelAndAliasByResponseUrl
     }
-
-    const feedUrl = await chooseFeedUrl(feedData)
 
     const [existingChannelByFeedUrl] = await tx
       .select()
