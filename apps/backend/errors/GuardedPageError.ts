@@ -7,6 +7,7 @@ export class GuardedPageError extends Error {
 
   constructor(public readonly guardType: string) {
     super(`Guarded page, signature: ${guardType}`)
+
     this.name = 'GuardedPageError'
   }
 }

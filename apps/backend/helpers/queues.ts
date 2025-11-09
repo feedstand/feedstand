@@ -2,11 +2,11 @@ import { startSpan, withScope } from '@sentry/node'
 import { type Processor, Queue, type QueueOptions, Worker, type WorkerOptions } from 'bullmq'
 import { hasWorkerFeature } from '../constants/features.ts'
 import { GuardedPageError } from '../errors/GuardedPageError.ts'
+import { RateLimitError } from '../errors/RateLimitError.ts'
 import { UnsafeUrlError } from '../errors/UnsafeUrlError.ts'
+import { getRateLimitDelay } from '../helpers/rateLimits.ts'
 import { connection } from '../instances/queue.ts'
 import { sentry } from '../instances/sentry.ts'
-
-const failingErrors = [GuardedPageError, UnsafeUrlError]
 
 export const createQueue = <Data, Result, Name extends string>(
   name: string,
@@ -20,22 +20,36 @@ export const createQueue = <Data, Result, Name extends string>(
   }
 
   const processor: Processor<Data, Result, Name> = async (job) => {
-    try {
-      const options = {
-        op: 'queue.task',
-        name: `${name}.${job.name}`,
-        attributes: {
-          'job.id': job.id,
-          'job.name': job.name,
-          'job.queueName': job.queueName,
-        },
-      }
+    const options = {
+      op: 'queue.task',
+      name: `${name}.${job.name}`,
+      attributes: {
+        'job.id': job.id,
+        'job.name': job.name,
+        'job.queueName': job.queueName,
+      },
+    }
 
+    try {
       return await startSpan(options, () => actions[job.name](job.data))
     } catch (error) {
-      if (failingErrors.includes(error.constructor)) {
-        await job.moveToFailed(error, '', true)
+      if (error instanceof GuardedPageError || error instanceof UnsafeUrlError) {
+        await job.moveToFailed(error, job.token, true)
+
         // For permanent failures, manually fail the job and return.
+        return undefined as Result
+      }
+
+      if (error instanceof RateLimitError) {
+        const delayMs = await getRateLimitDelay(error.url)
+        console.debug('[Rate Limit] Job delayed:', {
+          jobId: job.id,
+          jobName: job.name,
+          url: error.url,
+          delayMs,
+        })
+        await job.moveToDelayed(Date.now() + delayMs, job.token)
+
         return undefined as Result
       }
 

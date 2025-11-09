@@ -7,6 +7,7 @@ export class UnsafeUrlError extends Error {
 
   constructor(public readonly url: string) {
     super(`URL targets private or internal resources: ${url}`)
+
     this.name = 'UnsafeUrlError'
   }
 }

@@ -1,0 +1,108 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { CustomResponse } from '../../actions/fetchUrl.ts'
+import type { WorkflowContext } from '../../helpers/workflows.ts'
+import type { FeedData } from '../../types/schemas.ts'
+import { rateLimitedPage } from './rateLimitedPage.ts'
+
+vi.mock('../../helpers/rateLimits.ts', () => ({
+  markRateLimited: vi.fn(),
+  getRateLimitDuration: vi.fn(() => 300),
+}))
+
+describe('rateLimitedPage', () => {
+  const mockNext = vi.fn()
+  const mockSelf = vi.fn()
+
+  const createContext = (
+    url: string,
+    status: number,
+    headers?: Record<string, string>,
+  ): WorkflowContext<FeedData> => ({
+    url,
+    response: new CustomResponse('', { url, status, headers }),
+  })
+
+  beforeEach(() => {
+    mockNext.mockClear()
+  })
+
+  it('should pass through when no response is present', async () => {
+    const context: WorkflowContext<FeedData> = { url: 'https://example.com' }
+
+    await rateLimitedPage(context, mockNext, mockSelf)
+    expect(mockNext).toHaveBeenCalledTimes(1)
+  })
+
+  it('should pass through when result is already present', async () => {
+    const context: WorkflowContext<FeedData> = {
+      url: 'https://example.com',
+      response: new CustomResponse('', { url: 'https://example.com', status: 200 }),
+      result: {
+        meta: {
+          etag: null,
+          hash: '',
+          type: 'rss',
+          requestUrl: '',
+          responseUrl: '',
+        },
+        channel: { title: 'Test Feed', selfUrl: '' },
+        items: [],
+      },
+    }
+
+    await rateLimitedPage(context, mockNext, mockSelf)
+    expect(mockNext).toHaveBeenCalledTimes(1)
+  })
+
+  it('should throw RateLimitError for 429 status', async () => {
+    const context = createContext('https://example.com/api', 429)
+
+    await expect(rateLimitedPage(context, mockNext, mockSelf)).rejects.toThrow('Rate limit')
+  })
+
+  it('should throw RateLimitError for GitHub 403', async () => {
+    const context = createContext('https://github.com/user/repo', 403)
+
+    await expect(rateLimitedPage(context, mockNext, mockSelf)).rejects.toThrow('GitHub')
+  })
+
+  it('should throw RateLimitError for GitHub Pages 403', async () => {
+    const context = createContext('https://user.github.io/page', 403)
+
+    await expect(rateLimitedPage(context, mockNext, mockSelf)).rejects.toThrow('GitHub')
+  })
+
+  it('should NOT throw for non-GitHub 403', async () => {
+    const context = createContext('https://example.com/page', 403)
+
+    await rateLimitedPage(context, mockNext, mockSelf)
+    expect(mockNext).toHaveBeenCalledTimes(1)
+  })
+
+  it('should extract hostname before domain matching (no false positives)', async () => {
+    const context = createContext('https://evil.com/?redirect=github.com', 403)
+
+    await rateLimitedPage(context, mockNext, mockSelf)
+    expect(mockNext).toHaveBeenCalledTimes(1)
+  })
+
+  it('should extract hostname before domain matching (no subdomain false positives)', async () => {
+    const context = createContext('https://mygithub.com.evil.io/page', 403)
+
+    await rateLimitedPage(context, mockNext, mockSelf)
+    expect(mockNext).toHaveBeenCalledTimes(1)
+  })
+
+  it('should correctly match GitHub subdomain', async () => {
+    const context = createContext('https://api.github.com/repos', 403)
+
+    await expect(rateLimitedPage(context, mockNext, mockSelf)).rejects.toThrow('GitHub')
+  })
+
+  it('should pass through on 200 status', async () => {
+    const context = createContext('https://github.com/user/repo', 200)
+
+    await rateLimitedPage(context, mockNext, mockSelf)
+    expect(mockNext).toHaveBeenCalledTimes(1)
+  })
+})
