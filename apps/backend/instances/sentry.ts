@@ -13,7 +13,8 @@ export const sentry = init({
     consoleLoggingIntegration({ levels: ['log', 'warn', 'error'] }),
   ],
   tracesSampleRate: 0.1,
-  profileSessionSampleRate: 1.0,
+  // TODO: Enable later for small subset.
+  // profileSessionSampleRate: 1.0,
   profileLifecycle: 'trace',
   enableLogs: true,
   initialScope: {
