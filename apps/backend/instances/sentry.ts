@@ -1,4 +1,4 @@
-import { init } from '@sentry/node'
+import { consoleLoggingIntegration, init } from '@sentry/node'
 import { nodeProfilingIntegration } from '@sentry/profiling-node'
 import { version } from '../constants/app.ts'
 import { hasMigratorFeature, hasServerFeature, hasWorkerFeature } from '../constants/features.ts'
@@ -8,7 +8,10 @@ export const sentry = init({
   dsn,
   environment,
   release: version,
-  integrations: [nodeProfilingIntegration()],
+  integrations: [
+    nodeProfilingIntegration(),
+    consoleLoggingIntegration({ levels: ['log', 'warn', 'error'] }),
+  ],
   tracesSampleRate: 0.1,
   profileSessionSampleRate: 1.0,
   profileLifecycle: 'trace',
