@@ -1,3 +1,4 @@
+import { GuardedPageError } from '../../errors/GuardedPageError.ts'
 import type { WorkflowProcessor } from '../../helpers/workflows.ts'
 
 const signatures = [
@@ -35,7 +36,7 @@ export const guardedPage: WorkflowProcessor<any> = async (context, next) => {
 
   for (const signature of signatures) {
     if (text?.includes(signature.text) && status === signature.status) {
-      throw new Error(`Guarded page, signature: ${signature.name}`)
+      throw new GuardedPageError(signature.name)
     }
   }
 

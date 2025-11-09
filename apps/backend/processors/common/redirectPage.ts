@@ -1,3 +1,4 @@
+import { maxRedirects } from '../../constants/fetchers.ts'
 import { isSafePublicUrl, resolveRelativeUrl } from '../../helpers/urls.ts'
 import type { WorkflowProcessor } from '../../helpers/workflows.ts'
 
@@ -16,7 +17,6 @@ export const extractRedirectUrl = (html: string): string | undefined => {
 }
 
 const redirectDepths = new WeakMap<object, number>()
-const maxRedirects = 5
 
 // biome-ignore lint/suspicious/noExplicitAny: Don't need to explain myself.
 export const redirectPage: WorkflowProcessor<any> = async (context, next, self) => {

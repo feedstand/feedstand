@@ -5,9 +5,11 @@ import {
   avoidedContentTypes,
   commonHeaders,
   maxContentSize,
+  maxRedirects,
   maxTimeout,
   userAgents,
 } from '../constants/fetchers.ts'
+import { UnsafeUrlError } from '../errors/UnsafeUrlError.ts'
 import { createStreamingChecksum } from '../helpers/hashes.ts'
 import { isOneOfContentTypes } from '../helpers/responses.ts'
 import { isJson } from '../helpers/strings.ts'
@@ -77,6 +79,18 @@ const axiosInstance = axios.create({
   responseType: 'stream',
   // Default headers (will be merged with per-request headers)
   headers: commonHeaders,
+  maxRedirects,
+  beforeRedirect: (options, responseDetails) => {
+    const redirectUrl = responseDetails.headers.location
+
+    if (!isSafePublicUrl(redirectUrl)) {
+      console.warn('[SECURITY] SSRF blocked: redirect to internal resource', {
+        from: options.url,
+        to: redirectUrl,
+      })
+      throw new UnsafeUrlError(redirectUrl)
+    }
+  },
 })
 
 const maxRetries = 3
@@ -138,7 +152,7 @@ export const fetchUrl = async (
   config?: AxiosRequestConfig,
 ): Promise<CustomResponse> => {
   if (!isSafePublicUrl(url)) {
-    throw new Error('URL targets private or internal resources')
+    throw new UnsafeUrlError(url)
   }
 
   const requestConfig: CustomAxiosRequestConfig = {

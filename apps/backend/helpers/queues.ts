@@ -1,8 +1,12 @@
 import { startSpan, withScope } from '@sentry/node'
 import { type Processor, Queue, type QueueOptions, Worker, type WorkerOptions } from 'bullmq'
 import { hasWorkerFeature } from '../constants/features.ts'
+import { GuardedPageError } from '../errors/GuardedPageError.ts'
+import { UnsafeUrlError } from '../errors/UnsafeUrlError.ts'
 import { connection } from '../instances/queue.ts'
 import { sentry } from '../instances/sentry.ts'
+
+const failingErrors = [GuardedPageError, UnsafeUrlError]
 
 export const createQueue = <Data, Result, Name extends string>(
   name: string,
@@ -16,17 +20,25 @@ export const createQueue = <Data, Result, Name extends string>(
   }
 
   const processor: Processor<Data, Result, Name> = async (job) => {
-    const options = {
-      op: 'queue.task',
-      name: `${name}.${job.name}`,
-      attributes: {
-        'job.id': job.id,
-        'job.name': job.name,
-        'job.queueName': job.queueName,
-      },
-    }
+    try {
+      const options = {
+        op: 'queue.task',
+        name: `${name}.${job.name}`,
+        attributes: {
+          'job.id': job.id,
+          'job.name': job.name,
+          'job.queueName': job.queueName,
+        },
+      }
 
-    return await startSpan(options, () => actions[job.name](job.data))
+      return await startSpan(options, () => actions[job.name](job.data))
+    } catch (error) {
+      if (failingErrors.includes(error.constructor)) {
+        await job.moveToFailed(error, '', true)
+      }
+
+      throw error
+    }
   }
 
   const worker = new Worker<Data, Result, Name>(name, processor, { ...options?.worker, connection })
