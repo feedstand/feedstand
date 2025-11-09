@@ -2,13 +2,14 @@ import { createRoute, z } from '@hono/zod-openapi'
 import { findFeeds } from '../../actions/findFeeds.ts'
 import { createHandler } from '../../helpers/hono.ts'
 import { foundFeeds } from '../../schemas/foundFeeds.ts'
+import { safeUrl } from '../../schemas/safeUrl.ts'
 
 export const route = createRoute({
   method: 'post',
   path: '/feeds/find',
   request: {
     body: {
-      content: { 'application/json': { schema: z.object({ url: z.string().url() }) } },
+      content: { 'application/json': { schema: z.object({ url: safeUrl }) } },
       required: true,
       description: '',
     },

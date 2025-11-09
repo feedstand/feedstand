@@ -7,7 +7,7 @@ export const foundFeeds = z.object({
   }),
   feeds: z.array(
     z.object({
-      url: z.string().url(),
+      url: z.url(),
       title: z.string().nullable().optional(),
     }),
   ),

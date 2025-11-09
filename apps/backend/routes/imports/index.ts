@@ -1,13 +1,14 @@
 import { createRoute, z } from '@hono/zod-openapi'
 import { createHandler } from '../../helpers/hono.ts'
 import { importQueue } from '../../queues/import.ts'
+import { safeUrl } from '../../schemas/safeUrl.ts'
 
 export const route = createRoute({
   method: 'post',
   path: '/imports',
   request: {
     body: {
-      content: { 'application/json': { schema: z.object({ url: z.string().url() }) } },
+      content: { 'application/json': { schema: z.object({ url: safeUrl }) } },
       required: true,
       description: '',
     },

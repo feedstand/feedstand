@@ -1,6 +1,7 @@
 import { inArray } from 'drizzle-orm'
 import type { Opml } from 'feedsmith/types'
 import { tables } from '../database/tables.ts'
+import { isSafePublicUrl, resolveAbsoluteUrl } from '../helpers/urls.ts'
 import { db } from '../instances/database.ts'
 import type { Fixable, NewFixable } from '../types/schemas.ts'
 import { upsertChannel } from './upsertChannel.ts'
@@ -15,10 +16,18 @@ export const suggestFixes: SuggestFixes = async (opml) => {
   // 1. Collect all the feed and site URLs from the OPML structure for later use.
   for (const outline of opml?.body?.outlines || []) {
     if (outline.xmlUrl) {
-      opmlFeedUrls.push(outline.xmlUrl)
+      // Validate and transform URL to prevent SSRF attacks
+      const resolvedUrl = resolveAbsoluteUrl(outline.xmlUrl)
+
+      if (!isSafePublicUrl(resolvedUrl)) {
+        console.warn('[SECURITY] Skipping unsafe URL from OPML:', outline.xmlUrl)
+        continue
+      }
+
+      opmlFeedUrls.push(resolvedUrl)
 
       if (outline.htmlUrl) {
-        opmlSiteUrls.set(outline.xmlUrl, outline.htmlUrl)
+        opmlSiteUrls.set(resolvedUrl, outline.htmlUrl)
       }
     }
   }

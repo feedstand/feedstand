@@ -1,9 +1,10 @@
-import { createRoute, z } from '@hono/zod-openapi'
+import { createRoute } from '@hono/zod-openapi'
 import { upsertChannel } from '../../actions/upsertChannel.ts'
 import { tables } from '../../database/tables.ts'
 import { createHandler } from '../../helpers/hono.ts'
 import { db } from '../../instances/database.ts'
 import { newSource } from '../../schemas/newSource.ts'
+import { safeUrl } from '../../schemas/safeUrl.ts'
 import { source } from '../../schemas/source.ts'
 
 export const route = createRoute({
@@ -13,7 +14,7 @@ export const route = createRoute({
     body: {
       content: {
         'application/json': {
-          schema: newSource.omit({ aliasId: true }).extend({ url: z.string().url() }),
+          schema: newSource.omit({ aliasId: true }).extend({ url: safeUrl }),
         },
       },
       required: true,

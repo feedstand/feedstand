@@ -12,6 +12,7 @@ import { createStreamingChecksum } from '../helpers/hashes.ts'
 import { isOneOfContentTypes } from '../helpers/responses.ts'
 import { isJson } from '../helpers/strings.ts'
 import { sleep } from '../helpers/system.ts'
+import { isSafePublicUrl } from '../helpers/urls.ts'
 
 interface CustomAxiosRequestConfig extends AxiosRequestConfig {
   retriesCount?: number
@@ -136,6 +137,10 @@ export const fetchUrl = async (
   url: string,
   config?: AxiosRequestConfig,
 ): Promise<CustomResponse> => {
+  if (!isSafePublicUrl(url)) {
+    throw new Error('URL targets private or internal resources')
+  }
+
   const requestConfig: CustomAxiosRequestConfig = {
     ...config,
     retriesCount: 0,
