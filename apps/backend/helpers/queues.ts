@@ -35,6 +35,8 @@ export const createQueue = <Data, Result, Name extends string>(
     } catch (error) {
       if (failingErrors.includes(error.constructor)) {
         await job.moveToFailed(error, '', true)
+        // For permanent failures, manually fail the job and return.
+        return undefined as Result
       }
 
       throw error
