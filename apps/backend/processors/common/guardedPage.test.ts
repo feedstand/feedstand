@@ -53,7 +53,7 @@ describe('guardedPage', () => {
     const context = createContext('Verifying that you are not a robot...', 200)
 
     await expect(guardedPage(context, mockNext, mockSelf)).rejects.toThrow(
-      'Guarded page, signature: Unknown',
+      'Guarded URL, signature: Unknown',
     )
   })
 
