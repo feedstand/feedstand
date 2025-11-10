@@ -1,9 +1,3 @@
-import { anyFeedContentTypes } from './fetchers.ts'
-
-export const feedLinkSelectors = anyFeedContentTypes.map(
-  (contentType) => `link[type*="${contentType}"][rel="alternate"]`,
-)
-
 export const youTubeDomains = ['youtu.be', 'youtube.com']
 
 export const ignoredFeedUris = ['wp-json/oembed/', 'wp-json/wp/']

@@ -2,11 +2,16 @@ import { load } from 'cheerio'
 import { chooseFeedUrl } from '../../actions/chooseFeedUrl.ts'
 import { fetchFeed } from '../../actions/fetchFeed.ts'
 import type { FindFeedsProcessor } from '../../actions/findFeeds.ts'
-import { feedLinkSelectors, feedUris, ignoredFeedUris } from '../../constants/finders.ts'
+import { anyFeedContentTypes } from '../../constants/fetchers.ts'
+import { feedUris, ignoredFeedUris } from '../../constants/finders.ts'
 import { resolveRelativeUrl } from '../../helpers/urls.ts'
 import type { FoundFeeds } from '../../types/schemas.ts'
 
 // Combine all selectors into single query for better performance.
+
+export const feedLinkSelectors = anyFeedContentTypes.map(
+  (contentType) => `link[type*="${contentType}"][rel="alternate"]`,
+)
 const anchorSelector = feedUris.map((uri) => `a[href$="${uri}"]`)
 const megaSelector = [...feedLinkSelectors, ...anchorSelector].join()
 
