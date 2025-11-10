@@ -1,4 +1,4 @@
-import { type CustomResponse, fetchUrl } from '../actions/fetchUrl.ts'
+import { type FetchUrlResponse, fetchUrl } from '../actions/fetchUrl.ts'
 
 export type IsUrlFresh = (
   url: string,
@@ -6,7 +6,7 @@ export type IsUrlFresh = (
   date: Date | undefined,
 ) => Promise<{
   isFresh: boolean
-  response: CustomResponse
+  response: FetchUrlResponse
 }>
 
 export const isUrlFresh: IsUrlFresh = async (url, etag, date) => {

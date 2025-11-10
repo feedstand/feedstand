@@ -61,7 +61,7 @@ describe('parsers/dateStandard', () => {
     it(`should parse standard date format ${input}`, () => {
       const result = dateStandard(input)
 
-      expect(result?.toISOString()).equal(output)
+      expect(result?.toISOString()).toBe(output)
     })
   }
 

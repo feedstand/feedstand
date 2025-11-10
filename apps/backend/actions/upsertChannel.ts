@@ -5,7 +5,7 @@ import { db } from '../instances/database.ts'
 import type { Database, Transaction } from '../types/database.ts'
 import type { Alias, Channel } from '../types/schemas.ts'
 import { chooseFeedUrl } from './chooseFeedUrl.ts'
-import type { CustomResponse } from './fetchUrl.ts'
+import type { FetchUrlResponse } from './fetchUrl.ts'
 import { insertItems } from './insertItems.ts'
 
 const fetchExistingChannelAndAlias = async (aliasUrl: string, dbOrTx: Database | Transaction) => {
@@ -24,7 +24,7 @@ const fetchExistingChannelAndAlias = async (aliasUrl: string, dbOrTx: Database |
 
 export type UpsertResponse = (options: {
   url: string
-  response?: CustomResponse
+  response?: FetchUrlResponse
   omitsInsertingItems?: boolean
 }) => Promise<{
   channel: Channel

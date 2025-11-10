@@ -1,6 +1,6 @@
 import { isAbsoluteUrl, isSafePublicUrl, isSimilarUrl } from '../helpers/urls.ts'
 import type { FeedData } from '../types/schemas.ts'
-import { type CustomResponse, fetchUrl } from './fetchUrl.ts'
+import { type FetchUrlResponse, fetchUrl } from './fetchUrl.ts'
 
 export const chooseFeedUrl = async (feedData: FeedData) => {
   console.debug('[chooseFeedUrl]', {
@@ -42,7 +42,7 @@ export const chooseFeedUrl = async (feedData: FeedData) => {
   // 3. If there are 2 feeds with a different response hash but the same channel information and
   //    items, use the self URL.
 
-  let response: CustomResponse
+  let response: FetchUrlResponse
 
   try {
     response = await fetchUrl(feedData.channel.selfUrl)

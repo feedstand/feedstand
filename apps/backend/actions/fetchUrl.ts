@@ -1,4 +1,5 @@
 import https from 'node:https'
+import CacheableLookup from 'cacheable-lookup'
 import got, { type Response as GotResponse, type OptionsInit } from 'got'
 import { sample } from 'lodash-es'
 import {
@@ -42,6 +43,8 @@ export class FetchUrlResponse extends Response {
   }
 }
 
+const cacheable = new CacheableLookup()
+
 const gotInstance = got.extend({
   timeout: {
     request: maxTimeout,
@@ -57,6 +60,8 @@ const gotInstance = got.extend({
       maxSockets: 100,
     }),
   },
+  // Cache DNS lookups to improve performance (respects TTL).
+  dnsCache: cacheable,
   // Always return a response instead of throwing an exception. This allows for later use
   // of the erroneous response to detect the type of error in parsing middlewares.
   throwHttpErrors: false,
@@ -161,6 +166,9 @@ const gotInstance = got.extend({
 // 10. Error handling
 //    - Network errors must expose error.code (e.g., 'ENETUNREACH', 'ETIMEDOUT')
 //    - Errors must provide access to error.options for retry logic
+// 11. DNS caching
+//    - Cache DNS lookups with TTL to avoid repeated queries
+//    - Current: dnsCache with cacheable-lookup
 //
 export const fetchUrl = async (
   url: string,

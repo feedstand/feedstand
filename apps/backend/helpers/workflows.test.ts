@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { CustomResponse } from '../actions/fetchUrl.ts'
+import { FetchUrlResponse } from '../actions/fetchUrl.ts'
 import type { Channel } from '../types/schemas.ts'
 import { createWorkflow, type WorkflowContext, type WorkflowProcessor } from './workflows.ts'
 
@@ -94,7 +94,7 @@ describe('createWorkflow', () => {
   it('should throw unprocessed pipeline error with status code', async () => {
     const processors: Array<WorkflowProcessor<TestResult>> = [
       async (context) => {
-        context.response = new CustomResponse(null, { url: '', status: 404 })
+        context.response = new FetchUrlResponse(null, { url: '', status: 404 })
       },
     ]
 
@@ -181,7 +181,7 @@ describe('createWorkflow', () => {
   it('should preserve context between processors', async () => {
     const context: WorkflowContext<TestResult> = {
       url: 'test',
-      response: new CustomResponse(null, { url: '', status: 200 }),
+      response: new FetchUrlResponse(null, { url: '', status: 200 }),
     }
 
     const processors: Array<WorkflowProcessor<TestResult>> = [

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { CustomResponse } from '../../actions/fetchUrl.ts'
+import { FetchUrlResponse } from '../../actions/fetchUrl.ts'
 import type { WorkflowContext } from '../../helpers/workflows.ts'
 import type { FeedData } from '../../types/schemas.ts'
 import { guardedPage } from './guardedPage.ts'
@@ -11,7 +11,7 @@ describe('guardedPage', () => {
 
   const createContext = (responseBody: string, status: number): WorkflowContext<FeedData> => ({
     url: baseUrl,
-    response: new CustomResponse(responseBody, { url: baseUrl, status }),
+    response: new FetchUrlResponse(responseBody, { url: baseUrl, status }),
   })
 
   beforeEach(() => {
@@ -28,7 +28,7 @@ describe('guardedPage', () => {
   it('should pass through when result is already present', async () => {
     const context: WorkflowContext<FeedData> = {
       url: baseUrl,
-      response: new CustomResponse('some content', {
+      response: new FetchUrlResponse('some content', {
         url: baseUrl,
         status: 200,
       }),
