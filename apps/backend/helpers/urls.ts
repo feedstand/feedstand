@@ -10,19 +10,53 @@ export const isAbsoluteUrl = (url: string): boolean => {
   }
 }
 
+export const resolveNonStandardFeedUrl = (url: string) => {
+  // Examples:
+  // - feed://example.com/rss.xml → https://example.com/rss.xml
+  // - feed:https://example.com/rss.xml → https://example.com/rss.xml
+  // - rss://example.com/feed.xml → https://example.com/feed.xml
+  // - pcast://example.com/podcast.xml → https://example.com/podcast.xml
+  // - itpc://example.com/podcast.xml → https://example.com/podcast.xml
+  const feedSchemes = ['feed:', 'rss:', 'pcast:', 'itpc:']
+
+  for (const scheme of feedSchemes) {
+    if (!url.startsWith(scheme)) {
+      continue
+    }
+
+    // Case 1: Wrapping protocol (e.g., feed:https://example.com).
+    if (url.startsWith(`${scheme}http://`) || url.startsWith(`${scheme}https://`)) {
+      return url.slice(scheme.length)
+    }
+
+    // Case 2: Replacing protocol (e.g., feed://example.com).
+    if (url.startsWith(`${scheme}//`)) {
+      return `https:${url.slice(scheme.length)}`
+    }
+  }
+
+  return url
+}
+
 export const resolveAbsoluteUrl = (url: string): string => {
-  return url.startsWith('//') ? `https:${url}` : url
+  if (url.startsWith('//')) {
+    return `https:${url}`
+  }
+
+  return resolveNonStandardFeedUrl(url)
 }
 
 export const resolveRelativeUrl = (url: string, base: string): string => {
-  if (isAbsoluteUrl(url)) {
-    return url
+  const normalized = resolveAbsoluteUrl(url)
+
+  if (isAbsoluteUrl(normalized)) {
+    return normalized
   }
 
   try {
-    return new URL(url, base).href
+    return new URL(normalized, base).href
   } catch {
-    return url
+    return normalized
   }
 }
 

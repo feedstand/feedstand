@@ -4,6 +4,7 @@ import {
   isSafePublicUrl,
   isSimilarUrl,
   resolveAbsoluteUrl,
+  resolveNonStandardFeedUrl,
   resolveRelativeUrl,
 } from './urls.ts'
 
@@ -30,8 +31,8 @@ describe('isAbsoluteUrl', () => {
   ]
 
   const relativeCases = [
-    '//cdn.example.com/style.css', // Protocol-relative
-    '//example.com/feed.xml', // Protocol-relative
+    '//cdn.example.com/style.css',
+    '//example.com/feed.xml',
     '/images/logo.png',
     'subdir/file.html',
     '../parent.txt',
@@ -60,95 +61,254 @@ describe('isAbsoluteUrl', () => {
   }
 })
 
+describe('resolveNonStandardFeedUrl', () => {
+  it('should convert feed:// to https://', () => {
+    const value = 'feed://example.com/rss.xml'
+    const expected = 'https://example.com/rss.xml'
+
+    expect(resolveNonStandardFeedUrl(value)).toBe(expected)
+  })
+
+  it('should convert rss:// to https://', () => {
+    const value = 'rss://example.com/feed.xml'
+    const expected = 'https://example.com/feed.xml'
+
+    expect(resolveNonStandardFeedUrl(value)).toBe(expected)
+  })
+
+  it('should convert pcast:// to https://', () => {
+    const value = 'pcast://example.com/podcast.xml'
+    const expected = 'https://example.com/podcast.xml'
+
+    expect(resolveNonStandardFeedUrl(value)).toBe(expected)
+  })
+
+  it('should convert itpc:// to https://', () => {
+    const value = 'itpc://example.com/podcast.xml'
+    const expected = 'https://example.com/podcast.xml'
+
+    expect(resolveNonStandardFeedUrl(value)).toBe(expected)
+  })
+
+  it('should unwrap feed:https:// to https://', () => {
+    const value = 'feed:https://example.com/rss.xml'
+    const expected = 'https://example.com/rss.xml'
+
+    expect(resolveNonStandardFeedUrl(value)).toBe(expected)
+  })
+
+  it('should unwrap feed:http:// to http://', () => {
+    const value = 'feed:http://example.com/rss.xml'
+    const expected = 'http://example.com/rss.xml'
+
+    expect(resolveNonStandardFeedUrl(value)).toBe(expected)
+  })
+
+  it('should unwrap rss:https:// to https://', () => {
+    const value = 'rss:https://example.com/feed.xml'
+    const expected = 'https://example.com/feed.xml'
+
+    expect(resolveNonStandardFeedUrl(value)).toBe(expected)
+  })
+
+  it('should return https URLs unchanged', () => {
+    const value = 'https://example.com/feed.xml'
+    const expected = 'https://example.com/feed.xml'
+
+    expect(resolveNonStandardFeedUrl(value)).toBe(expected)
+  })
+
+  it('should return http URLs unchanged', () => {
+    const value = 'http://example.com/rss.xml'
+    const expected = 'http://example.com/rss.xml'
+
+    expect(resolveNonStandardFeedUrl(value)).toBe(expected)
+  })
+
+  it('should return absolute path URLs unchanged', () => {
+    const value = '/path/to/feed'
+    const expected = '/path/to/feed'
+
+    expect(resolveNonStandardFeedUrl(value)).toBe(expected)
+  })
+
+  it('should return relative path URLs unchanged', () => {
+    const value = 'relative/feed.xml'
+    const expected = 'relative/feed.xml'
+
+    expect(resolveNonStandardFeedUrl(value)).toBe(expected)
+  })
+
+  it('should handle feed URLs with paths and query params', () => {
+    const value = 'feed://example.com/path/to/feed?format=rss'
+    const expected = 'https://example.com/path/to/feed?format=rss'
+
+    expect(resolveNonStandardFeedUrl(value)).toBe(expected)
+  })
+
+  it('should handle feed URLs with ports', () => {
+    const value = 'feed://example.com:8080/feed.xml'
+    const expected = 'https://example.com:8080/feed.xml'
+
+    expect(resolveNonStandardFeedUrl(value)).toBe(expected)
+  })
+})
+
 describe('resolveAbsoluteUrl', () => {
-  it('should convert protocol-relative URLs to https', () => {
-    expect(resolveAbsoluteUrl('//cdn.example.com/feed.xml')).toBe(
-      'https://cdn.example.com/feed.xml',
-    )
-    expect(resolveAbsoluteUrl('//example.com/api')).toBe('https://example.com/api')
+  it('should convert protocol-relative URL with path to https', () => {
+    const value = '//cdn.example.com/feed.xml'
+    const expected = 'https://cdn.example.com/feed.xml'
+
+    expect(resolveAbsoluteUrl(value)).toBe(expected)
   })
 
-  it('should return absolute URLs unchanged', () => {
-    expect(resolveAbsoluteUrl('https://example.com/feed')).toBe('https://example.com/feed')
-    expect(resolveAbsoluteUrl('http://example.com/feed')).toBe('http://example.com/feed')
+  it('should convert protocol-relative URL without path to https', () => {
+    const value = '//example.com/api'
+    const expected = 'https://example.com/api'
+
+    expect(resolveAbsoluteUrl(value)).toBe(expected)
   })
 
-  it('should return non-protocol-relative URLs unchanged', () => {
-    expect(resolveAbsoluteUrl('/path/to/resource')).toBe('/path/to/resource')
-    expect(resolveAbsoluteUrl('relative/path')).toBe('relative/path')
+  it('should return https URLs unchanged', () => {
+    const value = 'https://example.com/feed'
+    const expected = 'https://example.com/feed'
+
+    expect(resolveAbsoluteUrl(value)).toBe(expected)
+  })
+
+  it('should return http URLs unchanged', () => {
+    const value = 'http://example.com/feed'
+    const expected = 'http://example.com/feed'
+
+    expect(resolveAbsoluteUrl(value)).toBe(expected)
+  })
+
+  it('should return absolute path unchanged', () => {
+    const value = '/path/to/resource'
+    const expected = '/path/to/resource'
+
+    expect(resolveAbsoluteUrl(value)).toBe(expected)
+  })
+
+  it('should return relative path unchanged', () => {
+    const value = 'relative/path'
+    const expected = 'relative/path'
+
+    expect(resolveAbsoluteUrl(value)).toBe(expected)
+  })
+
+  it('should normalize feed:// (replacing protocol)', () => {
+    const value = 'feed://example.com/rss.xml'
+    const expected = 'https://example.com/rss.xml'
+
+    expect(resolveAbsoluteUrl(value)).toBe(expected)
+  })
+
+  it('should normalize feed:https:// (wrapping protocol)', () => {
+    const value = 'feed:https://example.com/feed.xml'
+    const expected = 'https://example.com/feed.xml'
+
+    expect(resolveAbsoluteUrl(value)).toBe(expected)
   })
 })
 
 describe('resolveRelativeUrl', () => {
   const baseUrl = 'https://example.com/base/path/'
 
-  it('should return absolute HTTP/HTTPS URLs unchanged', () => {
-    const absoluteUrls = ['https://other-domain.com/file.txt', 'http://files.com/archive.zip']
+  it('should return absolute HTTPS URL unchanged', () => {
+    const value = 'https://other-domain.com/file.txt'
+    const expected = 'https://other-domain.com/file.txt'
 
-    for (const url of absoluteUrls) {
-      expect(resolveRelativeUrl(url, baseUrl)).toBe(url)
-    }
+    expect(resolveRelativeUrl(value, baseUrl)).toBe(expected)
+  })
+
+  it('should return absolute HTTP URL unchanged', () => {
+    const value = 'http://files.com/archive.zip'
+    const expected = 'http://files.com/archive.zip'
+
+    expect(resolveRelativeUrl(value, baseUrl)).toBe(expected)
   })
 
   it('should handle protocol-relative URLs', () => {
-    expect(resolveRelativeUrl('//external.com/resource', baseUrl)).toBe(
-      'https://external.com/resource',
-    )
+    const value = '//external.com/resource'
+    const expected = 'https://external.com/resource'
+
+    expect(resolveRelativeUrl(value, baseUrl)).toBe(expected)
   })
 
   it('should handle root-relative URLs', () => {
-    expect(resolveRelativeUrl('/images/logo.png', baseUrl)).toBe(
-      'https://example.com/images/logo.png',
-    )
+    const value = '/images/logo.png'
+    const expected = 'https://example.com/images/logo.png'
+
+    expect(resolveRelativeUrl(value, baseUrl)).toBe(expected)
   })
 
   it('should resolve parent directory navigation', () => {
-    expect(resolveRelativeUrl('../../file.txt', baseUrl)).toBe('https://example.com/file.txt')
+    const value = '../../file.txt'
+    const expected = 'https://example.com/file.txt'
+
+    expect(resolveRelativeUrl(value, baseUrl)).toBe(expected)
   })
 
   it('should handle current directory references', () => {
-    expect(resolveRelativeUrl('./config.json', baseUrl)).toBe(
-      'https://example.com/base/path/config.json',
-    )
+    const value = './config.json'
+    const expected = 'https://example.com/base/path/config.json'
+
+    expect(resolveRelativeUrl(value, baseUrl)).toBe(expected)
   })
 
   it('should append query parameters and hash', () => {
-    expect(resolveRelativeUrl('search?q=test#results', baseUrl)).toBe(
-      'https://example.com/base/path/search?q=test#results',
-    )
+    const value = 'search?q=test#results'
+    const expected = 'https://example.com/base/path/search?q=test#results'
+
+    expect(resolveRelativeUrl(value, baseUrl)).toBe(expected)
   })
 
   it('should handle empty base URL', () => {
-    expect(resolveRelativeUrl('file.txt', '')).toEqual('file.txt')
+    const value = 'file.txt'
+    const base = ''
+    const expected = 'file.txt'
+
+    expect(resolveRelativeUrl(value, base)).toBe(expected)
   })
 
   it('should handle malformed base URL', () => {
-    expect(resolveRelativeUrl('/test', 'http:// test.com')).toEqual('/test')
+    const value = '/test'
+    const base = 'http:// test.com'
+    const expected = '/test'
+
+    expect(resolveRelativeUrl(value, base)).toBe(expected)
   })
 
   it('should preserve URL encoding', () => {
-    expect(resolveRelativeUrl('path%20with%20spaces', baseUrl)).toBe(
-      'https://example.com/base/path/path%20with%20spaces',
-    )
+    const value = 'path%20with%20spaces'
+    const expected = 'https://example.com/base/path/path%20with%20spaces'
+
+    expect(resolveRelativeUrl(value, baseUrl)).toBe(expected)
   })
 
-  it('should handle different base URL formats', () => {
-    const bases = [
-      'http://example.com', // Without trailing slash.
-      'https://example.com/blog/', // With trailing slash.
-      'https://user:pass@example.com', // With credentials.
-    ]
+  it('should handle base URL without trailing slash', () => {
+    const value = 'post.html'
+    const base = 'http://example.com'
+    const expected = 'http://example.com/post.html'
 
-    const expectations = [
-      ['post.html', 'http://example.com/post.html'],
-      ['2024/article.md', 'https://example.com/blog/2024/article.md'],
-      ['profile', 'https://user:pass@example.com/profile'],
-    ]
+    expect(resolveRelativeUrl(value, base)).toBe(expected)
+  })
 
-    bases.forEach((base, index) => {
-      const [input, expected] = expectations[index]
-      expect(resolveRelativeUrl(input, base)).toBe(expected)
-    })
+  it('should handle base URL with trailing slash', () => {
+    const value = '2024/article.md'
+    const base = 'https://example.com/blog/'
+    const expected = 'https://example.com/blog/2024/article.md'
+
+    expect(resolveRelativeUrl(value, base)).toBe(expected)
+  })
+
+  it('should handle base URL with credentials', () => {
+    const value = 'profile'
+    const base = 'https://user:pass@example.com'
+    const expected = 'https://user:pass@example.com/profile'
+
+    expect(resolveRelativeUrl(value, base)).toBe(expected)
   })
 })
 
@@ -202,13 +362,25 @@ describe('isSimilarUrl', () => {
     expect(isSimilarUrl(url1, url2)).toBe(false)
   })
 
-  it('should handle malformed URLs gracefully', () => {
+  it('should handle malformed URL compared to valid URL', () => {
     const url1 = 'not a url'
     const url2 = 'https://example.com'
 
     expect(isSimilarUrl(url1, url2)).toBe(false)
-    expect(isSimilarUrl(url2, 'also not valid')).toBe(false)
-    expect(isSimilarUrl('malformed', 'also malformed')).toBe(false)
+  })
+
+  it('should handle valid URL compared to malformed URL', () => {
+    const url1 = 'https://example.com'
+    const url2 = 'also not valid'
+
+    expect(isSimilarUrl(url1, url2)).toBe(false)
+  })
+
+  it('should handle two malformed URLs', () => {
+    const url1 = 'malformed'
+    const url2 = 'also malformed'
+
+    expect(isSimilarUrl(url1, url2)).toBe(false)
   })
 
   it('should handle URLs with invalid characters gracefully', () => {
@@ -337,50 +509,91 @@ describe('isSafePublicUrl', () => {
 
     // Note: ssrfcheck auto-prepends protocol to these, making them valid
     it('should accept relative path (auto-prepended with http://)', () => {
-      expect(isSafePublicUrl('/relative/path')).toBe(true)
+      const value = '/relative/path'
+
+      expect(isSafePublicUrl(value)).toBe(true)
     })
 
     it('should accept domain without protocol (auto-prepended)', () => {
-      expect(isSafePublicUrl('example.com')).toBe(true)
+      const value = 'example.com'
+
+      expect(isSafePublicUrl(value)).toBe(true)
     })
   })
 
   describe('Edge cases', () => {
-    it('should handle URL with username/password', () => {
-      expect(isSafePublicUrl('http://user:pass@example.com')).toBe(true)
-      expect(isSafePublicUrl('http://user:pass@localhost')).toBe(false)
+    it('should allow URL with username/password to public domain', () => {
+      const value = 'http://user:pass@example.com'
+
+      expect(isSafePublicUrl(value)).toBe(true)
+    })
+
+    it('should block URL with username/password to localhost', () => {
+      const value = 'http://user:pass@localhost'
+
+      expect(isSafePublicUrl(value)).toBe(false)
     })
 
     it('should handle URLs with fragments', () => {
-      expect(isSafePublicUrl('https://example.com/page#section')).toBe(true)
+      const value = 'https://example.com/page#section'
+
+      expect(isSafePublicUrl(value)).toBe(true)
     })
 
     it('should handle URLs with query parameters', () => {
-      expect(isSafePublicUrl('https://example.com/feed?key=value')).toBe(true)
+      const value = 'https://example.com/feed?key=value'
+
+      expect(isSafePublicUrl(value)).toBe(true)
     })
 
-    it('should be case-insensitive for hostname', () => {
-      expect(isSafePublicUrl('http://LOCALHOST')).toBe(false)
-      expect(isSafePublicUrl('http://LocalHost:3000')).toBe(false)
+    it('should be case-insensitive for LOCALHOST hostname', () => {
+      const value = 'http://LOCALHOST'
+
+      expect(isSafePublicUrl(value)).toBe(false)
     })
 
-    it('should handle invalid IP addresses with octets > 255', () => {
-      expect(isSafePublicUrl('http://256.1.1.1')).toBe(false)
-      expect(isSafePublicUrl('http://1.256.1.1')).toBe(false)
-      expect(isSafePublicUrl('http://192.168.1.256')).toBe(false)
+    it('should be case-insensitive for LocalHost hostname with port', () => {
+      const value = 'http://LocalHost:3000'
+
+      expect(isSafePublicUrl(value)).toBe(false)
+    })
+
+    it('should reject IP with first octet > 255', () => {
+      const value = 'http://256.1.1.1'
+
+      expect(isSafePublicUrl(value)).toBe(false)
+    })
+
+    it('should reject IP with second octet > 255', () => {
+      const value = 'http://1.256.1.1'
+
+      expect(isSafePublicUrl(value)).toBe(false)
+    })
+
+    it('should reject IP with fourth octet > 255', () => {
+      const value = 'http://192.168.1.256'
+
+      expect(isSafePublicUrl(value)).toBe(false)
     })
 
     it('should allow legitimate domain starting with localhost', () => {
-      // Note: localhost.example.com is NOT the same as localhost
-      // It's a valid subdomain that happens to start with "localhost"
-      expect(isSafePublicUrl('http://localhost.example.com')).toBe(true)
+      const value = 'http://localhost.example.com'
+
+      expect(isSafePublicUrl(value)).toBe(true)
     })
   })
 
   describe('Cloud metadata endpoints (AWS)', () => {
-    it('should block AWS metadata endpoint', () => {
-      expect(isSafePublicUrl('http://169.254.169.254/latest/meta-data/')).toBe(false)
-      expect(isSafePublicUrl('http://169.254.169.254/latest/user-data/')).toBe(false)
+    it('should block AWS metadata endpoint for meta-data', () => {
+      const value = 'http://169.254.169.254/latest/meta-data/'
+
+      expect(isSafePublicUrl(value)).toBe(false)
+    })
+
+    it('should block AWS metadata endpoint for user-data', () => {
+      const value = 'http://169.254.169.254/latest/user-data/'
+
+      expect(isSafePublicUrl(value)).toBe(false)
     })
   })
 })
