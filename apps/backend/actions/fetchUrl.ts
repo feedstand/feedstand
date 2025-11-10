@@ -14,7 +14,7 @@ import { createStreamingChecksum } from '../helpers/hashes.ts'
 import { isOneOfContentTypes } from '../helpers/responses.ts'
 import { isJson } from '../helpers/strings.ts'
 import { sleep } from '../helpers/system.ts'
-import { isSafePublicUrl } from '../helpers/urls.ts'
+import { isSafePublicUrl, resolveRelativeUrl } from '../helpers/urls.ts'
 
 interface CustomAxiosRequestConfig extends AxiosRequestConfig {
   retriesCount?: number
@@ -82,13 +82,17 @@ const axiosInstance = axios.create({
   maxRedirects,
   beforeRedirect: (options, responseDetails) => {
     const redirectUrl = responseDetails.headers.location
+    const absoluteRedirectUrl = resolveRelativeUrl(redirectUrl, options.url)
 
-    if (!isSafePublicUrl(redirectUrl)) {
+    // TODO: This could be optimized by skipping the relative URL redirects, as we already
+    // verified the initial absolute URL. For the simplicity's sake, let's keep it as is.
+    if (!isSafePublicUrl(absoluteRedirectUrl)) {
       console.warn('[SECURITY] SSRF blocked: redirect to internal resource', {
         from: options.url,
         to: redirectUrl,
+        toResolved: absoluteRedirectUrl,
       })
-      throw new UnsafeUrlError(redirectUrl)
+      throw new UnsafeUrlError(absoluteRedirectUrl)
     }
   },
 })
