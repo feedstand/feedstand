@@ -6,9 +6,9 @@ import { cors } from 'hono/cors'
 import { HTTPException } from 'hono/http-exception'
 import { ZodError } from 'zod'
 import { isDev, version } from '../constants/app.ts'
-import { path as bullBoardPath } from '../constants/bullBoard.ts'
+import { path as bullboardPath } from '../constants/bullboard.ts'
 import { openapiPath, swaggerPath } from '../constants/openapi.ts'
-import { routeHandler as bullBoardRouteHandler } from '../instances/bullBoard.ts'
+import { routeHandler as bullboardRouteHandler } from '../instances/bullboard.ts'
 import { sentry } from '../instances/sentry.ts'
 import * as showChannel from '../routes/channels/show.ts'
 import * as findFeeds from '../routes/feeds/find.ts'
@@ -63,7 +63,7 @@ hono.use('*', compress())
 hono.use('*', cors()) // TODO: Configure CORS to allow requests only from frontend.
 hono.onError(errorHandler)
 hono.get(swaggerPath, swaggerUI({ url: openapiPath }))
-hono.route(bullBoardPath, bullBoardRouteHandler)
+hono.route(bullboardPath, bullboardRouteHandler)
 
 export const openapi = hono
   .doc31(openapiPath, openapiConfig)
