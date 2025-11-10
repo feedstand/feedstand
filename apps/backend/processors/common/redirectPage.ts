@@ -55,6 +55,10 @@ export const redirectPage: WorkflowProcessor<any> = async (context, next, self) 
 
   const resolvedUrl = resolveRelativeUrl(rawUrl, context.response.url)
 
+  if (resolvedUrl === context.response.url) {
+    return await next()
+  }
+
   if (!isSafePublicUrl(resolvedUrl)) {
     console.warn('[SECURITY] Meta refresh to internal resource blocked:', {
       from: context.url,
