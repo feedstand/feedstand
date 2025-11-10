@@ -1,5 +1,6 @@
 import { TZDate } from '@date-fns/tz'
-import { isValid, type Locale, parse } from 'date-fns'
+import type { Locale } from 'date-fns'
+import { type DateArg, isValid, parse, toDate } from 'date-fns'
 import { de } from 'date-fns/locale/de'
 import { enUS } from 'date-fns/locale/en-US'
 import { fr } from 'date-fns/locale/fr'
@@ -10,8 +11,6 @@ import { sv } from 'date-fns/locale/sv'
 import { tr } from 'date-fns/locale/tr'
 import { zhTW } from 'date-fns/locale/zh-TW'
 import { isString } from '../helpers/strings.ts'
-import type { ValueParser } from '../types/system.ts'
-import { dateStandard } from './dateStandard.ts'
 
 type CustomFormatsReplace = {
   from: string | RegExp
@@ -1176,7 +1175,21 @@ const customFormats: CustomFormats = [
 const dateCache = new Map<string, Date>()
 const MAX_CACHE_SIZE = 1000
 
-export const dateCustomFormat: ValueParser<Date> = (value) => {
+export const resolveDate = (value: DateArg<Date> | null | undefined): Date | undefined => {
+  if (!value) {
+    return
+  }
+
+  // Try standard parsing first (faster path)
+  const date = toDate(value)
+  const isDateValid = isValid(date)
+  const isYearValid = date.getFullYear() <= 9999
+
+  if (isDateValid && isYearValid) {
+    return date
+  }
+
+  // Fall back to custom format parsing for strings
   if (!isString(value)) {
     return
   }
@@ -1219,10 +1232,13 @@ export const dateCustomFormat: ValueParser<Date> = (value) => {
       new TZDate(new Date(), extractedTimezone),
       { locale: locale || enUS },
     )
-    const validatedDate = dateStandard(parsedDate)
 
-    if (validatedDate && isValid(validatedDate)) {
-      const result = new Date(validatedDate?.toISOString())
+    const date = toDate(parsedDate)
+    const isDateValid = isValid(date)
+    const isYearValid = date.getFullYear() <= 9999
+
+    if (isDateValid && isYearValid) {
+      const result = new Date(date.toISOString())
 
       if (dateCache.size >= MAX_CACHE_SIZE) {
         const firstKey = dateCache.keys().next().value

@@ -1,9 +1,7 @@
 import type { Atom, DeepPartial } from 'feedsmith/types'
-import { dateCustomFormat } from '../parsers/dateCustomFormat.ts'
-import { dateStandard } from '../parsers/dateStandard.ts'
+import { resolveDate } from '../actions/resolveDate.ts'
 import type { FeedChannel, FeedItem, RawFeedChannel, RawFeedItem } from '../types/schemas.ts'
 import { generateChecksum } from './hashes.ts'
-import { parseValue } from './parsers.ts'
 
 export const retrieveAlternateLink = (links?: Array<DeepPartial<Atom.Link<string>>>) => {
   return links?.find((link) => (!link.rel || link.rel === 'alternate') && link.href)?.href
@@ -34,11 +32,7 @@ export const parseRawFeedItems = <I>(
 
     const link = rawItem.link || ''
     const guid = rawItem.guid || link
-    const publishedAt = parseValue(
-      rawItem.publishedAt,
-      [dateStandard, dateCustomFormat],
-      new Date(),
-    )
+    const publishedAt = resolveDate(rawItem.publishedAt) || new Date()
 
     const itemHash = generateChecksum(guid, link, rawItem.publishedAt)
     const contentHash = generateChecksum(rawItem.content)

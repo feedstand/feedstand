@@ -43,7 +43,7 @@ export class FetchUrlResponse extends Response {
   }
 }
 
-const cacheable = new CacheableLookup()
+// const cacheable = new CacheableLookup()
 
 const gotInstance = got.extend({
   timeout: {
@@ -61,7 +61,7 @@ const gotInstance = got.extend({
     }),
   },
   // Cache DNS lookups to improve performance (respects TTL).
-  dnsCache: cacheable,
+  // dnsCache: cacheable,
   // Always return a response instead of throwing an exception. This allows for later use
   // of the erroneous response to detect the type of error in parsing middlewares.
   throwHttpErrors: false,
