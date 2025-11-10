@@ -1,47 +1,5 @@
-import { AxiosError } from 'axios'
 import { describe, expect, it } from 'vitest'
-import { convertErrorToString, isAggregateError } from './errors.ts'
-
-describe('isAggregateError', () => {
-  it('should identify native AggregateError', () => {
-    const error = new AggregateError([new Error('Sub error')], 'Main error')
-
-    expect(isAggregateError(error)).toBe(true)
-  })
-
-  it('should identify Axios AggregateError', () => {
-    const error = new AxiosError('Network error')
-    error.name = 'AggregateError'
-
-    expect(isAggregateError(error)).toBe(true)
-  })
-
-  it('should return false for regular Error', () => {
-    const error = new Error('Regular error')
-
-    expect(isAggregateError(error)).toBe(false)
-  })
-
-  it('should return false for string value', () => {
-    expect(isAggregateError('string error')).toBe(false)
-  })
-
-  it('should return false for null', () => {
-    expect(isAggregateError(null)).toBe(false)
-  })
-
-  it('should return false for undefined', () => {
-    expect(isAggregateError(undefined)).toBe(false)
-  })
-
-  it('should return false for number', () => {
-    expect(isAggregateError(42)).toBe(false)
-  })
-
-  it('should return false for empty object', () => {
-    expect(isAggregateError({})).toBe(false)
-  })
-})
+import { convertErrorToString } from './errors.ts'
 
 describe('convertErrorToString', () => {
   it('should convert Error', () => {

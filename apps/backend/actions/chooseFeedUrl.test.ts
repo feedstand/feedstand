@@ -299,7 +299,7 @@ describe('chooseFeedUrl', () => {
       // - selfUrl different from responseUrl
       // Mock:
       // - fetchUrl returns response with status 301
-      // Note: In practice, axios follows redirects, but testing if response.ok=false
+      // Note: In practice, Got follows redirects, but testing if response.ok=false
       // Expected:
       // - returns responseUrl
       // - fetchUrl called with selfUrl

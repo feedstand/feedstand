@@ -1,11 +1,13 @@
 import https from 'node:https'
-import axios, { type AxiosError, type AxiosRequestConfig, type AxiosResponse } from 'axios'
+import got, { type Response as GotResponse, type OptionsInit } from 'got'
 import { sample } from 'lodash-es'
 import {
   avoidedContentTypes,
   commonHeaders,
   maxContentSize,
+  maxHeaderSize,
   maxRedirects,
+  maxRetries,
   maxTimeout,
   userAgents,
 } from '../constants/fetchers.ts'
@@ -13,38 +15,21 @@ import { UnsafeUrlError } from '../errors/UnsafeUrlError.ts'
 import { createStreamingChecksum } from '../helpers/hashes.ts'
 import { isOneOfContentTypes } from '../helpers/responses.ts'
 import { isJson } from '../helpers/strings.ts'
-import { sleep } from '../helpers/system.ts'
 import { isSafePublicUrl, resolveRelativeUrl } from '../helpers/urls.ts'
 
-interface CustomAxiosRequestConfig extends AxiosRequestConfig {
-  retriesCount?: number
-}
-
-// TODO:
-// - Increase max header size to 64KB. This is possible in Unidici HTTPS Agent as an option
-//   maxHeaderSize: 65536. See analogous thing in Axios.
-// - Tell the server to give the uncompressed data. This is to mitigate issues where some servers
-//   wrongly say they the response is gzipped where in reality it's not.
-//   Solution: set 'Accept-Encoding': 'identity'.
-//   Example page: ?
-// - At some point, consider replacing Axios with native fetch (or Unidici) for more low-level
-//   control and better performance and less dependencies on external packages. It might be
-//   a challenge as a lot of stuff that Axios provides out of the box would need to be written
-//   from scratch, but maybe it's worth it. Alternatively consider using Got or Ky packages.
-
-// The CustomResponse class is necessary to simulate the native Response object behavior.
-// When creating a Response object from AxiosObject manually, it is necessary to also store the
+// The FetchUrlResponse class is necessary to simulate the native Response object behavior.
+// When creating a Response object from GotResponse manually, it is necessary to also store the
 // URL of fetched page so that it can be referenced later. The native Response object has it out
 // of the box when performing fetch(), but when creating it manually, there's no way to set it.
-export class CustomResponse extends Response {
+export class FetchUrlResponse extends Response {
   public readonly url: string
-  public readonly _body: string
   public readonly hash?: string
+  private readonly _body: string
 
-  constructor(body: string | null, init: ResponseInit & { url: string; hash?: string }) {
+  constructor(body: string, init: ResponseInit & { url: string; hash?: string }) {
     super(undefined, init)
     this.url = init.url
-    this._body = body || ''
+    this._body = body
     this.hash = init.hash
   }
 
@@ -57,124 +42,154 @@ export class CustomResponse extends Response {
   }
 }
 
-const axiosInstance = axios.create({
-  timeout: maxTimeout,
-  // Enables lenient HTTP parsing for non-standard server responses where Content-Length or
-  // Transfer-Encoding headers might be malformed (common with legacy RSS feeds and
-  // misconfigured servers).
-  insecureHTTPParser: true,
+const gotInstance = got.extend({
+  timeout: {
+    request: maxTimeout,
+  },
   // Allows getting RSS feed from URLs with unverified certificate.
-  // Enable connection pooling for better performance.
-  httpsAgent: new https.Agent({
+  https: {
     rejectUnauthorized: false,
-    keepAlive: true,
-    maxSockets: 100,
-  }),
+  },
+  // Enable connection pooling for better performance.
+  agent: {
+    https: new https.Agent({
+      keepAlive: true,
+      maxSockets: 100,
+    }),
+  },
   // Always return a response instead of throwing an exception. This allows for later use
   // of the erroneous response to detect the type of error in parsing middlewares.
-  validateStatus: () => true,
-  // Do not automatically transform JSON response to JSON object.
-  transformResponse: [],
-  // Need to use the stream response type to detect streaming services (eg. audio.)
-  responseType: 'stream',
+  throwHttpErrors: false,
+  // Increase max header size to 64KB for RSS feeds with large headers.
+  maxHeaderSize,
   // Default headers (will be merged with per-request headers)
   headers: commonHeaders,
+  followRedirect: true,
   maxRedirects,
-  beforeRedirect: (options, responseDetails) => {
-    const fromUrl = `${options.protocol}//${options.hostname}${options.port ? `:${options.port}` : ''}${options.path}`
-    const toUrl = responseDetails.headers.location
-    const toResolvedUrl = resolveRelativeUrl(toUrl, fromUrl)
+  retry: {
+    limit: maxRetries,
+    statusCodes: [403, 408, 413, 429, 500, 502, 503, 504, 521, 522, 524],
+  },
+  hooks: {
+    beforeRedirect: [
+      (_updatedOptions, response) => {
+        const fromUrl = response.requestUrl.toString()
+        const toUrl = response.headers.location
+        const toResolvedUrl = toUrl ? resolveRelativeUrl(toUrl, fromUrl) : ''
 
-    // TODO: This could be optimized by skipping the relative URL redirects, as we already
-    // verified the initial absolute URL. For the simplicity's sake, let's keep it as is.
-    if (!isSafePublicUrl(toResolvedUrl)) {
-      console.warn('[SECURITY] SSRF blocked: redirect to internal resource', {
-        from: fromUrl,
-        to: toUrl,
-        toResolved: toResolvedUrl,
-      })
-      throw new UnsafeUrlError(toResolvedUrl)
-    }
+        // TODO: This could be optimized by skipping the relative URL redirects, as we already
+        // verified the initial absolute URL. For the simplicity's sake, let's keep it as is.
+        if (!isSafePublicUrl(toResolvedUrl)) {
+          console.warn('[SECURITY] SSRF blocked: redirect to internal resource', {
+            from: fromUrl,
+            to: toUrl,
+            toResolved: toResolvedUrl,
+          })
+          throw new UnsafeUrlError(toResolvedUrl)
+        }
+      },
+    ],
+    beforeRetry: [
+      (error) => {
+        // Force IPv4-only on network error retries.
+        if (error.code === 'ENETUNREACH' || error.code === 'ETIMEDOUT') {
+          error.options.dnsLookupIpVersion = 4
+        }
+
+        // Rotate User-Agent on 403 retries.
+        if (error.response?.statusCode === 403) {
+          error.options.headers['User-Agent'] = sample(userAgents)
+        }
+      },
+    ],
   },
 })
 
-const maxRetries = 3
-
-// Try other user agent header as the server might require recognizable string.
-axiosInstance.interceptors.response.use(
-  async (response: AxiosResponse) => {
-    const config = response.config as CustomAxiosRequestConfig
-    const retriesCount = config.retriesCount || 0
-
-    if (response.status === 403 && retriesCount < maxRetries) {
-      const newRetriesCount = retriesCount + 1
-      const newConfig: CustomAxiosRequestConfig = {
-        ...config,
-        retriesCount: newRetriesCount,
-      }
-      newConfig.headers = { ...config.headers, 'User-Agent': sample(userAgents) }
-
-      // Exponential backoff with jitter to avoid thundering herd.
-      await sleep(newRetriesCount * 1000 + Math.random() * 1000)
-
-      return axiosInstance(newConfig)
-    }
-
-    return response
-  },
-  // Some servers have misconfigured IPv6 setup (AAAA DNS records exist but no actual IPv6
-  // connectivity). When this happens, the first request attempts both IPv6 and IPv4, resulting
-  // in ENETUNREACH or ETIMEDOUT errors. This retry logic forces IPv4-only (family: 4) on
-  // subsequent attempts, which typically resolves the connection issues for such servers.
-  async (error: AxiosError) => {
-    if (!error.config) {
-      return Promise.reject(error)
-    }
-
-    const config = error.config as CustomAxiosRequestConfig
-    const retriesCount = config.retriesCount || 0
-
-    if ((error.code === 'ENETUNREACH' || error.code === 'ETIMEDOUT') && retriesCount < maxRetries) {
-      const newRetriesCount = retriesCount + 1
-      const newConfig: CustomAxiosRequestConfig = {
-        ...config,
-        retriesCount: newRetriesCount,
-        family: 4,
-      }
-
-      // Exponential backoff with jitter to avoid thundering herd.
-      await sleep(newRetriesCount * 1000 + Math.random() * 1000)
-
-      return axiosInstance(newConfig)
-    }
-
-    return Promise.reject(error)
-  },
-)
-
+// TODO:
+// - Tell the server to give the uncompressed data. This is to mitigate issues where some servers
+//   wrongly say they the response is gzipped where in reality it's not.
+//   Solution: set 'Accept-Encoding': 'identity'.
+//   Example page: ?
+// - At some point, consider replacing Got with native fetch (or Unidici) for more low-level
+//   control and better performance and less dependencies on external packages. It might be
+//   a challenge as a lot of stuff that Got provides out of the box would need to be written
+//   from scratch, but maybe it's worth it.
+//
+// Any alternative HTTP client must support ALL of the following features:
+// 1. Timeout configuration
+//    - Per-request timeout limit
+//    - Current: timeout.request = maxTimeout
+// 2. HTTPS Agent configuration
+//    - rejectUnauthorized: false (accept unverified certificates for RSS feeds)
+//    - keepAlive: true (connection pooling)
+//    - maxSockets: 100 (concurrent connection limit)
+//    - maxHeaderSize: 64KB (handle RSS feeds with large headers)
+//    - Current: https: { rejectUnauthorized }, agent: { https }, maxHeaderSize
+// 3. Always return response without throwing
+//    - Must return response for non-2xx status codes (4xx, 5xx)
+//    - Current: throwHttpErrors: false
+// 4. Stream response type
+//    - Must support streaming responses (not buffering entire response)
+//    - Must support async iteration over stream chunks (for await...of)
+//    - Must support stream.destroy() for aborting downloads
+//    - Must support 'response' event to access headers before body download
+//    - Current: gotInstance.stream(), await 'response' event, for await...of stream
+// 5. Header merging
+//    - Default headers merged with per-request headers
+//    - Current: headers: commonHeaders + config.headers
+// 6. Redirect handling
+//    - Follow redirects up to maxRedirects
+//    - beforeRedirect hook for SSRF validation of redirect targets
+//    - Must provide: fromUrl, toUrl, ability to throw to abort redirect
+//    - Current: followRedirect: true, maxRedirects, hooks.beforeRedirect
+// 7. Retry logic
+//    - Retry on HTTP 403 (Forbidden) with different User-Agent header
+//    - Retry on network errors: ENETUNREACH, ETIMEDOUT
+//    - Exponential backoff with jitter (attemptCount * 1000 + random)
+//    - Limit retries to maxRetries (3)
+//    - IPv4 fallback on network errors (dnsLookupIpVersion: 4)
+//    - Current: retry.limit, retry.statusCodes, retry.errorCodes, hooks.beforeRetry
+// 8. Response metadata
+//    - Final URL after redirects (response.url)
+//    - Status code (response.statusCode)
+//    - Status message (response.statusMessage)
+//    - Response headers (response.headers)
+// 9. Global HTTP parser configuration (Node.js)
+//    - Lenient HTTP parsing via Node.js --insecure-http-parser flag
+//    - Required for legacy RSS feeds with malformed headers
+//    - Note: This is a Node.js runtime flag, not a library feature
+// 10. Error handling
+//    - Network errors must expose error.code (e.g., 'ENETUNREACH', 'ETIMEDOUT')
+//    - Errors must provide access to error.options for retry logic
+//
 export const fetchUrl = async (
   url: string,
-  config?: AxiosRequestConfig,
-): Promise<CustomResponse> => {
+  config?: Partial<OptionsInit>,
+): Promise<FetchUrlResponse> => {
   if (!isSafePublicUrl(url)) {
     throw new UnsafeUrlError(url)
   }
 
-  const requestConfig: CustomAxiosRequestConfig = {
+  const stream = gotInstance.stream(url, {
     ...config,
-    retriesCount: 0,
+    isStream: true,
     headers: {
       ...commonHeaders,
       ...config?.headers,
     },
-  }
+  })
 
-  const response = await axiosInstance(url, requestConfig)
+  // Wait for response headers before processing body.
+  const response = await new Promise<GotResponse>((resolve, reject) => {
+    stream.once('response', resolve)
+    stream.once('error', reject)
+  })
+
   const contentType = String(response.headers['content-type'])
 
-  // If it's not text, abort right away and destroy the stream so we don't keep reading.
+  // If it's not accepted response type, abort right away and destroy the stream.
   if (isOneOfContentTypes(contentType, avoidedContentTypes)) {
-    response.data.destroy()
+    stream.destroy()
     throw new Error(`Unwanted content-type: ${contentType}`)
   }
 
@@ -183,27 +198,26 @@ export const fetchUrl = async (
 
   let downloadedBytes = 0
 
-  for await (const chunk of response.data) {
+  for await (const chunk of stream) {
     downloadedBytes += chunk.length
 
     // Check the size as data arrives and abort the download immediately if it exceeds the max
     // allowed size, preventing memory issues from extremely large responses or streams (eg.
     // video or audio stream).
     if (downloadedBytes > maxContentSize) {
-      response.data.destroy()
-      throw new Error(`Content length exceeded the limit: ${maxContentSize}`)
+      stream.destroy(new Error(`Content length exceeded the limit: ${maxContentSize}`))
     }
 
     hash.update(chunk)
     chunks.push(chunk)
   }
 
-  const body = response.status === 304 ? null : Buffer.concat(chunks).toString('utf-8')
+  const body = Buffer.concat(chunks).toString('utf-8')
 
-  return new CustomResponse(body, {
-    url: response.request?.res?.responseUrl || url,
-    status: response.status,
-    statusText: response.statusText,
+  return new FetchUrlResponse(body, {
+    url: response.url,
+    status: response.statusCode,
+    statusText: response.statusMessage,
     headers: new Headers(response.headers as Record<string, string>),
     hash: hash.digest(),
   })

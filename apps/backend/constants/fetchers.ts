@@ -1,8 +1,12 @@
+export const maxRetries = 3
+
 export const maxRedirects = 5
 
 export const maxTimeout = 20 * 1000
 
 export const maxContentSize = 100 * 1024 * 1024
+
+export const maxHeaderSize = 64 * 1024
 
 export const avoidedContentTypes = ['audio/', 'video/', 'image/']
 
