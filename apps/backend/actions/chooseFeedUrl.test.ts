@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { FeedData } from '../types/schemas.ts'
 import { chooseFeedUrl } from './chooseFeedUrl.ts'
-import { FetchUrlResponse as RealFetchUrlResponse } from './fetchUrl.ts'
 
 // Mock fetchUrl module
-vi.mock('./fetchUrl.ts', () => {
+vi.mock('./fetchUrl.ts', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('./fetchUrl.ts')>()
   return {
+    ...actual,
     fetchUrl: vi.fn(),
-    FetchUrlResponse: RealFetchUrlResponse,
   }
 })
 
