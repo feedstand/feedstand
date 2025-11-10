@@ -4,6 +4,7 @@ import { hasWorkerFeature } from '../constants/features.ts'
 import { GuardedPageError } from '../errors/GuardedPageError.ts'
 import { RateLimitError } from '../errors/RateLimitError.ts'
 import { UnsafeUrlError } from '../errors/UnsafeUrlError.ts'
+import { incrementMetric, recordDistribution } from '../helpers/metrics.ts'
 import { getRateLimitDelay } from '../helpers/rateLimits.ts'
 import { connection } from '../instances/queue.ts'
 import { sentry } from '../instances/sentry.ts'
@@ -34,7 +35,7 @@ export const createQueue = <Data, Result, Name extends string>(
       return await startSpan(options, () => actions[job.name](job.data))
     } catch (error) {
       if (error instanceof GuardedPageError || error instanceof UnsafeUrlError) {
-        await job.moveToFailed(error, job.token, true)
+        await job.moveToFailed(error, job.token || '', true)
 
         // For permanent failures, manually fail the job and return.
         return undefined as Result
@@ -42,11 +43,17 @@ export const createQueue = <Data, Result, Name extends string>(
 
       if (error instanceof RateLimitError) {
         const delayMs = await getRateLimitDelay(error.url)
+        const domain = new URL(error.url).hostname
         console.debug('[Rate Limit] Job delayed:', {
           jobId: job.id,
           jobName: job.name,
           url: error.url,
           delayMs,
+        })
+        incrementMetric('rate_limit.job_delayed', 1, { queue: job.queueName, domain })
+        recordDistribution('rate_limit.delay_ms', delayMs, 'millisecond', {
+          queue: job.queueName,
+          domain,
         })
         await job.moveToDelayed(Date.now() + delayMs, job.token)
 

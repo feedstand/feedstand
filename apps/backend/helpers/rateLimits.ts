@@ -1,5 +1,6 @@
 import { RateLimitError } from '../errors/RateLimitError.ts'
 import { connection } from '../instances/queue.ts'
+import { incrementMetric, recordDistribution } from './metrics.ts'
 
 const RATE_LIMIT_PREFIX = 'rate_limit:'
 const MAX_DELAY_SECONDS = 3600 // 1 hour - prevent DoS from malicious headers
@@ -11,11 +12,13 @@ export const checkRateLimit = async (url: string): Promise<void> => {
   const isLimited = await connection.get(key)
 
   if (isLimited) {
+    const remainingSeconds = await connection.ttl(key)
     console.debug('[Rate Limit] Preflight blocked:', {
       domain,
       url,
-      remainingSeconds: await connection.ttl(key),
+      remainingSeconds,
     })
+    incrementMetric('rate_limit.preflight_blocked', 1, { domain })
     throw new RateLimitError(url, `${domain} (cached)`)
   }
 }
@@ -29,6 +32,9 @@ export const markRateLimited = async (url: string, durationSeconds: number): Pro
     url,
     durationSeconds,
   })
+
+  incrementMetric('rate_limit.domain_marked', 1, { domain })
+  recordDistribution('rate_limit.duration_seconds', durationSeconds, 'second', { domain })
 
   await connection.setex(key, durationSeconds, '1')
 }
