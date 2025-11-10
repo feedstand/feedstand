@@ -1,8 +1,9 @@
 import { startSpan, withScope } from '@sentry/node'
 import { type Processor, Queue, type QueueOptions, Worker, type WorkerOptions } from 'bullmq'
 import { hasWorkerFeature } from '../constants/features.ts'
-import { GuardedPageError } from '../errors/GuardedPageError.ts'
+import { GuardedUrlError } from '../errors/GuardedUrlError.ts'
 import { RateLimitError } from '../errors/RateLimitError.ts'
+import { UnreachableUrlError } from '../errors/UnreachableUrlError.ts'
 import { UnsafeUrlError } from '../errors/UnsafeUrlError.ts'
 import { incrementMetric, recordDistribution } from '../helpers/metrics.ts'
 import { getRateLimitDelay } from '../helpers/rateLimits.ts'
@@ -34,7 +35,11 @@ export const createQueue = <Data, Result, Name extends string>(
     try {
       return await startSpan(options, () => actions[job.name](job.data))
     } catch (error) {
-      if (error instanceof GuardedPageError || error instanceof UnsafeUrlError) {
+      if (
+        error instanceof GuardedUrlError ||
+        error instanceof UnreachableUrlError ||
+        error instanceof UnsafeUrlError
+      ) {
         await job.moveToFailed(error, job.token || '', true)
 
         // For permanent failures, manually fail the job and return.
