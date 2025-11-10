@@ -81,18 +81,19 @@ const axiosInstance = axios.create({
   headers: commonHeaders,
   maxRedirects,
   beforeRedirect: (options, responseDetails) => {
-    const redirectUrl = responseDetails.headers.location
-    const absoluteRedirectUrl = resolveRelativeUrl(redirectUrl, options.url)
+    const fromUrl = `${options.protocol}//${options.hostname}${options.port ? `:${options.port}` : ''}${options.path}`
+    const toUrl = responseDetails.headers.location
+    const toResolvedUrl = resolveRelativeUrl(toUrl, fromUrl)
 
     // TODO: This could be optimized by skipping the relative URL redirects, as we already
     // verified the initial absolute URL. For the simplicity's sake, let's keep it as is.
-    if (!isSafePublicUrl(absoluteRedirectUrl)) {
+    if (!isSafePublicUrl(toResolvedUrl)) {
       console.warn('[SECURITY] SSRF blocked: redirect to internal resource', {
-        from: options.url,
-        to: redirectUrl,
-        toResolved: absoluteRedirectUrl,
+        from: fromUrl,
+        to: toUrl,
+        toResolved: toResolvedUrl,
       })
-      throw new UnsafeUrlError(absoluteRedirectUrl)
+      throw new UnsafeUrlError(toResolvedUrl)
     }
   },
 })
