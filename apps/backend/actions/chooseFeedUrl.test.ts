@@ -106,7 +106,7 @@ describe('chooseFeedUrl', () => {
     })
   })
 
-  describe('Case #3b: selfUrl targets private/internal resources (SSRF protection)', () => {
+  describe('Case #4: selfUrl targets private/internal resources (SSRF protection)', () => {
     it('should return responseUrl when selfUrl targets localhost (127.0.0.1)', async () => {
       // Setup:
       // - selfUrl = 'http://127.0.0.1/feed.xml'
@@ -195,9 +195,9 @@ describe('chooseFeedUrl', () => {
       // Mock:
       // - fetchUrl returns 200 (proceeds past SSRF check)
       // Expected:
-      // - Case #3b passes (safe URL)
+      // - Case #4 passes (safe URL)
       // - fetchUrl IS called
-      // - Returns based on subsequent case logic (e.g., Case #7 or Case #8)
+      // - Returns based on subsequent case logic (e.g., Case #8 or Case #9)
     })
 
     it('should reject selfUrl with private IP even with HTTPS', async () => {
@@ -262,7 +262,7 @@ describe('chooseFeedUrl', () => {
     })
   })
 
-  describe('Case #4: selfUrl is an invalid URL (non-2xx status)', () => {
+  describe('Case #5: selfUrl is an invalid URL (non-2xx status)', () => {
     it('should return responseUrl when selfUrl returns 404', async () => {
       // Setup:
       // - selfUrl different from responseUrl
@@ -305,7 +305,7 @@ describe('chooseFeedUrl', () => {
     })
   })
 
-  describe('Case #5: selfUrl redirects to responseUrl', () => {
+  describe('Case #6: selfUrl redirects to responseUrl', () => {
     it('should return responseUrl when selfUrl redirects to exact responseUrl', async () => {
       // Setup:
       // - selfUrl = http://example.com/feed
@@ -340,7 +340,7 @@ describe('chooseFeedUrl', () => {
     })
   })
 
-  describe('Case #6: selfUrl is similar to responseUrl after normalizing', () => {
+  describe('Case #7: selfUrl is similar to responseUrl after normalizing', () => {
     it('should return selfUrl when only protocol differs (http vs https)', async () => {
       // Setup:
       // - selfUrl = http://example.com/feed.xml
@@ -386,7 +386,7 @@ describe('chooseFeedUrl', () => {
     })
   })
 
-  describe('Case #7: selfUrl has different URL but same content hash', () => {
+  describe('Case #8: selfUrl has different URL but same content hash', () => {
     it('should return selfUrl when hashes match but URLs differ', async () => {
       // Setup:
       // - selfUrl = https://cdn.example.com/feed.xml
@@ -406,33 +406,33 @@ describe('chooseFeedUrl', () => {
       // Mock:
       // - fetchUrl returns 200 with response.hash = 'differentHash'
       // Expected:
-      // - returns responseUrl (fall through to Case #8)
+      // - returns responseUrl (fall through to Case #9)
       // - fetchUrl called with selfUrl
     })
 
-    it('should NOT use Case #7 when feedData.meta.hash is undefined', async () => {
+    it('should NOT use Case #8 when feedData.meta.hash is undefined', async () => {
       // Setup:
       // - selfUrl different from responseUrl
       // - feedData.meta.hash = undefined
       // Mock:
       // - fetchUrl returns 200 with response.hash = undefined
       // Expected:
-      // - returns responseUrl (Case #7 check fails, falls to Case #8)
+      // - returns responseUrl (Case #8 check fails, falls to Case #9)
       // - fetchUrl called with selfUrl
     })
 
-    it('should NOT use Case #7 when response.hash is undefined', async () => {
+    it('should NOT use Case #8 when response.hash is undefined', async () => {
       // Setup:
       // - selfUrl different from responseUrl
       // - feedData.meta.hash = 'hash123'
       // Mock:
       // - fetchUrl returns 200 with response.hash = undefined
       // Expected:
-      // - returns responseUrl (Case #7 check fails, falls to Case #8)
+      // - returns responseUrl (Case #8 check fails, falls to Case #9)
       // - fetchUrl called with selfUrl
     })
 
-    it('should NOT use Case #7 when both hashes are undefined', async () => {
+    it('should NOT use Case #8 when both hashes are undefined', async () => {
       // Setup:
       // - selfUrl different from responseUrl
       // - feedData.meta.hash = undefined
@@ -444,7 +444,7 @@ describe('chooseFeedUrl', () => {
     })
   })
 
-  describe('Case #8: Fallback to responseUrl', () => {
+  describe('Case #9: Fallback to responseUrl', () => {
     it('should return responseUrl when all other cases fail', async () => {
       // Setup:
       // - selfUrl completely different from responseUrl
@@ -476,25 +476,25 @@ describe('chooseFeedUrl', () => {
       // Mock:
       // - fetchUrl returns final response.url matching responseUrl
       // Expected:
-      // - Case #5 catches it, returns responseUrl
+      // - Case #6 catches it, returns responseUrl
     })
 
-    it('should prefer Case #4 over Case #6 (check response.ok before similarity)', async () => {
+    it('should prefer Case #5 over Case #7 (check response.ok before similarity)', async () => {
       // Setup:
       // - selfUrl similar to responseUrl but returns 404
       // Mock:
       // - fetchUrl returns 404
       // Expected:
-      // - Case #4 returns responseUrl (don't return broken similar URL)
+      // - Case #5 returns responseUrl (don't return broken similar URL)
     })
 
-    it('should prefer Case #5 over Case #7 (redirect detection before hash check)', async () => {
+    it('should prefer Case #6 over Case #8 (redirect detection before hash check)', async () => {
       // Setup:
       // - selfUrl redirects to responseUrl, hashes also match
       // Mock:
       // - fetchUrl returns 200, response.url = responseUrl, hashes match
       // Expected:
-      // - Case #5 returns responseUrl (prefer direct URL over redirect with same content)
+      // - Case #6 returns responseUrl (prefer direct URL over redirect with same content)
     })
   })
 
@@ -558,8 +558,8 @@ describe('chooseFeedUrl', () => {
       // Mock:
       // - fetchUrl returns 200
       // Expected:
-      // - Case #6 does NOT catch (isSimilarUrl ignores query params? Check normalize-url docs)
-      // - Falls to Case #7 or Case #8
+      // - Case #7 does NOT catch (isSimilarUrl ignores query params? Check normalize-url docs)
+      // - Falls to Case #8 or Case #9
       // Note: This tests whether query param order matters
     })
 
@@ -570,7 +570,7 @@ describe('chooseFeedUrl', () => {
       // Mock:
       // - fetchUrl returns 200
       // Expected:
-      // - Case #6 catches it (domains are case-insensitive)
+      // - Case #7 catches it (domains are case-insensitive)
       // - returns selfUrl
       // Note: Check if isSimilarUrl normalizes case
     })
@@ -582,8 +582,8 @@ describe('chooseFeedUrl', () => {
       // Mock:
       // - fetchUrl returns 200
       // Expected:
-      // - Case #6 might catch (check if isSimilarUrl strips fragments)
-      // - Or falls to Case #7/Case #8
+      // - Case #7 might catch (check if isSimilarUrl strips fragments)
+      // - Or falls to Case #8/Case #9
     })
 
     it('should handle default port normalization (http :80)', async () => {
@@ -593,7 +593,7 @@ describe('chooseFeedUrl', () => {
       // Mock:
       // - fetchUrl returns 200
       // Expected:
-      // - Case #6 catches it (normalize-url should handle default ports)
+      // - Case #7 catches it (normalize-url should handle default ports)
       // - returns selfUrl
     })
 
@@ -604,7 +604,7 @@ describe('chooseFeedUrl', () => {
       // Mock:
       // - fetchUrl returns 200
       // Expected:
-      // - Case #6 catches it
+      // - Case #7 catches it
       // - returns selfUrl
     })
 
@@ -615,8 +615,8 @@ describe('chooseFeedUrl', () => {
       // Mock:
       // - fetchUrl returns 200 with different content
       // Expected:
-      // - Case #6 does NOT catch (different ports, not similar)
-      // - Falls to Case #8
+      // - Case #7 does NOT catch (different ports, not similar)
+      // - Falls to Case #9
       // - returns responseUrl
     })
 
@@ -628,7 +628,7 @@ describe('chooseFeedUrl', () => {
       // - fetchUrl returns 200
       // Expected:
       // - Depends on normalize-url behavior
-      // - Might be caught by Case #6 or fall through
+      // - Might be caught by Case #7 or fall through
     })
 
     it('should handle IDN (internationalized domain names)', async () => {
@@ -663,8 +663,8 @@ describe('chooseFeedUrl', () => {
       // Mock:
       // - fetchUrl returns 200, response.url = 'https://different.com/feed.xml'
       // Expected:
-      // - Case #5 does NOT match
-      // - Falls to Case #7 (hash check) or Case #8
+      // - Case #6 does NOT match
+      // - Falls to Case #8 (hash check) or Case #9
     })
 
     it('should handle permanent redirect (301)', async () => {
@@ -673,7 +673,7 @@ describe('chooseFeedUrl', () => {
       // Mock:
       // - fetchUrl follows redirect, returns response.url = responseUrl
       // Expected:
-      // - Case #5 catches it
+      // - Case #6 catches it
       // - returns responseUrl
     })
 
@@ -683,7 +683,7 @@ describe('chooseFeedUrl', () => {
       // Mock:
       // - fetchUrl follows redirect, returns response.url = responseUrl
       // Expected:
-      // - Case #5 catches it
+      // - Case #6 catches it
       // - returns responseUrl
     })
   })
