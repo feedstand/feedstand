@@ -204,8 +204,15 @@ const attemptFetch: AttemptFetch = async (url, config, retryStream) => {
   const retryListener: AttemptFetchRetryListener = (retryCount, error, createRetryStream) => {
     console.debug('[Retry triggered:', { url, retryCount, error: error.message })
     retryPromise = attemptFetch(url, config, createRetryStream())
+    // Prevent unhandled rejection warnings - error will be handled when awaited
+    retryPromise.catch(() => {})
   }
   stream.once('retry', retryListener)
+
+  // Catch ALL error events to prevent unhandled rejections during retries
+  stream.on('error', () => {
+    // Errors are handled by the promise rejection or retry mechanism
+  })
 
   try {
     // Wait for response headers before processing body.
