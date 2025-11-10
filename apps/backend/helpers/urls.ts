@@ -73,18 +73,18 @@ export const isSafePublicUrl = (url: string): boolean => {
   })
 }
 
-export const isSimilarUrl = (url1: string, url2: string): boolean => {
-  const normalizeOptions: Options = {
-    stripProtocol: true,
-    stripWWW: true,
-    removeTrailingSlash: true,
-    stripHash: true,
-    sortQueryParameters: true,
-  }
+const similarUrlOptions: Options = {
+  stripProtocol: true,
+  stripWWW: true,
+  removeTrailingSlash: true,
+  stripHash: true,
+  sortQueryParameters: true,
+} as const
 
+export const isSimilarUrl = (url1: string, url2: string): boolean => {
   try {
-    const normalizedUrl1 = normalizeUrl(url1, normalizeOptions)
-    const normalizedUrl2 = normalizeUrl(url2, normalizeOptions)
+    const normalizedUrl1 = normalizeUrl(url1, similarUrlOptions)
+    const normalizedUrl2 = normalizeUrl(url2, similarUrlOptions)
     return normalizedUrl1 === normalizedUrl2
   } catch {
     return false
