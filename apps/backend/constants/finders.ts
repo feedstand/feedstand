@@ -28,9 +28,9 @@ export const feedUris = [
   '/?format=atom',
   '/?rss=1', // Textpattern.
   '/?atom=1', // Textpattern.
-  // '/?feed=rss', // WordPress - can be skipped as it redirects to /feed, /feed/atom.
-  // '/?feed=rss2', // WordPress - can be skipped as it redirects to /feed, /feed/atom.
-  // '/?feed=atom', // WordPress - can be skipped as it redirects to /feed, /feed/atom.
+  '/?feed=rss', // WordPress.
+  '/?feed=rss2', // WordPress.
+  '/?feed=atom', // WordPress.
   '/.rss', // I.e. Reddit.
   '/f.json',
   '/f.rss',
