@@ -1,4 +1,5 @@
 import https from 'node:https'
+import { StringDecoder } from 'node:string_decoder'
 import CacheableLookup from 'cacheable-lookup'
 import got, { type Response as GotResponse, type OptionsInit } from 'got'
 import { sample } from 'lodash-es'
@@ -202,8 +203,8 @@ export const fetchUrl = async (
   }
 
   const hash = createStreamingChecksum()
-  const chunks: Array<Buffer> = []
-
+  const decoder = new StringDecoder('utf-8')
+  let body = ''
   let downloadedBytes = 0
 
   for await (const chunk of stream) {
@@ -217,10 +218,10 @@ export const fetchUrl = async (
     }
 
     hash.update(chunk)
-    chunks.push(chunk)
+    body += decoder.write(chunk)
   }
 
-  const body = Buffer.concat(chunks).toString('utf-8')
+  body += decoder.end()
 
   return new FetchUrlResponse(body, {
     url: response.url,
