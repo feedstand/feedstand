@@ -24,7 +24,6 @@
     "@sentry/profiling-node": "^10.23.0",
     "bullmq": "^5.63.0",
     "cacheable-lookup": "^7.0.0",
-    "cheerio": "^1.1.2",
     "date-fns": "^4.1.0",
     "drizzle-kit": "^0.30.6",
     "drizzle-orm": "^0.38.4",

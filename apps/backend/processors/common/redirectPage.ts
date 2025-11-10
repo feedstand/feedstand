@@ -2,18 +2,30 @@ import { maxRedirects } from '../../constants/fetchers.ts'
 import { isSafePublicUrl, resolveRelativeUrl } from '../../helpers/urls.ts'
 import type { WorkflowProcessor } from '../../helpers/workflows.ts'
 
-export const extractRedirectUrl = (html: string): string | undefined => {
-  const metaRegex = /<meta[^>]*?(?=.*?http-equiv\b)(?=.*?refresh\b)[^>]*>/i
-  const [metaTag] = html.match(metaRegex) || []
+// Compile static regex patterns once at module load.
+const cleanupPattern = /<!--[\s\S]*?-->|<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi
+const metaPattern = /<meta\s+([^>]*)>?/gi
+const httpEquivPattern = /\bhttp-equiv\s*=\s*["']?refresh["']?/i
+const contentPattern = /\bcontent\s*=\s*["']?\d*\s*;\s*url\s*=\s*([^"'\s>]+)/i
 
-  if (!metaTag) {
-    return undefined
+export const extractRedirectUrl = (html: string): string | undefined => {
+  // Remove comments, scripts, and styles in single pass.
+  const cleanHtml = html.replace(cleanupPattern, '')
+
+  // Match meta tags with http-equiv="refresh"
+  for (const metaMatch of cleanHtml.matchAll(metaPattern)) {
+    const attrs = metaMatch[1]
+
+    // Check if has http-equiv="refresh"
+    if (!httpEquivPattern.test(attrs)) continue
+
+    // Extract URL from content attribute
+    const url = contentPattern.exec(attrs)?.[1]?.trim()
+
+    if (url) return url
   }
 
-  const contentRegex = /content=["']?\d*\s*;\s*url=(.*?)["'\s>]/i
-  const [, contentAttr] = metaTag.match(contentRegex) || []
-
-  return contentAttr || undefined
+  return undefined
 }
 
 const redirectDepths = new WeakMap<object, number>()
