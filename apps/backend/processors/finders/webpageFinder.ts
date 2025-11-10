@@ -6,27 +6,32 @@ import { feedLinkSelectors, feedUris, ignoredFeedUris } from '../../constants/fi
 import { resolveRelativeUrl } from '../../helpers/urls.ts'
 import type { FoundFeeds } from '../../types/schemas.ts'
 
+// Combine all selectors into single query for better performance.
+const anchorSelector = feedUris.map((uri) => `a[href$="${uri}"]`)
+const megaSelector = [...feedLinkSelectors, ...anchorSelector].join()
+
 export const extractFeedUrls = (html: string, baseUrl: string): Array<string> => {
   const $ = load(html)
-  const feedUrls: Array<string> = []
+  const allElements = $(megaSelector)
+  const seenUrl = new Set<string>()
+  const uniqueUrls: Array<string> = []
 
-  const linkElements = $(feedLinkSelectors.join())
+  for (const element of allElements) {
+    const href = $(element).attr('href')
 
-  for (const linkElement of linkElements) {
-    const linkHref = $(linkElement).attr('href') || ''
-    feedUrls.push(linkHref)
+    if (!href || ignoredFeedUris.some((ignored) => href.includes(ignored))) {
+      continue
+    }
+
+    const resolvedUrl = resolveRelativeUrl(href, baseUrl)
+
+    if (!seenUrl.has(resolvedUrl)) {
+      seenUrl.add(resolvedUrl)
+      uniqueUrls.push(resolvedUrl)
+    }
   }
 
-  for (const feedUri of feedUris) {
-    const anchorHref = $(`a[href$="${feedUri}"]`).attr('href') || ''
-    feedUrls.push(anchorHref)
-  }
-
-  const uniqueAndResolvedFeedUrls = [...new Set(feedUrls)]
-    .filter((url) => url && !ignoredFeedUris.includes(url))
-    .map((url) => resolveRelativeUrl(url, baseUrl))
-
-  return uniqueAndResolvedFeedUrls
+  return uniqueUrls
 }
 
 export const webpageFinder: FindFeedsProcessor = async (context, next) => {
