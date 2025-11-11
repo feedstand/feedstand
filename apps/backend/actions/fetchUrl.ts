@@ -5,10 +5,10 @@ import got, { type Response as GotResponse } from 'got'
 import {
   avoidedContentTypes,
   commonHeaders,
+  defaultMaxContentSize,
   defaultMaxRetries,
   defaultRetryableErrorCodes,
   defaultRetryableStatusCodes,
-  maxContentSize,
   maxHeaderSize,
   maxRedirects,
   maxTimeout,
@@ -146,14 +146,14 @@ const gotInstance = got.extend({
   },
 })
 
-type FetchUrlOptions = {
+export type FetchUrlOptions = {
   retry?: {
     limit?: number
     errorCodes?: Array<string>
     statusCodes?: Array<number>
   }
   headers?: Record<string, string>
-  dnsLookupIpVersion?: 4 | 6
+  maxContentSize?: number
 }
 
 type FetchUrlAttemptOptions = FetchUrlOptions & {
@@ -190,13 +190,14 @@ const fetchUrlAttempt: FetchUrlAttempt = async (url, options) => {
 
   let body = ''
   let downloadedBytes = 0
+  const contentSizeLimit = options?.maxContentSize ?? defaultMaxContentSize
 
   for await (const chunk of stream) {
     downloadedBytes += chunk.length
 
-    if (downloadedBytes > maxContentSize) {
+    if (downloadedBytes > contentSizeLimit) {
       stream.destroy()
-      throw new Error(`Content length exceeded the limit: ${maxContentSize}`)
+      throw new Error(`Content length exceeded the limit: ${contentSizeLimit}`)
     }
 
     hash.update(chunk)

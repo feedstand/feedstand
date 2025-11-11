@@ -13,11 +13,11 @@ import { rdfFeed } from '../processors/fetchers/rdfFeed.ts'
 import { rssFeed } from '../processors/fetchers/rssFeed.ts'
 import { soundCloudFeed } from '../processors/fetchers/soundCloudFeed.ts'
 import type { FeedData } from '../types/schemas.ts'
-import type { FetchUrlConfig } from './fetchUrl.ts'
+import type { FetchUrlOptions } from './fetchUrl.ts'
 
-export type FetchFeedProcessor = WorkflowProcessor<FeedData, FetchUrlConfig>
+export type FetchFeedProcessor = WorkflowProcessor<FeedData, FetchUrlOptions>
 
-export const fetchFeed = createWorkflow<FeedData, FetchUrlConfig>([
+export const fetchFeed = createWorkflow<FeedData, FetchUrlOptions>([
   preflightRateLimit,
   preflightFetch('lastScanEtag', 'lastScannedAt'),
   responseFetch,

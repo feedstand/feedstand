@@ -14,7 +14,7 @@ export const defaultRetryableErrorCodes = [
 
 export const maxTimeout = 15 * 1000
 
-export const maxContentSize = 100 * 1024 * 1024
+export const defaultMaxContentSize = 100 * 1024 * 1024
 
 export const maxHeaderSize = 64 * 1024
 

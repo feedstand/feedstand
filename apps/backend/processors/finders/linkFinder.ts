@@ -22,11 +22,18 @@ export const linkFinder: FindFeedsProcessor = async (context, next) => {
         continue
       }
 
+      // TODO: Implement preflight check before fetching full content to avoid downloading large
+      // non-feed files (e.g. 6.7MB HTML pages). Should perform a HEAD request to check:
+      // - Content-Type header (must be feed-related: application/rss+xml, application/atom+xml, etc.)
+      // - HTTP status code (should be 200)
+      // - Content-Length (skip if too large, e.g. >1MB)
+      // This would prevent wasting bandwidth and CPU on obviously non-feed URLs.
+
       const feedData = await fetchFeed({
         url: requestUrl,
         channel: context.channel,
         // Perform an one-time fetch to quickly check whether the URL exists.
-        options: { retry: { limit: 0 } },
+        options: { retry: { limit: 0 }, maxContentSize: 500 * 1024 },
       })
 
       const chosenUrl = await chooseFeedUrl(feedData)
@@ -34,6 +41,13 @@ export const linkFinder: FindFeedsProcessor = async (context, next) => {
       if (feeds.some(({ url }) => url === chosenUrl)) {
         continue
       }
+
+      console.debug('[linkFinder] Feed found:', {
+        requestUrl,
+        chosenUrl,
+        title: feedData.channel.title,
+        feedUri,
+      })
 
       feeds.push({ title: feedData.channel.title, url: chosenUrl })
     } catch {
