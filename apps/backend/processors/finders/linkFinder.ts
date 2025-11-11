@@ -22,7 +22,15 @@ export const linkFinder: FindFeedsProcessor = async (context, next) => {
         continue
       }
 
-      const feedData = await fetchFeed({ url: requestUrl, channel: context.channel })
+      const feedData = await fetchFeed({
+        url: requestUrl,
+        channel: context.channel,
+        options: {
+          // Perform an one-time fetch to quickly check whether the URL exists.
+          retry: { limit: 0, errorCodes: [], statusCodes: [] },
+        },
+      })
+
       const chosenUrl = await chooseFeedUrl(feedData)
 
       if (feeds.some(({ url }) => url === chosenUrl)) {
@@ -30,7 +38,13 @@ export const linkFinder: FindFeedsProcessor = async (context, next) => {
       }
 
       feeds.push({ title: feedData.channel.title, url: chosenUrl })
-    } catch {}
+    } catch {
+      // TODO: Stop if server returned 522 (origin timeout) - server is unreachable.
+      // if ((error as any)?.cause === 522) {
+      //   break
+      // }
+      // // Ignore other feed failures, try next URL
+    }
   }
 
   if (feeds.length) {

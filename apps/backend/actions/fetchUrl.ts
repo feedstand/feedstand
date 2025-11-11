@@ -132,11 +132,14 @@ const gotInstance = got.extend({
   // Default headers (will be merged with per-request headers)
   headers: commonHeaders,
   followRedirect: true,
+  isStream: true,
   maxRedirects,
   retry: {
     limit: maxRetries,
     // Original: [403, 408, 413, 429, 500, 502, 503, 504, 521, 522, 524],
     statusCodes: [403, 408, 429, 500, 502, 503, 504, 521],
+    // Only retry on transient network errors, not DNS failures or connection refused.
+    errorCodes: ['ETIMEDOUT', 'ECONNRESET', 'EPIPE', 'EADDRINUSE'],
   },
   hooks: {
     beforeRedirect: [
@@ -173,11 +176,20 @@ const gotInstance = got.extend({
   },
 })
 
-type FetchUrl = (url: string, config?: Partial<OptionsInit>) => Promise<FetchUrlResponse>
+export type FetchUrlConfig = {
+  retry?: {
+    limit?: number
+    errorCodes?: Array<string>
+    statusCodes?: Array<number>
+  }
+  headers?: Record<string, string>
+}
+
+type FetchUrl = (url: string, config?: FetchUrlConfig) => Promise<FetchUrlResponse>
 
 type AttemptFetch = (
   url: string,
-  config?: Partial<OptionsInit>,
+  config?: FetchUrlConfig,
   retryStream?: Request,
 ) => Promise<FetchUrlResponse>
 
@@ -192,10 +204,13 @@ const attemptFetch: AttemptFetch = async (url, config, retryStream) => {
     retryStream ??
     gotInstance.stream(url, {
       ...config,
-      isStream: true,
       headers: {
-        ...commonHeaders,
+        ...gotInstance.defaults.options.headers,
         ...config?.headers,
+      },
+      retry: {
+        ...gotInstance.defaults.options.retry,
+        ...config?.retry,
       },
     })
 
@@ -291,7 +306,6 @@ export const fetchUrl: FetchUrl = async (url, config) => {
       url,
       errorType: (error as Error).constructor.name,
       errorMessage: (error as Error).message,
-      errorCode: (error as any).code,
       stack: (error as Error).stack?.split('\n').slice(0, 3).join('\n'),
     })
     throw new UnreachableUrlError(url, error as Error)

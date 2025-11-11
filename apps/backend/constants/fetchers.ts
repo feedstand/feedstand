@@ -1,8 +1,8 @@
-export const maxRetries = 5
+export const maxRetries = 3
 
 export const maxRedirects = 10
 
-export const maxTimeout = 20 * 1000
+export const maxTimeout = 15 * 1000
 
 export const maxContentSize = 100 * 1024 * 1024
 

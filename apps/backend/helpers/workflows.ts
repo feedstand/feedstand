@@ -1,26 +1,31 @@
 import type { FetchUrlResponse } from '../actions/fetchUrl.ts'
 import type { Channel } from '../types/schemas.ts'
 
-export type Workflow<T> = (context: WorkflowContext<T>) => Promise<T>
+export type Workflow<TResult, TOptions = unknown> = (
+  context: WorkflowContext<TResult, TOptions>,
+) => Promise<TResult>
 
-export type WorkflowContext<T> = {
+export type WorkflowContext<TResult, TOptions = unknown> = {
   url: string
   response?: FetchUrlResponse
   channel?: Channel
   error?: unknown
-  result?: T
+  result?: TResult
+  options?: TOptions
 }
 
 export type WorkflowNext = () => Promise<void>
 
-export type WorkflowProcessor<T> = (
-  context: WorkflowContext<T>,
+export type WorkflowProcessor<TResult, TOptions = unknown> = (
+  context: WorkflowContext<TResult, TOptions>,
   next: WorkflowNext,
-  self: Workflow<T>,
+  self: Workflow<TResult, TOptions>,
 ) => Promise<void>
 
-export const createWorkflow = <T>(processors: Array<WorkflowProcessor<T>>): Workflow<T> => {
-  const workflow: Workflow<T> = async (context) => {
+export const createWorkflow = <TResult, TOptions = unknown>(
+  processors: Array<WorkflowProcessor<TResult, TOptions>>,
+): Workflow<TResult, TOptions> => {
+  const workflow: Workflow<TResult, TOptions> = async (context) => {
     let index = 0
 
     const next: WorkflowNext = async () => {
