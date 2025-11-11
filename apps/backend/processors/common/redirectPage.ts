@@ -1,5 +1,5 @@
 import { maxRedirects } from '../../constants/fetchers.ts'
-import { isSafePublicUrl, resolveRelativeUrl } from '../../helpers/urls.ts'
+import { prepareUrl } from '../../helpers/urls.ts'
 import type { WorkflowProcessor } from '../../helpers/workflows.ts'
 
 // Compile static regex patterns once at module load.
@@ -53,22 +53,26 @@ export const redirectPage: WorkflowProcessor<any> = async (context, next, self) 
     return await next()
   }
 
-  const resolvedUrl = resolveRelativeUrl(rawUrl, context.response.url)
+  const preparedUrl = prepareUrl(rawUrl, {
+    base: context.response.url,
+    validate: true,
+  })
 
-  if (resolvedUrl === context.response.url) {
-    return await next()
-  }
-
-  if (!isSafePublicUrl(resolvedUrl)) {
-    console.warn('[SECURITY] Meta refresh to internal resource blocked:', {
+  if (!preparedUrl) {
+    console.warn('[SECURITY] Meta refresh to invalid/unsafe URL blocked:', {
       from: context.url,
-      to: resolvedUrl,
+      originalTo: rawUrl,
+      preparedTo: preparedUrl,
     })
     return await next()
   }
 
+  if (preparedUrl === context.response.url) {
+    return await next()
+  }
+
   redirectDepths.set(context, redirectDepth)
-  context.url = resolvedUrl
+  context.url = preparedUrl
   context.response = undefined
   context.result = await self(context)
 

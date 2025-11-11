@@ -6,6 +6,7 @@ import { responseFetch } from '../processors/common/responseFetch.ts'
 import { directFinder } from '../processors/finders/directFinder.ts'
 import { linkFinder } from '../processors/finders/linkFinder.ts'
 import { webpageFinder } from '../processors/finders/webpageFinder.ts'
+import { wordpressFinder } from '../processors/finders/wordpressFinder.ts'
 import { youTubeFinder } from '../processors/finders/youTubeFinder.ts'
 import type { FoundFeeds } from '../types/schemas.ts'
 
@@ -19,6 +20,7 @@ export const findFeeds = createWorkflow<FoundFeeds>([
   // with the trailing forward slashes, www, etc.
   responseFetch,
   youTubeFinder,
+  wordpressFinder,
   directFinder,
   webpageFinder,
   linkFinder,

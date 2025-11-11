@@ -1,6 +1,7 @@
 import { z } from 'zod'
-import { isSafePublicUrl, resolveAbsoluteUrl } from '../helpers/urls.ts'
+import { prepareUrl } from '../helpers/urls.ts'
 
-export const safeUrl = z.url().transform(resolveAbsoluteUrl).refine(isSafePublicUrl, {
-  message: 'Invalid URL',
-})
+export const safeUrl = z
+  .url()
+  .transform((url) => prepareUrl(url, { validate: true }))
+  .refine((url) => url, { message: 'Invalid URL' })

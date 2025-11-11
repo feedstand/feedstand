@@ -3,13 +3,14 @@ import type { FindFeedsProcessor } from '../../actions/findFeeds.ts'
 import { htmlContentTypes } from '../../constants/fetchers.ts'
 import { youTubeDomains } from '../../constants/finders.ts'
 import { extractValueByRegex, isOneOfContentTypes } from '../../helpers/responses.ts'
+import { isOneOfDomains } from '../../helpers/urls.ts'
 
 export const youTubeFinder: FindFeedsProcessor = async (context, next) => {
   if (!context.response?.ok) {
     return await next()
   }
 
-  const isYouTubeDomain = youTubeDomains.some((domain) => context.response?.url.includes(domain))
+  const isYouTubeDomain = isOneOfDomains(context.response.url, youTubeDomains)
   const isHtmlPage = isOneOfContentTypes(context.response, htmlContentTypes)
 
   if (!isYouTubeDomain || !isHtmlPage) {

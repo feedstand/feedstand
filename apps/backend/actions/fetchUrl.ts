@@ -19,7 +19,7 @@ import { UnreachableUrlError } from '../errors/UnreachableUrlError.ts'
 import { UnsafeUrlError } from '../errors/UnsafeUrlError.ts'
 import { createStreamingChecksum } from '../helpers/hashes.ts'
 import { isOneOfContentTypes } from '../helpers/responses.ts'
-import { isSafePublicUrl, resolveRelativeUrl } from '../helpers/urls.ts'
+import { prepareUrl } from '../helpers/urls.ts'
 
 // TODO:
 // - Tell the server to give the uncompressed data. This is to mitigate issues where some servers
@@ -142,18 +142,21 @@ const gotInstance = got.extend({
     beforeRedirect: [
       (_, response) => {
         const fromUrl = response.requestUrl.toString()
-        const toUrl = response.headers.location
-        const toResolvedUrl = toUrl ? resolveRelativeUrl(toUrl, fromUrl) : ''
+        const toUrl = response.headers.location || ''
+        const preparedUrl = prepareUrl(toUrl, {
+          base: fromUrl,
+          validate: true,
+        })
 
         // TODO: This could be optimized by skipping the relative URL redirects, as we already
         // verified the initial absolute URL. For the simplicity's sake, let's keep it as is.
-        if (!isSafePublicUrl(toResolvedUrl)) {
-          console.warn('[SECURITY] SSRF blocked: redirect to internal resource', {
+        if (!preparedUrl) {
+          console.warn('[SECURITY] SSRF blocked: redirect to internal/invalid resource', {
             from: fromUrl,
-            to: toUrl,
-            toResolved: toResolvedUrl,
+            originalTo: toUrl,
+            preparedTo: preparedUrl,
           })
-          throw new UnsafeUrlError(toResolvedUrl)
+          throw new UnsafeUrlError(toUrl)
         }
       },
     ],
@@ -291,8 +294,13 @@ const applyBackoff = async (attempt: number) => {
 }
 
 export const fetchUrl: FetchUrl = async (url, options) => {
-  if (!isSafePublicUrl(url)) {
-    console.warn('[fetchUrl] SSRF blocked:', { url })
+  const preparedUrl = prepareUrl(url, { validate: true })
+
+  if (!preparedUrl) {
+    console.warn('[fetchUrl] Invalid/unsafe URL blocked:', {
+      originalUrl: url,
+      preparedUrl,
+    })
     throw new UnsafeUrlError(url)
   }
 
@@ -304,7 +312,8 @@ export const fetchUrl: FetchUrl = async (url, options) => {
   const currentOptions: FetchUrlAttemptOptions = { ...options }
 
   console.debug('[fetchUrl] Starting:', {
-    url,
+    originalUrl: url,
+    preparedUrl,
     headers: options?.headers,
     maxAttempts: maxRetries + 1,
   })
@@ -313,14 +322,15 @@ export const fetchUrl: FetchUrl = async (url, options) => {
     const canRetryMore = attempt < maxRetries
 
     try {
-      const result = await fetchUrlAttempt(url, currentOptions)
+      const result = await fetchUrlAttempt(preparedUrl, currentOptions)
 
       const isRetryableStatus = retryableStatusCodes.includes(result.status)
       const isForbiddenStatus = result.status === 403
 
       if (isRetryableStatus && canRetryMore) {
         console.debug('[fetchUrl] Retrying due to status code:', {
-          url,
+          originalUrl: url,
+          preparedUrl,
           status: result.status,
           attempt: attempt + 1,
           maxAttempts: maxRetries + 1,
@@ -340,7 +350,8 @@ export const fetchUrl: FetchUrl = async (url, options) => {
 
       if (isRetryableStatus && !canRetryMore) {
         console.error('[fetchUrl] Retries exhausted with retryable status:', {
-          url,
+          originalUrl: url,
+          preparedUrl,
           status: result.status,
           attempts: attempt + 1,
         })
@@ -350,7 +361,8 @@ export const fetchUrl: FetchUrl = async (url, options) => {
 
       // Success or non-retryable status code.
       console.debug('[fetchUrl] Success:', {
-        url,
+        originalUrl: url,
+        preparedUrl,
         finalUrl: result.url,
         status: result.status,
         contentBytes: result.contentBytes,
@@ -368,7 +380,8 @@ export const fetchUrl: FetchUrl = async (url, options) => {
 
       if (isRetryableError && canRetryMore) {
         console.debug('[fetchUrl] Retrying due to error:', {
-          url,
+          originalUrl: url,
+          preparedUrl,
           errorCode,
           errorMessage: lastError.message,
           attempt: attempt + 1,
@@ -386,7 +399,8 @@ export const fetchUrl: FetchUrl = async (url, options) => {
 
       // Non-retryable error or retries exhausted
       console.error('[fetchUrl] Failed:', {
-        url,
+        originalUrl: url,
+        preparedUrl,
         errorType: lastError.constructor.name,
         errorMessage: lastError.message,
         errorCode,
@@ -397,5 +411,5 @@ export const fetchUrl: FetchUrl = async (url, options) => {
     }
   }
 
-  throw new UnreachableUrlError(url, lastError)
+  throw new UnreachableUrlError(preparedUrl, lastError)
 }

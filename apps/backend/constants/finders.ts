@@ -2,6 +2,8 @@ export const youTubeDomains = ['youtu.be', 'youtube.com']
 
 export const ignoredFeedUris = ['wp-json/oembed/', 'wp-json/wp/']
 
+export const skippedDomains: Array<string> = []
+
 export const feedUris = [
   '/feed',
   '/rss',

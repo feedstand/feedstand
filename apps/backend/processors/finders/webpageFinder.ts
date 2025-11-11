@@ -3,7 +3,7 @@ import { fetchFeed } from '../../actions/fetchFeed.ts'
 import type { FindFeedsProcessor } from '../../actions/findFeeds.ts'
 import { anyFeedContentTypes } from '../../constants/fetchers.ts'
 import { feedUris, ignoredFeedUris } from '../../constants/finders.ts'
-import { resolveRelativeUrl } from '../../helpers/urls.ts'
+import { prepareUrl } from '../../helpers/urls.ts'
 import type { FoundFeeds } from '../../types/schemas.ts'
 
 // Build dynamic regex pattern for feed content type.
@@ -30,11 +30,14 @@ export const extractFeedUrls = (html: string, baseUrl: string): Array<string> =>
   const addUrlIfValid = (href: string | undefined): void => {
     if (!href || ignoredFeedUris.some((ignored) => href.includes(ignored))) return
 
-    const resolvedUrl = resolveRelativeUrl(href, baseUrl)
+    const preparedUrl = prepareUrl(href, {
+      base: baseUrl,
+      validate: true,
+    })
 
-    if (!seenUrls.has(resolvedUrl)) {
-      seenUrls.add(resolvedUrl)
-      uniqueUrls.push(resolvedUrl)
+    if (preparedUrl && !seenUrls.has(preparedUrl)) {
+      seenUrls.add(preparedUrl)
+      uniqueUrls.push(preparedUrl)
     }
   }
 

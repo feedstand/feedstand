@@ -1,5 +1,6 @@
 import { RateLimitError } from '../../errors/RateLimitError.ts'
 import { getRateLimitDuration, markRateLimited } from '../../helpers/rateLimits.ts'
+import { isOneOfDomains } from '../../helpers/urls.ts'
 import type { WorkflowProcessor } from '../../helpers/workflows.ts'
 
 const signatures = [
@@ -16,14 +17,10 @@ export const rateLimitedPage: WorkflowProcessor<any> = async (context, next) => 
 
   const status = context.response.status
   const url = context.response.url
-  const hostname = new URL(url).hostname
 
   for (const signature of signatures) {
     const statusMatches = status === signature.status
-    const domainMatches =
-      !signature.domain ||
-      hostname === signature.domain ||
-      hostname.endsWith(`.${signature.domain}`)
+    const domainMatches = !signature.domain || isOneOfDomains(url, [signature.domain])
 
     if (statusMatches && domainMatches) {
       const durationInSeconds = getRateLimitDuration(

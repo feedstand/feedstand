@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import {
   isAbsoluteUrl,
+  isOneOfDomains,
   isSafePublicUrl,
   isSimilarUrl,
-  resolveAbsoluteUrl,
+  prepareUrl,
   resolveNonStandardFeedUrl,
-  resolveRelativeUrl,
+  resolveProtocolRelativeUrl,
+  validateUrl,
 } from './urls.ts'
 
 describe('isAbsoluteUrl', () => {
@@ -31,8 +33,6 @@ describe('isAbsoluteUrl', () => {
   ]
 
   const relativeCases = [
-    '//cdn.example.com/style.css',
-    '//example.com/feed.xml',
     '/images/logo.png',
     'subdir/file.html',
     '../parent.txt',
@@ -41,6 +41,8 @@ describe('isAbsoluteUrl', () => {
     '',
     '   ',
   ]
+
+  const protocolRelativeCases = ['//cdn.example.com/style.css', '//example.com/feed.xml']
 
   for (const url of validAbsoluteCases) {
     it(`should detect valid absolute HTTP/HTTPS URL: ${url}`, () => {
@@ -57,6 +59,12 @@ describe('isAbsoluteUrl', () => {
   for (const url of relativeCases) {
     it(`should detect relative URL: ${url || 'empty string'}`, () => {
       expect(isAbsoluteUrl(url)).toBe(false)
+    })
+  }
+
+  for (const url of protocolRelativeCases) {
+    it(`should treat protocol-relative URL as absolute: ${url}`, () => {
+      expect(isAbsoluteUrl(url)).toBe(true)
     })
   }
 })
@@ -151,164 +159,6 @@ describe('resolveNonStandardFeedUrl', () => {
     const expected = 'https://example.com:8080/feed.xml'
 
     expect(resolveNonStandardFeedUrl(value)).toBe(expected)
-  })
-})
-
-describe('resolveAbsoluteUrl', () => {
-  it('should convert protocol-relative URL with path to https', () => {
-    const value = '//cdn.example.com/feed.xml'
-    const expected = 'https://cdn.example.com/feed.xml'
-
-    expect(resolveAbsoluteUrl(value)).toBe(expected)
-  })
-
-  it('should convert protocol-relative URL without path to https', () => {
-    const value = '//example.com/api'
-    const expected = 'https://example.com/api'
-
-    expect(resolveAbsoluteUrl(value)).toBe(expected)
-  })
-
-  it('should return https URLs unchanged', () => {
-    const value = 'https://example.com/feed'
-    const expected = 'https://example.com/feed'
-
-    expect(resolveAbsoluteUrl(value)).toBe(expected)
-  })
-
-  it('should return http URLs unchanged', () => {
-    const value = 'http://example.com/feed'
-    const expected = 'http://example.com/feed'
-
-    expect(resolveAbsoluteUrl(value)).toBe(expected)
-  })
-
-  it('should return absolute path unchanged', () => {
-    const value = '/path/to/resource'
-    const expected = '/path/to/resource'
-
-    expect(resolveAbsoluteUrl(value)).toBe(expected)
-  })
-
-  it('should return relative path unchanged', () => {
-    const value = 'relative/path'
-    const expected = 'relative/path'
-
-    expect(resolveAbsoluteUrl(value)).toBe(expected)
-  })
-
-  it('should normalize feed:// (replacing protocol)', () => {
-    const value = 'feed://example.com/rss.xml'
-    const expected = 'https://example.com/rss.xml'
-
-    expect(resolveAbsoluteUrl(value)).toBe(expected)
-  })
-
-  it('should normalize feed:https:// (wrapping protocol)', () => {
-    const value = 'feed:https://example.com/feed.xml'
-    const expected = 'https://example.com/feed.xml'
-
-    expect(resolveAbsoluteUrl(value)).toBe(expected)
-  })
-})
-
-describe('resolveRelativeUrl', () => {
-  const baseUrl = 'https://example.com/base/path/'
-
-  it('should return absolute HTTPS URL unchanged', () => {
-    const value = 'https://other-domain.com/file.txt'
-    const expected = 'https://other-domain.com/file.txt'
-
-    expect(resolveRelativeUrl(value, baseUrl)).toBe(expected)
-  })
-
-  it('should return absolute HTTP URL unchanged', () => {
-    const value = 'http://files.com/archive.zip'
-    const expected = 'http://files.com/archive.zip'
-
-    expect(resolveRelativeUrl(value, baseUrl)).toBe(expected)
-  })
-
-  it('should handle protocol-relative URLs', () => {
-    const value = '//external.com/resource'
-    const expected = 'https://external.com/resource'
-
-    expect(resolveRelativeUrl(value, baseUrl)).toBe(expected)
-  })
-
-  it('should handle root-relative URLs', () => {
-    const value = '/images/logo.png'
-    const expected = 'https://example.com/images/logo.png'
-
-    expect(resolveRelativeUrl(value, baseUrl)).toBe(expected)
-  })
-
-  it('should resolve parent directory navigation', () => {
-    const value = '../../file.txt'
-    const expected = 'https://example.com/file.txt'
-
-    expect(resolveRelativeUrl(value, baseUrl)).toBe(expected)
-  })
-
-  it('should handle current directory references', () => {
-    const value = './config.json'
-    const expected = 'https://example.com/base/path/config.json'
-
-    expect(resolveRelativeUrl(value, baseUrl)).toBe(expected)
-  })
-
-  it('should append query parameters and hash', () => {
-    const value = 'search?q=test#results'
-    const expected = 'https://example.com/base/path/search?q=test#results'
-
-    expect(resolveRelativeUrl(value, baseUrl)).toBe(expected)
-  })
-
-  it('should handle empty base URL', () => {
-    const value = 'file.txt'
-    const base = ''
-    const expected = 'file.txt'
-
-    expect(resolveRelativeUrl(value, base)).toBe(expected)
-  })
-
-  it('should handle malformed base URL', () => {
-    const value = '/test'
-    const base = 'http:// test.com'
-    const expected = '/test'
-
-    expect(resolveRelativeUrl(value, base)).toBe(expected)
-  })
-
-  it('should preserve URL encoding', () => {
-    const value = 'path%20with%20spaces'
-    const expected = 'https://example.com/base/path/path%20with%20spaces'
-
-    expect(resolveRelativeUrl(value, baseUrl)).toBe(expected)
-  })
-
-  it('should handle base URL without trailing slash', () => {
-    const value = 'post.html'
-    const base = 'http://example.com'
-    const expected = 'http://example.com/post.html'
-
-    expect(resolveRelativeUrl(value, base)).toBe(expected)
-  })
-
-  it('should handle base URL with trailing slash', () => {
-    const value = '2024/article.md'
-    const base = 'https://example.com/blog/'
-    const expected = 'https://example.com/blog/2024/article.md'
-
-    expect(resolveRelativeUrl(value, base)).toBe(expected)
-  })
-
-  it('should handle base URL with credentials', () => {
-    const value = 'profile'
-    const base = 'https://user:pass@example.com'
-    const expected = 'https://user:pass@example.com/profile'
-
-    expect(resolveRelativeUrl(value, base)).toBe(expected)
   })
 })
 
@@ -594,6 +444,422 @@ describe('isSafePublicUrl', () => {
       const value = 'http://169.254.169.254/latest/user-data/'
 
       expect(isSafePublicUrl(value)).toBe(false)
+    })
+  })
+})
+
+describe('resolveProtocolRelativeUrl', () => {
+  describe('Valid protocol-relative URLs', () => {
+    const validCases = [
+      { input: '//example.com/feed', expected: 'https://example.com/feed' },
+      { input: '//cdn.example.com/style.css', expected: 'https://cdn.example.com/style.css' },
+      { input: '//localhost/api', expected: 'https://localhost/api' },
+      { input: '//192.168.1.1/api', expected: 'https://192.168.1.1/api' },
+      { input: '//example.com:8080/feed', expected: 'https://example.com:8080/feed' },
+    ]
+
+    for (const { input, expected } of validCases) {
+      it(`should convert ${input} to ${expected}`, () => {
+        expect(resolveProtocolRelativeUrl(input)).toBe(expected)
+      })
+    }
+  })
+
+  describe('Custom protocol parameter', () => {
+    it('should use http when specified', () => {
+      const value = '//example.com/feed'
+      const expected = 'http://example.com/feed'
+
+      expect(resolveProtocolRelativeUrl(value, 'http')).toBe(expected)
+    })
+
+    it('should default to https when not specified', () => {
+      const value = '//example.com/feed'
+      const expected = 'https://example.com/feed'
+
+      expect(resolveProtocolRelativeUrl(value)).toBe(expected)
+    })
+  })
+
+  describe('Invalid protocol-relative URLs (file paths)', () => {
+    const invalidCases = [
+      '//Users/file.xml',
+      '//home/user/file.txt',
+      '///triple-slash',
+      '/single-slash',
+      'https://example.com',
+      'example.com',
+    ]
+
+    for (const input of invalidCases) {
+      it(`should return ${input} unchanged`, () => {
+        expect(resolveProtocolRelativeUrl(input)).toBe(input)
+      })
+    }
+  })
+
+  describe('Edge cases', () => {
+    it('should handle single-word hostname', () => {
+      const value = '//singlelabel'
+      expect(resolveProtocolRelativeUrl(value)).toBe(value)
+    })
+
+    it('should handle IPv6 addresses', () => {
+      const value = '//[2001:db8::1]/path'
+      // IPv6 addresses need brackets which don't contain dots, so treated as single-label hostname.
+      expect(resolveProtocolRelativeUrl(value)).toBe(value)
+    })
+
+    it('should handle malformed URLs gracefully', () => {
+      const value = '//not valid url $#@'
+      expect(resolveProtocolRelativeUrl(value)).toBe(value)
+    })
+  })
+})
+
+describe('validateUrl', () => {
+  describe('Valid URLs', () => {
+    const validUrls = [
+      'https://example.com',
+      'https://example.com/feed.xml',
+      'https://example.com/feed?a=1&b=2',
+      'https://8.8.8.8',
+      'https://example.com:8080/api',
+    ]
+
+    for (const url of validUrls) {
+      it(`should validate: ${url}`, () => {
+        expect(validateUrl(url)).toBe(true)
+      })
+    }
+  })
+
+  describe('SSRF unsafe URLs', () => {
+    const unsafeUrls = [
+      'http://localhost',
+      'http://127.0.0.1',
+      'http://10.0.0.1',
+      'http://192.168.1.1',
+      'http://169.254.169.254',
+    ]
+
+    for (const url of unsafeUrls) {
+      it(`should reject unsafe URL: ${url}`, () => {
+        expect(validateUrl(url)).toBe(false)
+      })
+    }
+  })
+
+  describe('URL length limits', () => {
+    it('should reject URLs longer than 2048 characters', () => {
+      const longUrl = `https://example.com/${'a'.repeat(2050)}`
+
+      expect(validateUrl(longUrl)).toBe(false)
+    })
+
+    it('should accept URLs at exactly 2048 characters', () => {
+      const exactUrl = `https://example.com/${'a'.repeat(2028)}`
+
+      expect(validateUrl(exactUrl)).toBe(true)
+    })
+
+    it('should accept URLs under 2048 characters', () => {
+      const shortUrl = 'https://example.com/feed'
+
+      expect(validateUrl(shortUrl)).toBe(true)
+    })
+  })
+
+  describe('Query parameter limits', () => {
+    it('should reject URLs with more than 50 query parameters', () => {
+      const params = Array.from({ length: 51 }, (_, i) => `param${i}=value${i}`).join('&')
+      const url = `https://example.com/feed?${params}`
+
+      expect(validateUrl(url)).toBe(false)
+    })
+
+    it('should accept URLs with exactly 50 query parameters', () => {
+      const params = Array.from({ length: 50 }, (_, i) => `param${i}=value${i}`).join('&')
+      const url = `https://example.com/feed?${params}`
+
+      expect(validateUrl(url)).toBe(true)
+    })
+
+    it('should accept URLs with fewer than 50 query parameters', () => {
+      const url = 'https://example.com/feed?a=1&b=2&c=3'
+
+      expect(validateUrl(url)).toBe(true)
+    })
+  })
+
+  describe('HTML entity loop detection', () => {
+    it('should reject URLs with &amp;amp; pattern', () => {
+      const url = 'https://example.com/feed?x=1&amp;amp;y=2'
+
+      expect(validateUrl(url)).toBe(false)
+    })
+
+    it('should accept URLs with single &amp;', () => {
+      const url = 'https://example.com/feed?x=1&amp;y=2'
+
+      expect(validateUrl(url)).toBe(true)
+    })
+
+    it('should accept URLs without HTML entities', () => {
+      const url = 'https://example.com/feed?x=1&y=2'
+
+      expect(validateUrl(url)).toBe(true)
+    })
+  })
+
+  describe('Malformed URLs', () => {
+    const malformedUrls = ['not a url', 'ftp://example.com', '', 'javascript:alert(1)']
+
+    for (const url of malformedUrls) {
+      it(`should reject malformed URL: ${url || 'empty string'}`, () => {
+        expect(validateUrl(url)).toBe(false)
+      })
+    }
+  })
+})
+
+describe('prepareUrl', () => {
+  describe('HTML entity decoding', () => {
+    it('should decode &amp; to &', () => {
+      const input = 'https://example.com/feed?x=1&amp;y=2'
+      const expected = 'https://example.com/feed?x=1&y=2'
+
+      expect(prepareUrl(input)).toBe(expected)
+    })
+
+    it('should decode multiple HTML entities', () => {
+      const input = 'https://example.com/feed?x=1&amp;y=2&amp;z=3'
+      const expected = 'https://example.com/feed?x=1&y=2&z=3'
+
+      expect(prepareUrl(input)).toBe(expected)
+    })
+
+    it('should decode HTML entity loops but reject due to validation', () => {
+      const input = 'https://example.com/feed?x=1&amp;amp;amp;y=2'
+      // Decodes to &&&, but validateUrl() rejects &amp;amp; pattern.
+      expect(prepareUrl(input)).toBeUndefined()
+    })
+
+    it('should decode accented characters', () => {
+      const input = 'https://example.com/caf&eacute;'
+      const expected = 'https://example.com/caf%C3%A9'
+
+      expect(prepareUrl(input)).toBe(expected)
+    })
+  })
+
+  describe('Non-standard feed protocol resolution', () => {
+    it('should convert feed:// to https://', () => {
+      const input = 'feed://example.com/rss.xml'
+      const expected = 'https://example.com/rss.xml'
+
+      expect(prepareUrl(input)).toBe(expected)
+    })
+
+    it('should unwrap feed:https://', () => {
+      const input = 'feed:https://example.com/rss.xml'
+      const expected = 'https://example.com/rss.xml'
+
+      expect(prepareUrl(input)).toBe(expected)
+    })
+
+    it('should convert rss:// to https://', () => {
+      const input = 'rss://example.com/feed.xml'
+      const expected = 'https://example.com/feed.xml'
+
+      expect(prepareUrl(input)).toBe(expected)
+    })
+  })
+
+  describe('Protocol-relative URL resolution', () => {
+    it('should convert // to https://', () => {
+      const input = '//example.com/feed'
+      const expected = 'https://example.com/feed'
+
+      expect(prepareUrl(input)).toBe(expected)
+    })
+
+    it('should not convert file paths starting with //', () => {
+      const input = '//Users/file.xml'
+      expect(prepareUrl(input)).toBeUndefined()
+    })
+  })
+
+  describe('Relative URL resolution with base', () => {
+    const baseUrl = 'https://example.com/base/path/'
+
+    it('should resolve relative path', () => {
+      const input = 'feed.xml'
+      const expected = 'https://example.com/base/path/feed.xml'
+
+      expect(prepareUrl(input, { base: baseUrl })).toBe(expected)
+    })
+
+    it('should resolve root-relative path', () => {
+      const input = '/feed'
+      const expected = 'https://example.com/feed'
+
+      expect(prepareUrl(input, { base: baseUrl })).toBe(expected)
+    })
+
+    it('should resolve parent directory', () => {
+      const input = '../../feed.xml'
+      const expected = 'https://example.com/feed.xml'
+
+      expect(prepareUrl(input, { base: baseUrl })).toBe(expected)
+    })
+
+    it('should not modify absolute URLs when base is provided', () => {
+      const input = 'https://other.com/feed'
+      const expected = 'https://other.com/feed'
+
+      expect(prepareUrl(input, { base: baseUrl })).toBe(expected)
+    })
+  })
+
+  describe('URL normalization', () => {
+    it('should normalize URL using native URL constructor', () => {
+      const input = 'https://example.com:443/./feed/../rss.xml'
+      const expected = 'https://example.com/rss.xml'
+
+      expect(prepareUrl(input)).toBe(expected)
+    })
+
+    it('should preserve query parameters', () => {
+      const input = 'https://example.com/feed?a=1&b=2'
+      const expected = 'https://example.com/feed?a=1&b=2'
+
+      expect(prepareUrl(input)).toBe(expected)
+    })
+  })
+
+  describe('Validation option', () => {
+    it('should validate by default', () => {
+      const input = 'http://localhost/feed'
+      expect(prepareUrl(input)).toBeUndefined()
+    })
+
+    it('should skip validation when validate: false', () => {
+      const input = 'http://localhost/feed'
+      const expected = 'http://localhost/feed'
+
+      expect(prepareUrl(input, { validate: false })).toBe(expected)
+    })
+
+    it('should decode but not validate when validate: false', () => {
+      const input = 'https://example.com/feed?x=1&amp;y=2'
+      const expected = 'https://example.com/feed?x=1&y=2'
+
+      expect(prepareUrl(input, { validate: false })).toBe(expected)
+    })
+  })
+
+  describe('Combined transformations', () => {
+    it('should apply all transformations in order', () => {
+      const input = 'feed:https://example.com/caf&eacute;?x=1&amp;y=2'
+      const expected = 'https://example.com/caf%C3%A9?x=1&y=2'
+
+      expect(prepareUrl(input)).toBe(expected)
+    })
+
+    it('should handle protocol-relative with entities and base URL', () => {
+      const input = '//example.com/feed?x=1&amp;y=2'
+      const expected = 'https://example.com/feed?x=1&y=2'
+
+      expect(prepareUrl(input, { base: 'https://other.com' })).toBe(expected)
+    })
+  })
+
+  describe('Invalid inputs', () => {
+    it('should return undefined for invalid URL after processing', () => {
+      const input = 'not a url'
+      expect(prepareUrl(input)).toBeUndefined()
+    })
+
+    it('should return undefined for SSRF unsafe URL', () => {
+      const input = 'https://192.168.1.1/feed'
+      expect(prepareUrl(input)).toBeUndefined()
+    })
+
+    it('should return undefined for URL exceeding length limit', () => {
+      const input = `https://example.com/${'a'.repeat(2050)}`
+      expect(prepareUrl(input)).toBeUndefined()
+    })
+
+    it('should return undefined for relative URL without base', () => {
+      const input = 'relative/path'
+      expect(prepareUrl(input)).toBeUndefined()
+    })
+  })
+})
+
+describe('isOneOfDomains', () => {
+  const domains = ['facebook.com', 'twitter.com', 'linkedin.com']
+
+  describe('Matching domains', () => {
+    const matchingUrls = [
+      'https://facebook.com',
+      'https://www.facebook.com',
+      'https://m.facebook.com/profile',
+      'https://twitter.com/user',
+      'https://mobile.twitter.com',
+      'https://linkedin.com/in/profile',
+    ]
+
+    for (const url of matchingUrls) {
+      it(`should match ${url}`, () => {
+        expect(isOneOfDomains(url, domains)).toBe(true)
+      })
+    }
+  })
+
+  describe('Non-matching domains', () => {
+    const nonMatchingUrls = [
+      'https://example.com',
+      'https://instagram.com',
+      'https://notfacebook.com',
+      'https://myfacebook.com',
+      'https://example.com/facebook.com',
+    ]
+
+    for (const url of nonMatchingUrls) {
+      it(`should not match ${url}`, () => {
+        expect(isOneOfDomains(url, domains)).toBe(false)
+      })
+    }
+  })
+
+  describe('Edge cases', () => {
+    it('should handle empty domains array', () => {
+      const url = 'https://facebook.com'
+      expect(isOneOfDomains(url, [])).toBe(false)
+    })
+
+    it('should handle malformed URL gracefully', () => {
+      const url = 'not a url'
+      expect(isOneOfDomains(url, domains)).toBe(false)
+    })
+
+    it('should handle URL with port', () => {
+      const url = 'https://facebook.com:8080/api'
+      expect(isOneOfDomains(url, domains)).toBe(true)
+    })
+
+    it('should handle URL with credentials', () => {
+      const url = 'https://user:pass@facebook.com/page'
+      expect(isOneOfDomains(url, domains)).toBe(true)
+    })
+
+    it('should match exact domain case-insensitively', () => {
+      const url = 'https://Facebook.com'
+      const lowerDomains = ['facebook.com']
+      // URL constructor normalizes hostname to lowercase.
+      expect(isOneOfDomains(url, lowerDomains)).toBe(true)
     })
   })
 })

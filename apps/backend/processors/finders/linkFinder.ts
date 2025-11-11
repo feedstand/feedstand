@@ -1,8 +1,8 @@
 import { chooseFeedUrl } from '../../actions/chooseFeedUrl.ts'
 import { fetchFeed } from '../../actions/fetchFeed.ts'
 import type { FindFeedsProcessor } from '../../actions/findFeeds.ts'
-import { feedUris } from '../../constants/finders.ts'
-import { resolveRelativeUrl } from '../../helpers/urls.ts'
+import { feedUris, skippedDomains } from '../../constants/finders.ts'
+import { isOneOfDomains, prepareUrl } from '../../helpers/urls.ts'
 import type { FoundFeeds } from '../../types/schemas.ts'
 
 export const linkFinder: FindFeedsProcessor = async (context, next) => {
@@ -10,15 +10,25 @@ export const linkFinder: FindFeedsProcessor = async (context, next) => {
     return await next()
   }
 
+  // Skip domains that are known to not have feeds or cause issues
+  if (isOneOfDomains(context.url, skippedDomains)) {
+    console.debug('[linkFinder] Skipping domain:', { url: context.url })
+    return await next()
+  }
+
   // TODO: Add option to also look for URIs in the news.* and blog.* domains.
+  // TODO: Consider stopping at 1st found feed to reduce bandwidth and CPU usage.
 
   const feeds: FoundFeeds['feeds'] = []
 
   for (const feedUri of feedUris) {
     try {
-      const requestUrl = resolveRelativeUrl(feedUri, context.url)
+      const requestUrl = prepareUrl(feedUri, {
+        base: context.url,
+        validate: true,
+      })
 
-      if (feeds.some(({ url }) => url === requestUrl)) {
+      if (!requestUrl || feeds.some(({ url }) => url === requestUrl)) {
         continue
       }
 

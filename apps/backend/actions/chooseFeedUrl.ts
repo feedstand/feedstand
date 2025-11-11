@@ -1,4 +1,4 @@
-import { isAbsoluteUrl, isSafePublicUrl, isSimilarUrl } from '../helpers/urls.ts'
+import { isSimilarUrl, prepareUrl } from '../helpers/urls.ts'
 import type { FeedData } from '../types/schemas.ts'
 import { type FetchUrlResponse, fetchUrl } from './fetchUrl.ts'
 
@@ -20,16 +20,13 @@ export const chooseFeedUrl = async (feedData: FeedData) => {
     return feedData.meta.responseUrl
   }
 
-  // Case #3: selfUrl is a relative URL.
-  if (!isAbsoluteUrl(feedData.channel.selfUrl)) {
-    console.debug('Case #3: selfUrl is a relative URL.')
-    return feedData.meta.responseUrl
-  }
+  // Case #3/#4: selfUrl is relative, malformed, or unsafe (SSRF protection).
+  const preparedSelfUrl = prepareUrl(feedData.channel.selfUrl, { validate: true })
 
-  // Case #4: selfUrl targets private/internal resources (SSRF protection).
-  if (!isSafePublicUrl(feedData.channel.selfUrl)) {
-    console.warn('[SECURITY] Case #4: selfUrl targets private/internal resource:', {
-      selfUrl: feedData.channel.selfUrl,
+  if (!preparedSelfUrl) {
+    console.warn('[SECURITY] Case #3/#4: selfUrl is relative, malformed, or unsafe:', {
+      originalSelfUrl: feedData.channel.selfUrl,
+      preparedSelfUrl,
       responseUrl: feedData.meta.responseUrl,
     })
     return feedData.meta.responseUrl
@@ -45,7 +42,7 @@ export const chooseFeedUrl = async (feedData: FeedData) => {
   let response: FetchUrlResponse
 
   try {
-    response = await fetchUrl(feedData.channel.selfUrl)
+    response = await fetchUrl(preparedSelfUrl)
   } catch {
     return feedData.meta.responseUrl
   }
@@ -63,15 +60,15 @@ export const chooseFeedUrl = async (feedData: FeedData) => {
   }
 
   // Case #7: selfUrl is not equal to responseUrl but similar (after normalizing).
-  if (isSimilarUrl(feedData.channel.selfUrl, feedData.meta.responseUrl)) {
+  if (isSimilarUrl(preparedSelfUrl, feedData.meta.responseUrl)) {
     console.debug('Case #7: selfUrl is not equal to responseUrl but similar (after normalizing).')
-    return feedData.channel.selfUrl
+    return preparedSelfUrl
   }
 
   // Case #8: selfUrl is not equal to responseUrl but the response is the same.
   if (feedData.meta.hash && response.hash && feedData.meta.hash === response.hash) {
     console.debug('Case #8: selfUrl is not equal to responseUrl but the response is the same.')
-    return feedData.channel.selfUrl
+    return preparedSelfUrl
   }
 
   // Case #9: As a fallback, return the responseUrl.
