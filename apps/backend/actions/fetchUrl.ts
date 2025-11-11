@@ -222,8 +222,6 @@ const attemptFetch: AttemptFetch = async (url, config, retryStream) => {
     // Attach error handler IMMEDIATELY to prevent unhandled rejections
     newStream.on('error', () => {})
     retryPromise = attemptFetch(url, config, newStream)
-    // Prevent unhandled rejection warnings - error will be handled when awaited
-    retryPromise.catch(() => {})
   }
   stream.once('retry', retryListener)
 
