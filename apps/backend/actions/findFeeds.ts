@@ -23,6 +23,6 @@ export const findFeeds = createWorkflow<FoundFeeds>([
   wordpressFinder,
   directFinder,
   webpageFinder,
-  linkFinder,
+  // linkFinder,
   redirectPage,
 ])
