@@ -1,7 +1,6 @@
 import { createRoute, z } from '@hono/zod-openapi'
 import { eq } from 'drizzle-orm'
 import { HTTPException } from 'hono/http-exception'
-import { pick } from 'lodash-es'
 import { tables } from '../../database/tables.ts'
 import { createHandler } from '../../helpers/hono.ts'
 import { db } from '../../instances/database.ts'
@@ -44,10 +43,13 @@ export const handler = createHandler(route, async (context) => {
     throw new HTTPException(404)
   }
 
-  const fields = ['name', 'isReadabilitified']
   const [updatedSource] = await db
     .update(tables.sources)
-    .set({ ...existingSource, ...pick(json, fields) })
+    .set({
+      ...existingSource,
+      name: json.name,
+      isReadabilitified: json.isReadabilitified,
+    })
     .where(eq(tables.sources.id, existingSource.id))
     .returning()
 

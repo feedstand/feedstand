@@ -1,7 +1,7 @@
 import type { IncomingHttpHeaders } from 'node:http'
 import https from 'node:https'
 import CacheableLookup from 'cacheable-lookup'
-import got, { type Response as GotResponse } from 'got'
+import got, { type Response as GotResponse, RequestError } from 'got'
 import {
   avoidedContentTypes,
   commonHeaders,
@@ -344,8 +344,8 @@ export const fetchUrl: FetchUrl = async (url, options) => {
           status: result.status,
           attempts: attempt + 1,
         })
-        const error = new Error(`HTTP ${result.status}: ${result.statusText}`)
-        throw new UnreachableUrlError(url, error)
+        lastError = new Error(`HTTP ${result.status}: ${result.statusText}`)
+        break
       }
 
       // Success or non-retryable status code.
@@ -362,8 +362,8 @@ export const fetchUrl: FetchUrl = async (url, options) => {
     } catch (error) {
       lastError = error as Error
 
-      const errorCode = (error as any).code
-      const isRetryableError = retryableErrorCodes.includes(errorCode)
+      const errorCode = error instanceof RequestError ? error.code : undefined
+      const isRetryableError = errorCode && retryableErrorCodes.includes(errorCode)
       const isPossibleIpError = errorCode === 'ENETUNREACH'
 
       if (isRetryableError && canRetryMore) {
@@ -384,6 +384,7 @@ export const fetchUrl: FetchUrl = async (url, options) => {
         continue
       }
 
+      // Non-retryable error or retries exhausted
       console.error('[fetchUrl] Failed:', {
         url,
         errorType: lastError.constructor.name,
@@ -392,7 +393,7 @@ export const fetchUrl: FetchUrl = async (url, options) => {
         attempts: attempt + 1,
         stack: lastError.stack?.split('\n').slice(0, 3).join('\n'),
       })
-      throw new UnreachableUrlError(url, lastError)
+      break
     }
   }
 
