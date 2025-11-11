@@ -203,7 +203,10 @@ const attemptFetch: AttemptFetch = async (url, config, retryStream) => {
 
   const retryListener: AttemptFetchRetryListener = (retryCount, error, createRetryStream) => {
     console.debug('[Retry triggered:', { url, retryCount, error: error.message })
-    retryPromise = attemptFetch(url, config, createRetryStream())
+    const newStream = createRetryStream()
+    // Attach error handler IMMEDIATELY to prevent unhandled rejections
+    newStream.on('error', () => {})
+    retryPromise = attemptFetch(url, config, newStream)
     // Prevent unhandled rejection warnings - error will be handled when awaited
     retryPromise.catch(() => {})
   }
