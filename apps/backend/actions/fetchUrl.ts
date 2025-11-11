@@ -215,6 +215,7 @@ const attemptFetch: AttemptFetch = async (url, config, retryStream) => {
     })
 
   let retryPromise: Promise<FetchUrlResponse> | undefined
+  let retryError: Error | undefined
 
   const retryListener: AttemptFetchRetryListener = (retryCount, error, createRetryStream) => {
     console.debug('[Retry triggered:', { url, retryCount, error: error.message })
@@ -222,6 +223,10 @@ const attemptFetch: AttemptFetch = async (url, config, retryStream) => {
     // Attach error handler IMMEDIATELY to prevent unhandled rejections
     newStream.on('error', () => {})
     retryPromise = attemptFetch(url, config, newStream)
+    // Prevent unhandled rejection warnings but preserve error for re-throw
+    retryPromise.catch((err) => {
+      retryError = err
+    })
   }
   stream.once('retry', retryListener)
 
@@ -273,7 +278,12 @@ const attemptFetch: AttemptFetch = async (url, config, retryStream) => {
     })
   } catch (error) {
     if (retryPromise) {
-      return await retryPromise
+      const result = await retryPromise
+      // If retry failed, throw the stored error instead of returning
+      if (retryError) {
+        throw retryError
+      }
+      return result
     }
 
     throw error
