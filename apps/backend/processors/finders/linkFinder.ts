@@ -25,10 +25,8 @@ export const linkFinder: FindFeedsProcessor = async (context, next) => {
       const feedData = await fetchFeed({
         url: requestUrl,
         channel: context.channel,
-        options: {
-          // Perform an one-time fetch to quickly check whether the URL exists.
-          retry: { limit: 0, errorCodes: [], statusCodes: [] },
-        },
+        // Perform an one-time fetch to quickly check whether the URL exists.
+        options: { retry: { limit: 0 } },
       })
 
       const chosenUrl = await chooseFeedUrl(feedData)
