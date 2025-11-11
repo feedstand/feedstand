@@ -269,12 +269,31 @@ const attemptFetch: AttemptFetch = async (url, config, retryStream) => {
 
 export const fetchUrl: FetchUrl = async (url, config) => {
   if (!isSafePublicUrl(url)) {
+    console.warn('[fetchUrl] SSRF blocked:', { url })
     throw new UnsafeUrlError(url)
   }
 
+  console.debug('[fetchUrl] Starting:', { url, headers: config?.headers })
+
   try {
-    return await attemptFetch(url, config)
+    const result = await attemptFetch(url, config)
+    const bodyText = await result.text()
+    console.debug('[fetchUrl] Success:', {
+      url,
+      finalUrl: result.url,
+      status: result.status,
+      contentLength: bodyText.length,
+      hash: result.hash,
+    })
+    return result
   } catch (error) {
+    console.error('[fetchUrl] Failed:', {
+      url,
+      errorType: (error as Error).constructor.name,
+      errorMessage: (error as Error).message,
+      errorCode: (error as any).code,
+      stack: (error as Error).stack?.split('\n').slice(0, 3).join('\n'),
+    })
     throw new UnreachableUrlError(url, error as Error)
   }
 }

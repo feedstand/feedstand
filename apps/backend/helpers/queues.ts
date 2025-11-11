@@ -40,6 +40,18 @@ export const createQueue = <Data, Result, Name extends string>(
         error instanceof UnreachableUrlError ||
         error instanceof UnsafeUrlError
       ) {
+        console.warn('[Job Failed] Permanent failure:', {
+          jobId: job.id,
+          jobName: job.name,
+          queueName: job.queueName,
+          errorType: error.constructor.name,
+          errorMessage: error.message,
+          url: (error as any).url,
+          cause: (error as any).cause?.message,
+          causeCode: (error as any).cause?.code,
+          stack: error.stack?.split('\n').slice(0, 3).join('\n'),
+        })
+
         await job.moveToFailed(error, job.token || '', true)
 
         // For permanent failures, manually fail the job and return.
@@ -49,18 +61,36 @@ export const createQueue = <Data, Result, Name extends string>(
       if (error instanceof RateLimitError) {
         const delayMs = await getRateLimitDelay(error.url)
         const domain = new URL(error.url).hostname
+        const now = Date.now()
+        const delayUntil = Math.max(now + 1000, now + delayMs)
+        const actualDelayMs = delayUntil - now
+
         console.debug('[Rate Limit] Job delayed:', {
           jobId: job.id,
           jobName: job.name,
           url: error.url,
+          domain,
           delayMs,
+          actualDelayMs,
+          delayUntil,
+          now,
         })
+
+        if (delayMs < 0) {
+          console.warn('[Rate Limit] Negative delay detected:', {
+            jobId: job.id,
+            url: error.url,
+            delayMs,
+            correctedTo: actualDelayMs,
+          })
+        }
+
         incrementMetric('rate_limit.job_delayed', 1, { queue: job.queueName, domain })
-        recordDistribution('rate_limit.delay_ms', delayMs, 'millisecond', {
+        recordDistribution('rate_limit.delay_ms', actualDelayMs, 'millisecond', {
           queue: job.queueName,
           domain,
         })
-        await job.moveToDelayed(Date.now() + delayMs, job.token)
+        await job.moveToDelayed(delayUntil, job.token)
 
         return undefined as Result
       }

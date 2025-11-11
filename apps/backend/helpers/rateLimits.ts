@@ -79,7 +79,15 @@ export const getRateLimitDelay = async (url: string): Promise<number> => {
   const key = `${RATE_LIMIT_PREFIX}${domain}`
 
   const ttl = await connection.ttl(key)
+  const delayMs = ttl > 0 ? (ttl + 5) * 1000 : 60000
+
+  console.debug('[Rate Limit] Get delay:', {
+    domain,
+    url,
+    ttl,
+    delayMs,
+  })
 
   // TTL in seconds, convert to milliseconds and add small buffer
-  return ttl > 0 ? (ttl + 5) * 1000 : 60000 // Default 60s if no TTL
+  return delayMs
 }
