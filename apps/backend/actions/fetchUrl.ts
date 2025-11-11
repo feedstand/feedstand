@@ -1,5 +1,5 @@
+import type { IncomingHttpHeaders } from 'node:http'
 import https from 'node:https'
-import { StringDecoder } from 'node:string_decoder'
 import CacheableLookup from 'cacheable-lookup'
 import got, { type Response as GotResponse } from 'got'
 import {
@@ -14,11 +14,11 @@ import {
   maxTimeout,
   userAgents,
 } from '../constants/fetchers.ts'
+import { ContentSizeError } from '../errors/ContentSizeError.ts'
 import { UnreachableUrlError } from '../errors/UnreachableUrlError.ts'
 import { UnsafeUrlError } from '../errors/UnsafeUrlError.ts'
 import { createStreamingChecksum } from '../helpers/hashes.ts'
 import { isOneOfContentTypes } from '../helpers/responses.ts'
-import { isJson } from '../helpers/strings.ts'
 import { isSafePublicUrl, resolveRelativeUrl } from '../helpers/urls.ts'
 
 // TODO:
@@ -88,26 +88,38 @@ import { isSafePublicUrl, resolveRelativeUrl } from '../helpers/urls.ts'
 export class FetchUrlResponse extends Response {
   public readonly url: string
   public readonly hash?: string
+  public readonly contentBytes: number
   private readonly _body: string
 
-  constructor(body: string, init: ResponseInit & { url: string; hash?: string }) {
+  constructor(
+    body: string,
+    init: ResponseInit & {
+      url: string
+      hash?: string
+      contentBytes: number
+    },
+  ) {
     super(undefined, init)
-    this.url = init.url
     this._body = body
+    this.url = init.url
     this.hash = init.hash
+    this.contentBytes = init.contentBytes
   }
 
   text(): Promise<string> {
     return Promise.resolve(this._body)
   }
 
-  json(): Promise<ReturnType<typeof JSON.parse> | undefined> {
-    return isJson(this._body) ? JSON.parse(this._body) : Promise.resolve(undefined)
+  async json<T = unknown>(): Promise<T | undefined> {
+    try {
+      return JSON.parse(this._body) as T
+    } catch {
+      return undefined
+    }
   }
 }
 
 const gotInstance = got.extend({
-  timeout: { request: maxTimeout },
   // Allows getting RSS feed from URLs with unverified certificate.
   https: { rejectUnauthorized: false },
   // Enable connection pooling for better performance.
@@ -121,6 +133,8 @@ const gotInstance = got.extend({
   maxHeaderSize,
   // Default headers (will be merged with per-request headers)
   headers: commonHeaders,
+  timeout: { request: maxTimeout },
+  retry: { limit: 0 },
   followRedirect: true,
   isStream: true,
   maxRedirects,
@@ -164,6 +178,31 @@ type FetchUrl = (url: string, options?: FetchUrlOptions) => Promise<FetchUrlResp
 
 type FetchUrlAttempt = (url: string, options?: FetchUrlAttemptOptions) => Promise<FetchUrlResponse>
 
+const getDeclaredContentLength = (response: GotResponse) => {
+  const contentLength = Number(response.headers['content-length'])
+  return Number.isFinite(contentLength) ? contentLength : -1
+}
+
+const toHeaders = (raw: IncomingHttpHeaders) => {
+  const headers = new Headers()
+
+  for (const [key, valueOrValues] of Object.entries(raw)) {
+    if (valueOrValues == null) {
+      continue
+    }
+
+    if (Array.isArray(valueOrValues)) {
+      for (const value of valueOrValues) {
+        headers.append(key, String(value))
+      }
+    } else {
+      headers.set(key, String(valueOrValues))
+    }
+  }
+
+  return headers
+}
+
 const fetchUrlAttempt: FetchUrlAttempt = async (url, options) => {
   const stream = gotInstance.stream(url, {
     headers: {
@@ -178,6 +217,23 @@ const fetchUrlAttempt: FetchUrlAttempt = async (url, options) => {
     stream.once('error', reject)
   })
 
+  // Skip body download for retryable statuses to save bandwidth and memory.
+  const status = response.statusCode ?? 0
+  const retryableStatusCodes = options?.retry?.statusCodes ?? defaultRetryableStatusCodes
+  const isRetryableStatus = retryableStatusCodes.includes(status)
+
+  if (isRetryableStatus) {
+    stream.destroy()
+
+    return new FetchUrlResponse('', {
+      url: response.url,
+      status,
+      statusText: response.statusMessage,
+      headers: toHeaders(response.headers),
+      contentBytes: 0,
+    })
+  }
+
   const contentType = String(response.headers['content-type'])
 
   if (isOneOfContentTypes(contentType, avoidedContentTypes)) {
@@ -186,32 +242,46 @@ const fetchUrlAttempt: FetchUrlAttempt = async (url, options) => {
   }
 
   const hash = createStreamingChecksum()
-  const decoder = new StringDecoder('utf-8')
-
-  let body = ''
-  let downloadedBytes = 0
+  const chunks: Array<Buffer> = []
   const contentSizeLimit = options?.maxContentSize ?? defaultMaxContentSize
+  const declaredContentSize = getDeclaredContentLength(response)
+
+  let downloadedBytes = 0
+
+  // TODO: Disable transparent decompression to make Content-Length checks deterministic.
+  // Currently, if server sends gzipped response, Content-Length reflects compressed size
+  // but downloadedBytes reflects uncompressed size, causing mismatches. Fix by setting
+  // decompress: false and 'accept-encoding': 'identity' in stream options.
+  // Related to TODO at line 24 about compression issues.
+  if (declaredContentSize > contentSizeLimit) {
+    stream.destroy()
+    throw new ContentSizeError(url, contentSizeLimit, declaredContentSize, true)
+  }
 
   for await (const chunk of stream) {
     downloadedBytes += chunk.length
 
     if (downloadedBytes > contentSizeLimit) {
       stream.destroy()
-      throw new Error(`Content length exceeded the limit: ${contentSizeLimit}`)
+      throw new ContentSizeError(url, contentSizeLimit, downloadedBytes, false)
     }
 
     hash.update(chunk)
-    body += decoder.write(chunk)
+    chunks.push(chunk)
   }
 
-  body += decoder.end()
+  let buffer: Buffer | undefined = Buffer.concat(chunks, downloadedBytes)
+  chunks.length = 0
+  const body = buffer.toString('utf8')
+  buffer = undefined
 
   return new FetchUrlResponse(body, {
     url: response.url,
     status: response.statusCode,
     statusText: response.statusMessage,
-    headers: new Headers(response.headers as Record<string, string>),
+    headers: toHeaders(response.headers),
     hash: hash.digest(),
+    contentBytes: downloadedBytes,
   })
 }
 
@@ -231,7 +301,7 @@ export const fetchUrl: FetchUrl = async (url, options) => {
   const retryableErrorCodes = options?.retry?.errorCodes ?? defaultRetryableErrorCodes
 
   let lastError: Error | undefined
-  const currentOptions = { ...options }
+  const currentOptions: FetchUrlAttemptOptions = { ...options }
 
   console.debug('[fetchUrl] Starting:', {
     url,
@@ -279,18 +349,19 @@ export const fetchUrl: FetchUrl = async (url, options) => {
       }
 
       // Success or non-retryable status code.
-      const bodyText = await result.text()
       console.debug('[fetchUrl] Success:', {
         url,
         finalUrl: result.url,
         status: result.status,
-        contentLength: bodyText.length,
+        contentBytes: result.contentBytes,
         hash: result.hash,
         attempts: attempt + 1,
       })
+
       return result
     } catch (error) {
       lastError = error as Error
+
       const errorCode = (error as any).code
       const isRetryableError = retryableErrorCodes.includes(errorCode)
       const isPossibleIpError = errorCode === 'ENETUNREACH'
@@ -313,7 +384,6 @@ export const fetchUrl: FetchUrl = async (url, options) => {
         continue
       }
 
-      // Non-retryable error or retries exhausted
       console.error('[fetchUrl] Failed:', {
         url,
         errorType: lastError.constructor.name,
@@ -326,7 +396,5 @@ export const fetchUrl: FetchUrl = async (url, options) => {
     }
   }
 
-  // Retries exhausted (should not reach here, but TypeScript needs it)
-  console.error('[fetchUrl] Retries exhausted:', { url, attempts: maxRetries + 1 })
   throw new UnreachableUrlError(url, lastError)
 }
