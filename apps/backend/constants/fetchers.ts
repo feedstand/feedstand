@@ -1,6 +1,16 @@
-export const maxRetries = 3
+export const defaultMaxRetries = 3
 
 export const maxRedirects = 10
+
+export const defaultRetryableStatusCodes = [403, 408, 429, 500, 502, 503, 504, 521]
+
+export const defaultRetryableErrorCodes = [
+  'ETIMEDOUT',
+  'ECONNRESET',
+  'EPIPE',
+  'EADDRINUSE',
+  'ENETUNREACH',
+]
 
 export const maxTimeout = 15 * 1000
 

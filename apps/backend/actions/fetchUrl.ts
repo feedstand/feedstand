@@ -1,15 +1,16 @@
 import https from 'node:https'
 import { StringDecoder } from 'node:string_decoder'
 import CacheableLookup from 'cacheable-lookup'
-import got, { type Response as GotResponse, type OptionsInit, type Request } from 'got'
-import { sample } from 'lodash-es'
+import got, { type Response as GotResponse } from 'got'
 import {
   avoidedContentTypes,
   commonHeaders,
+  defaultMaxRetries,
+  defaultRetryableErrorCodes,
+  defaultRetryableStatusCodes,
   maxContentSize,
   maxHeaderSize,
   maxRedirects,
-  maxRetries,
   maxTimeout,
   userAgents,
 } from '../constants/fetchers.ts'
@@ -61,7 +62,7 @@ import { isSafePublicUrl, resolveRelativeUrl } from '../helpers/urls.ts'
 //    - Retry on HTTP 403 (Forbidden) with different User-Agent header
 //    - Retry on network errors: ENETUNREACH, ETIMEDOUT
 //    - Exponential backoff with jitter (attemptCount * 1000 + random)
-//    - Limit retries to maxRetries (3)
+//    - Limit retries to defaultMaxRetries (3)
 //    - IPv4 fallback on network errors (dnsLookupIpVersion: 4)
 //    - Current: retry.limit, retry.statusCodes, retry.errorCodes, hooks.beforeRetry
 // 8. Response metadata
@@ -105,25 +106,14 @@ export class FetchUrlResponse extends Response {
   }
 }
 
-const cacheable = new CacheableLookup()
-
 const gotInstance = got.extend({
-  timeout: {
-    request: maxTimeout,
-  },
+  timeout: { request: maxTimeout },
   // Allows getting RSS feed from URLs with unverified certificate.
-  https: {
-    rejectUnauthorized: false,
-  },
+  https: { rejectUnauthorized: false },
   // Enable connection pooling for better performance.
-  agent: {
-    https: new https.Agent({
-      keepAlive: true,
-      maxSockets: 100,
-    }),
-  },
+  agent: { https: new https.Agent({ keepAlive: true, maxSockets: 100 }) },
   // Cache DNS lookups to improve performance (respects TTL).
-  dnsCache: cacheable,
+  dnsCache: new CacheableLookup(),
   // Always return a response instead of throwing an exception. This allows for later use
   // of the erroneous response to detect the type of error in parsing middlewares.
   throwHttpErrors: false,
@@ -134,16 +124,9 @@ const gotInstance = got.extend({
   followRedirect: true,
   isStream: true,
   maxRedirects,
-  retry: {
-    limit: maxRetries,
-    // Original: [403, 408, 413, 429, 500, 502, 503, 504, 521, 522, 524],
-    statusCodes: [403, 408, 429, 500, 502, 503, 504, 521],
-    // Only retry on transient network errors, not DNS failures or connection refused.
-    errorCodes: ['ETIMEDOUT', 'ECONNRESET', 'EPIPE', 'EADDRINUSE'],
-  },
   hooks: {
     beforeRedirect: [
-      (_updatedOptions, response) => {
+      (_, response) => {
         const fromUrl = response.requestUrl.toString()
         const toUrl = response.headers.location
         const toResolvedUrl = toUrl ? resolveRelativeUrl(toUrl, fromUrl) : ''
@@ -160,162 +143,189 @@ const gotInstance = got.extend({
         }
       },
     ],
-    beforeRetry: [
-      (error) => {
-        // Force IPv4-only on network error retries.
-        if (error.code === 'ENETUNREACH' || error.code === 'ETIMEDOUT') {
-          error.options.dnsLookupIpVersion = 4
-        }
-
-        // Rotate User-Agent on 403 retries.
-        if (error.response?.statusCode === 403) {
-          error.options.headers['User-Agent'] = sample(userAgents)
-        }
-      },
-    ],
   },
 })
 
-export type FetchUrlConfig = {
+type FetchUrlOptions = {
   retry?: {
     limit?: number
     errorCodes?: Array<string>
     statusCodes?: Array<number>
   }
   headers?: Record<string, string>
+  dnsLookupIpVersion?: 4 | 6
 }
 
-type FetchUrl = (url: string, config?: FetchUrlConfig) => Promise<FetchUrlResponse>
+type FetchUrlAttemptOptions = FetchUrlOptions & {
+  dnsLookupIpVersion?: 4 | 6
+}
 
-type AttemptFetch = (
-  url: string,
-  config?: FetchUrlConfig,
-  retryStream?: Request,
-) => Promise<FetchUrlResponse>
+type FetchUrl = (url: string, options?: FetchUrlOptions) => Promise<FetchUrlResponse>
 
-type AttemptFetchRetryListener = (
-  retryCount: number,
-  error: Error,
-  createRetryStream: (options?: OptionsInit) => Request,
-) => void
+type FetchUrlAttempt = (url: string, options?: FetchUrlAttemptOptions) => Promise<FetchUrlResponse>
 
-const attemptFetch: AttemptFetch = async (url, config, retryStream) => {
-  const stream =
-    retryStream ??
-    gotInstance.stream(url, {
-      ...config,
-      headers: {
-        ...gotInstance.defaults.options.headers,
-        ...config?.headers,
-      },
-      retry: {
-        ...gotInstance.defaults.options.retry,
-        ...config?.retry,
-      },
-    })
-
-  let retryPromise: Promise<FetchUrlResponse> | undefined
-  let retryError: Error | undefined
-
-  const retryListener: AttemptFetchRetryListener = (retryCount, error, createRetryStream) => {
-    console.debug('[Retry triggered:', { url, retryCount, error: error.message })
-    const newStream = createRetryStream()
-    // Attach error handler IMMEDIATELY to prevent unhandled rejections
-    newStream.on('error', () => {})
-    retryPromise = attemptFetch(url, config, newStream)
-    // Prevent unhandled rejection warnings but preserve error for re-throw
-    retryPromise.catch((err) => {
-      retryError = err
-    })
-  }
-  stream.once('retry', retryListener)
-
-  // Catch ALL error events to prevent unhandled rejections during retries
-  stream.on('error', () => {
-    // Errors are handled by the promise rejection or retry mechanism
+const fetchUrlAttempt: FetchUrlAttempt = async (url, options) => {
+  const stream = gotInstance.stream(url, {
+    headers: {
+      ...gotInstance.defaults.options.headers,
+      ...options?.headers,
+    },
+    dnsLookupIpVersion: options?.dnsLookupIpVersion,
   })
 
-  try {
-    // Wait for response headers before processing body.
-    const response = await new Promise<GotResponse>((resolve, reject) => {
-      stream.once('response', resolve)
-      stream.once('error', reject)
-    })
-    const contentType = String(response.headers['content-type'])
+  const response = await new Promise<GotResponse>((resolve, reject) => {
+    stream.once('response', resolve)
+    stream.once('error', reject)
+  })
 
-    // If it's not accepted response type, abort right away and destroy the stream.
-    if (isOneOfContentTypes(contentType, avoidedContentTypes)) {
-      stream.destroy()
-      throw new Error(`Unwanted content-type: ${contentType}`)
-    }
+  const contentType = String(response.headers['content-type'])
 
-    const hash = createStreamingChecksum()
-    const decoder = new StringDecoder('utf-8')
-
-    let body = ''
-    let downloadedBytes = 0
-
-    for await (const chunk of stream) {
-      downloadedBytes += chunk.length
-
-      if (downloadedBytes > maxContentSize) {
-        stream.destroy()
-        throw new Error(`Content length exceeded the limit: ${maxContentSize}`)
-      }
-
-      hash.update(chunk)
-      body += decoder.write(chunk)
-    }
-
-    body += decoder.end()
-
-    return new FetchUrlResponse(body, {
-      url: response.url,
-      status: response.statusCode,
-      statusText: response.statusMessage,
-      headers: new Headers(response.headers as Record<string, string>),
-      hash: hash.digest(),
-    })
-  } catch (error) {
-    if (retryPromise) {
-      const result = await retryPromise
-      // If retry failed, throw the stored error instead of returning
-      if (retryError) {
-        throw retryError
-      }
-      return result
-    }
-
-    throw error
+  if (isOneOfContentTypes(contentType, avoidedContentTypes)) {
+    stream.destroy()
+    throw new Error(`Unwanted content-type: ${contentType}`)
   }
+
+  const hash = createStreamingChecksum()
+  const decoder = new StringDecoder('utf-8')
+
+  let body = ''
+  let downloadedBytes = 0
+
+  for await (const chunk of stream) {
+    downloadedBytes += chunk.length
+
+    if (downloadedBytes > maxContentSize) {
+      stream.destroy()
+      throw new Error(`Content length exceeded the limit: ${maxContentSize}`)
+    }
+
+    hash.update(chunk)
+    body += decoder.write(chunk)
+  }
+
+  body += decoder.end()
+
+  return new FetchUrlResponse(body, {
+    url: response.url,
+    status: response.statusCode,
+    statusText: response.statusMessage,
+    headers: new Headers(response.headers as Record<string, string>),
+    hash: hash.digest(),
+  })
 }
 
-export const fetchUrl: FetchUrl = async (url, config) => {
+const applyBackoff = async (attempt: number) => {
+  const backoff = Math.min(2 ** attempt * 1000, 64000) + Math.random() * 1000
+  await new Promise((resolve) => setTimeout(resolve, backoff))
+}
+
+export const fetchUrl: FetchUrl = async (url, options) => {
   if (!isSafePublicUrl(url)) {
     console.warn('[fetchUrl] SSRF blocked:', { url })
     throw new UnsafeUrlError(url)
   }
 
-  console.debug('[fetchUrl] Starting:', { url, headers: config?.headers })
+  const maxRetries = options?.retry?.limit ?? defaultMaxRetries
+  const retryableStatusCodes = options?.retry?.statusCodes ?? defaultRetryableStatusCodes
+  const retryableErrorCodes = options?.retry?.errorCodes ?? defaultRetryableErrorCodes
 
-  try {
-    const result = await attemptFetch(url, config)
-    const bodyText = await result.text()
-    console.debug('[fetchUrl] Success:', {
-      url,
-      finalUrl: result.url,
-      status: result.status,
-      contentLength: bodyText.length,
-      hash: result.hash,
-    })
-    return result
-  } catch (error) {
-    console.error('[fetchUrl] Failed:', {
-      url,
-      errorType: (error as Error).constructor.name,
-      errorMessage: (error as Error).message,
-      stack: (error as Error).stack?.split('\n').slice(0, 3).join('\n'),
-    })
-    throw new UnreachableUrlError(url, error as Error)
+  let lastError: Error | undefined
+  const currentOptions = { ...options }
+
+  console.debug('[fetchUrl] Starting:', {
+    url,
+    headers: options?.headers,
+    maxAttempts: maxRetries + 1,
+  })
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    const canRetryMore = attempt < maxRetries
+
+    try {
+      const result = await fetchUrlAttempt(url, currentOptions)
+
+      const isRetryableStatus = retryableStatusCodes.includes(result.status)
+      const isForbiddenStatus = result.status === 403
+
+      if (isRetryableStatus && canRetryMore) {
+        console.debug('[fetchUrl] Retrying due to status code:', {
+          url,
+          status: result.status,
+          attempt: attempt + 1,
+          maxAttempts: maxRetries + 1,
+        })
+
+        // Rotate User-Agent on 403.
+        if (isForbiddenStatus) {
+          currentOptions.headers = {
+            ...currentOptions.headers,
+            'user-agent': userAgents[attempt % userAgents.length],
+          }
+        }
+
+        await applyBackoff(attempt)
+        continue
+      }
+
+      if (isRetryableStatus && !canRetryMore) {
+        console.error('[fetchUrl] Retries exhausted with retryable status:', {
+          url,
+          status: result.status,
+          attempts: attempt + 1,
+        })
+        const error = new Error(`HTTP ${result.status}: ${result.statusText}`)
+        throw new UnreachableUrlError(url, error)
+      }
+
+      // Success or non-retryable status code.
+      const bodyText = await result.text()
+      console.debug('[fetchUrl] Success:', {
+        url,
+        finalUrl: result.url,
+        status: result.status,
+        contentLength: bodyText.length,
+        hash: result.hash,
+        attempts: attempt + 1,
+      })
+      return result
+    } catch (error) {
+      lastError = error as Error
+      const errorCode = (error as any).code
+      const isRetryableError = retryableErrorCodes.includes(errorCode)
+      const isPossibleIpError = errorCode === 'ENETUNREACH'
+
+      if (isRetryableError && canRetryMore) {
+        console.debug('[fetchUrl] Retrying due to error:', {
+          url,
+          errorCode,
+          errorMessage: lastError.message,
+          attempt: attempt + 1,
+          maxAttempts: maxRetries + 1,
+        })
+
+        // IPv4 fallback on network unreachable.
+        if (isPossibleIpError) {
+          currentOptions.dnsLookupIpVersion = 4
+        }
+
+        await applyBackoff(attempt)
+        continue
+      }
+
+      // Non-retryable error or retries exhausted
+      console.error('[fetchUrl] Failed:', {
+        url,
+        errorType: lastError.constructor.name,
+        errorMessage: lastError.message,
+        errorCode,
+        attempts: attempt + 1,
+        stack: lastError.stack?.split('\n').slice(0, 3).join('\n'),
+      })
+      throw new UnreachableUrlError(url, lastError)
+    }
   }
+
+  // Retries exhausted (should not reach here, but TypeScript needs it)
+  console.error('[fetchUrl] Retries exhausted:', { url, attempts: maxRetries + 1 })
+  throw new UnreachableUrlError(url, lastError)
 }
