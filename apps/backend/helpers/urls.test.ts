@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import {
   isAbsoluteUrl,
   isOneOfDomains,
@@ -262,6 +262,17 @@ describe('isSafePublicUrl', () => {
   })
 
   describe('Localhost and loopback (should return false)', () => {
+    // Temporarily disable the unsafe flag to test actual SSRF protection.
+    const originalEnv = process.env.UNSAFE_DISABLE_SSRF_CHECK
+
+    beforeEach(() => {
+      process.env.UNSAFE_DISABLE_SSRF_CHECK = ''
+    })
+
+    afterEach(() => {
+      process.env.UNSAFE_DISABLE_SSRF_CHECK = originalEnv ?? ''
+    })
+
     const localhostUrls = [
       'http://localhost',
       'http://localhost:3000',
