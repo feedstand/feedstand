@@ -7,21 +7,21 @@ describe('extractFeedUrls', () => {
   describe('link elements', () => {
     it('should find RSS feed link', () => {
       const html = '<link rel="alternate" type="application/rss+xml" href="/feed.xml">'
-      const expected = ['https://example.com/feed.xml']
+      const expected = new Set(['https://example.com/feed.xml'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should find Atom feed link', () => {
       const html = '<link rel="alternate" type="application/atom+xml" href="/atom.xml">'
-      const expected = ['https://example.com/atom.xml']
+      const expected = new Set(['https://example.com/atom.xml'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should find JSON feed link', () => {
       const html = '<link rel="alternate" type="application/json" href="/feed.json">'
-      const expected = ['https://example.com/feed.json']
+      const expected = new Set(['https://example.com/feed.json'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
@@ -31,21 +31,21 @@ describe('extractFeedUrls', () => {
         <link rel="alternate" type="application/rss+xml" href="/rss.xml">
         <link rel="alternate" type="application/atom+xml" href="/atom.xml">
       `
-      const expected = ['https://example.com/rss.xml', 'https://example.com/atom.xml']
+      const expected = new Set(['https://example.com/rss.xml', 'https://example.com/atom.xml'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should ignore link without rel="alternate"', () => {
       const html = '<link type="application/rss+xml" href="/feed.xml">'
-      const expected = []
+      const expected = new Set()
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should ignore link without feed type', () => {
       const html = '<link rel="alternate" type="text/html" href="/page.html">'
-      const expected = []
+      const expected = new Set()
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
@@ -54,77 +54,77 @@ describe('extractFeedUrls', () => {
   describe('anchor elements', () => {
     it('should find anchor with /feed URI', () => {
       const html = '<a href="/feed">RSS Feed</a>'
-      const expected = ['https://example.com/feed']
+      const expected = new Set(['https://example.com/feed'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should find anchor with /rss.xml URI', () => {
       const html = '<a href="/rss.xml">RSS</a>'
-      const expected = ['https://example.com/rss.xml']
+      const expected = new Set(['https://example.com/rss.xml'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should find anchor with /atom.xml URI', () => {
       const html = '<a href="/atom.xml">Atom</a>'
-      const expected = ['https://example.com/atom.xml']
+      const expected = new Set(['https://example.com/atom.xml'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should find anchor with /.rss URI (Reddit-style)', () => {
       const html = '<a href="/.rss">Reddit RSS</a>'
-      const expected = ['https://example.com/.rss']
+      const expected = new Set(['https://example.com/.rss'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should find anchor with query parameter feed', () => {
       const html = '<a href="/?feed=rss">WordPress RSS</a>'
-      const expected = ['https://example.com/?feed=rss']
+      const expected = new Set(['https://example.com/?feed=rss'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should find /index.xml anchor', () => {
       const html = '<a href="/index.xml">Index</a>'
-      const expected = ['https://example.com/index.xml']
+      const expected = new Set(['https://example.com/index.xml'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should find /feed.rss anchor', () => {
       const html = '<a href="/feed.rss">Feed RSS</a>'
-      const expected = ['https://example.com/feed.rss']
+      const expected = new Set(['https://example.com/feed.rss'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should find /feed.atom anchor', () => {
       const html = '<a href="/feed.atom">Feed Atom</a>'
-      const expected = ['https://example.com/feed.atom']
+      const expected = new Set(['https://example.com/feed.atom'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should find /?rss=1 (Textpattern)', () => {
       const html = '<a href="/?rss=1">RSS</a>'
-      const expected = ['https://example.com/?rss=1']
+      const expected = new Set(['https://example.com/?rss=1'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should find /?atom=1 (Textpattern)', () => {
       const html = '<a href="/?atom=1">Atom</a>'
-      const expected = ['https://example.com/?atom=1']
+      const expected = new Set(['https://example.com/?atom=1'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should find /feed.json anchor', () => {
       const html = '<a href="/feed.json">JSON Feed</a>'
-      const expected = ['https://example.com/feed.json']
+      const expected = new Set(['https://example.com/feed.json'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
@@ -135,25 +135,25 @@ describe('extractFeedUrls', () => {
         <a href="/rss.xml">RSS</a>
         <a href="/atom.xml">Atom</a>
       `
-      const expected = [
+      const expected = new Set([
         'https://example.com/feed',
         'https://example.com/rss.xml',
         'https://example.com/atom.xml',
-      ]
+      ])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should match anchor by href suffix', () => {
       const html = '<a href="/blog/feed">Blog Feed</a>'
-      const expected = ['https://example.com/blog/feed']
+      const expected = new Set(['https://example.com/blog/feed'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should not match anchor if URI not at end', () => {
       const html = '<a href="/feed/comments">Comments</a>'
-      const expected = []
+      const expected = new Set()
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
@@ -164,39 +164,39 @@ describe('extractFeedUrls', () => {
         <a href="/news/atom.xml">News Atom</a>
         <a href="/posts/index.xml">Posts</a>
       `
-      const expected = [
+      const expected = new Set([
         'https://example.com/blog/rss.xml',
         'https://example.com/news/atom.xml',
         'https://example.com/posts/index.xml',
-      ]
+      ])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should handle WordPress category feeds', () => {
       const html = '<a href="/category/tech/feed">Category Feed</a>'
-      const expected = ['https://example.com/category/tech/feed']
+      const expected = new Set(['https://example.com/category/tech/feed'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should NOT match uppercase feed URIs (case sensitive paths)', () => {
       const html = '<a href="/FEED">Feed</a>'
-      const expected = []
+      const expected = new Set()
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should NOT match feed with fragment identifier', () => {
       const html = '<a href="/feed#main">Feed</a>'
-      const expected = []
+      const expected = new Set()
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should NOT match feed with query parameters after', () => {
       const html = '<a href="/feed?param=value">Feed</a>'
-      const expected = []
+      const expected = new Set()
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
@@ -208,7 +208,7 @@ describe('extractFeedUrls', () => {
         <link rel="alternate" type="application/rss+xml" href="/rss.xml">
         <a href="/feed">Feed</a>
       `
-      const expected = ['https://example.com/rss.xml', 'https://example.com/feed']
+      const expected = new Set(['https://example.com/rss.xml', 'https://example.com/feed'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
@@ -234,11 +234,11 @@ describe('extractFeedUrls', () => {
           </body>
         </html>
       `
-      const expected = [
+      const expected = new Set([
         'https://example.com/feed.xml',
         'https://example.com/atom.xml',
         'https://example.com/feed',
-      ]
+      ])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
@@ -247,7 +247,7 @@ describe('extractFeedUrls', () => {
   describe('URL resolution', () => {
     it('should resolve relative URLs', () => {
       const html = '<link rel="alternate" type="application/rss+xml" href="feed.xml">'
-      const expected = ['https://example.com/feed.xml']
+      const expected = new Set(['https://example.com/feed.xml'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
@@ -255,14 +255,14 @@ describe('extractFeedUrls', () => {
     it('should handle protocol-relative URLs', () => {
       const html =
         '<link rel="alternate" type="application/rss+xml" href="//feeds.example.com/rss.xml">'
-      const expected = ['https://feeds.example.com/rss.xml']
+      const expected = new Set(['https://feeds.example.com/rss.xml'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should handle URL-encoded characters in href', () => {
       const html = '<a href="/my%20blog/feed">Feed</a>'
-      const expected = ['https://example.com/my%20blog/feed']
+      const expected = new Set(['https://example.com/my%20blog/feed'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
@@ -270,7 +270,7 @@ describe('extractFeedUrls', () => {
     it('should handle absolute URLs', () => {
       const html =
         '<link rel="alternate" type="application/rss+xml" href="https://feeds.example.com/rss.xml">'
-      const expected = ['https://feeds.example.com/rss.xml']
+      const expected = new Set(['https://feeds.example.com/rss.xml'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
@@ -278,7 +278,7 @@ describe('extractFeedUrls', () => {
     it('should resolve URLs with baseUrl having path', () => {
       const html = '<link rel="alternate" type="application/rss+xml" href="feed.xml">'
       const baseUrlWithPath = 'https://example.com/blog/'
-      const expected = ['https://example.com/blog/feed.xml']
+      const expected = new Set(['https://example.com/blog/feed.xml'])
 
       expect(extractFeedUrls(html, baseUrlWithPath)).toEqual(expected)
     })
@@ -290,7 +290,7 @@ describe('extractFeedUrls', () => {
         <link rel="alternate" type="application/rss+xml" href="/feed.xml">
         <a href="/feed.xml">Feed</a>
       `
-      const expected = ['https://example.com/feed.xml']
+      const expected = new Set(['https://example.com/feed.xml'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
@@ -301,7 +301,7 @@ describe('extractFeedUrls', () => {
         <a href="/feed">Feed 2</a>
         <a href="/feed">Feed 3</a>
       `
-      const expected = ['https://example.com/feed']
+      const expected = new Set(['https://example.com/feed'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
@@ -310,42 +310,42 @@ describe('extractFeedUrls', () => {
   describe('invalid and ignored URIs', () => {
     it('should ignore javascript: protocol', () => {
       const html = '<a href="javascript:void(0)">/feed</a>'
-      const expected = []
+      const expected = new Set()
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should ignore mailto: protocol', () => {
       const html = '<a href="mailto:feed@example.com">Feed</a>'
-      const expected = []
+      const expected = new Set()
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should ignore data: protocol', () => {
       const html = '<a href="data:text/html,<html></html>">Data</a>'
-      const expected = []
+      const expected = new Set()
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should ignore tel: protocol', () => {
       const html = '<a href="tel:+1234567890">Phone</a>'
-      const expected = []
+      const expected = new Set()
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should ignore wp-json/oembed/ URI', () => {
       const html = '<a href="/wp-json/oembed/1.0/embed">Embed</a>'
-      const expected = []
+      const expected = new Set()
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should ignore wp-json/wp/ URI', () => {
       const html = '<a href="/wp-json/wp/v2/posts">Posts</a>'
-      const expected = []
+      const expected = new Set()
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
@@ -355,7 +355,7 @@ describe('extractFeedUrls', () => {
         <a href="/feed">Feed</a>
         <a href="/wp-json/oembed/1.0/embed">Embed</a>
       `
-      const expected = ['https://example.com/feed']
+      const expected = new Set(['https://example.com/feed'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
@@ -364,14 +364,14 @@ describe('extractFeedUrls', () => {
   describe('empty and invalid inputs', () => {
     it('should handle empty HTML', () => {
       const html = ''
-      const expected = []
+      const expected = new Set()
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should handle HTML with no feeds', () => {
       const html = '<html><body><p>No feeds here</p></body></html>'
-      const expected = []
+      const expected = new Set()
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
@@ -381,7 +381,7 @@ describe('extractFeedUrls', () => {
         <link rel="alternate" type="application/rss+xml" href="">
         <a href="">Empty</a>
       `
-      const expected = []
+      const expected = new Set()
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
@@ -391,7 +391,7 @@ describe('extractFeedUrls', () => {
         <link rel="alternate" type="application/rss+xml">
         <a>No href</a>
       `
-      const expected = []
+      const expected = new Set()
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
@@ -400,42 +400,42 @@ describe('extractFeedUrls', () => {
   describe('attribute order and formatting', () => {
     it('should handle link with attributes in different order', () => {
       const html = '<link type="application/rss+xml" href="/feed.xml" rel="alternate">'
-      const expected = ['https://example.com/feed.xml']
+      const expected = new Set(['https://example.com/feed.xml'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should handle uppercase type attribute value', () => {
       const html = '<link rel="alternate" type="APPLICATION/RSS+XML" href="/feed.xml">'
-      const expected = ['https://example.com/feed.xml']
+      const expected = new Set(['https://example.com/feed.xml'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should handle uppercase rel attribute value', () => {
       const html = '<link rel="ALTERNATE" type="application/rss+xml" href="/feed.xml">'
-      const expected = ['https://example.com/feed.xml']
+      const expected = new Set(['https://example.com/feed.xml'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should handle link with extra whitespace', () => {
       const html = '<link  rel="alternate"   type="application/rss+xml"    href="/feed.xml"   >'
-      const expected = ['https://example.com/feed.xml']
+      const expected = new Set(['https://example.com/feed.xml'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should handle link with single quotes', () => {
       const html = "<link rel='alternate' type='application/rss+xml' href='/feed.xml'>"
-      const expected = ['https://example.com/feed.xml']
+      const expected = new Set(['https://example.com/feed.xml'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should handle link with mixed quotes', () => {
       const html = '<link rel="alternate" type=\'application/rss+xml\' href="/feed.xml">'
-      const expected = ['https://example.com/feed.xml']
+      const expected = new Set(['https://example.com/feed.xml'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
@@ -446,70 +446,70 @@ describe('extractFeedUrls', () => {
         type="application/rss+xml"
         href="/feed.xml"
       >`
-      const expected = ['https://example.com/feed.xml']
+      const expected = new Set(['https://example.com/feed.xml'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should handle anchor with extra whitespace around href', () => {
       const html = '<a  href="/feed"  >RSS</a>'
-      const expected = ['https://example.com/feed']
+      const expected = new Set(['https://example.com/feed'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should handle anchor with single quotes', () => {
       const html = "<a href='/rss.xml'>RSS</a>"
-      const expected = ['https://example.com/rss.xml']
+      const expected = new Set(['https://example.com/rss.xml'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should handle anchor with other attributes before href', () => {
       const html = '<a class="feed-link" title="Subscribe" href="/feed">RSS</a>'
-      const expected = ['https://example.com/feed']
+      const expected = new Set(['https://example.com/feed'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should handle anchor with other attributes after href', () => {
       const html = '<a href="/feed" class="feed-link" title="Subscribe">RSS</a>'
-      const expected = ['https://example.com/feed']
+      const expected = new Set(['https://example.com/feed'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should handle self-closing link tag', () => {
       const html = '<link rel="alternate" type="application/rss+xml" href="/feed.xml" />'
-      const expected = ['https://example.com/feed.xml']
+      const expected = new Set(['https://example.com/feed.xml'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should handle link with extra slashes in self-closing tag', () => {
       const html = '<link rel="alternate" type="application/rss+xml" href="/feed.xml"  //>'
-      const expected = ['https://example.com/feed.xml']
+      const expected = new Set(['https://example.com/feed.xml'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should handle uppercase attribute names', () => {
       const html = '<link REL="alternate" TYPE="application/rss+xml" HREF="/feed.xml">'
-      const expected = ['https://example.com/feed.xml']
+      const expected = new Set(['https://example.com/feed.xml'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should handle mixed case attribute names', () => {
       const html = '<link Rel="alternate" Type="application/rss+xml" Href="/feed.xml">'
-      const expected = ['https://example.com/feed.xml']
+      const expected = new Set(['https://example.com/feed.xml'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should handle attributes without quotes (invalid but common)', () => {
       const html = '<a href=/feed>RSS</a>'
-      const expected = ['https://example.com/feed']
+      const expected = new Set(['https://example.com/feed'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
@@ -524,11 +524,11 @@ describe('extractFeedUrls', () => {
           href="/feed.json"
         >
       `
-      const expected = [
+      const expected = new Set([
         'https://example.com/rss.xml',
         'https://example.com/atom.xml',
         'https://example.com/feed.json',
-      ]
+      ])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
@@ -540,7 +540,7 @@ describe('extractFeedUrls', () => {
         <!-- <link rel="alternate" type="application/rss+xml" href="/old.xml"> -->
         <link rel="alternate" type="application/rss+xml" href="/feed.xml">
       `
-      const expected = ['https://example.com/feed.xml']
+      const expected = new Set(['https://example.com/feed.xml'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
@@ -555,7 +555,7 @@ describe('extractFeedUrls', () => {
           </div>
         </div>
       `
-      const expected = ['https://example.com/feed']
+      const expected = new Set(['https://example.com/feed'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
@@ -570,13 +570,13 @@ describe('extractFeedUrls', () => {
         <a href="/?feed=atom">Atom Feed</a>
         <a href="/comments/feed">Comments Feed</a>
       `
-      const expected = [
+      const expected = new Set([
         'https://example.com/feed',
         'https://example.com/?feed=rss',
         'https://example.com/?feed=rss2',
         'https://example.com/?feed=atom',
         'https://example.com/comments/feed',
-      ]
+      ])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
@@ -589,18 +589,18 @@ describe('extractFeedUrls', () => {
           <link rel="alternate" type="application/json" href="/feed.json">
         </head>
       `
-      const expected = [
+      const expected = new Set([
         'https://example.com/rss.xml',
         'https://example.com/atom.xml',
         'https://example.com/feed.json',
-      ]
+      ])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should handle Squarespace feeds', () => {
       const html = '<a href="/?format=rss">Squarespace RSS</a>'
-      const expected = ['https://example.com/?format=rss']
+      const expected = new Set(['https://example.com/?format=rss'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
@@ -620,7 +620,7 @@ describe('extractFeedUrls', () => {
         <a href="/?format=atom">Squarespace Atom</a>
         <a href="/?feed=rss2">WordPress RSS2</a>
       `
-      const expected = [
+      const expected = new Set([
         'https://example.com/index.rss',
         'https://example.com/index.atom',
         'https://example.com/feed.rss.xml',
@@ -633,21 +633,21 @@ describe('extractFeedUrls', () => {
         'https://example.com/.feed',
         'https://example.com/?format=atom',
         'https://example.com/?feed=rss2',
-      ]
+      ])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should handle /rss anchor (without extension)', () => {
       const html = '<a href="/rss">RSS</a>'
-      const expected = ['https://example.com/rss']
+      const expected = new Set(['https://example.com/rss'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should handle /atom anchor (without extension)', () => {
       const html = '<a href="/atom">Atom</a>'
-      const expected = ['https://example.com/atom']
+      const expected = new Set(['https://example.com/atom'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
@@ -657,14 +657,14 @@ describe('extractFeedUrls', () => {
     it('should handle absolute paths ignore baseUrl path', () => {
       const html = '<a href="/feed">Feed</a>'
       const specialBaseUrl = 'https://example.com/my-blog/'
-      const expected = ['https://example.com/feed']
+      const expected = new Set(['https://example.com/feed'])
 
       expect(extractFeedUrls(html, specialBaseUrl)).toEqual(expected)
     })
 
     it('should handle links with spaces in attributes', () => {
       const html = '<link rel = "alternate" type = "application/rss+xml" href = "/feed.xml">'
-      const expected = ['https://example.com/feed.xml']
+      const expected = new Set(['https://example.com/feed.xml'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
@@ -674,14 +674,14 @@ describe('extractFeedUrls', () => {
         <link rel="alternate" type="application/rss+xml" href="/feed1.xml"
         <a href="/feed">Feed</a>
       `
-      const expected = ['https://example.com/feed1.xml', 'https://example.com/feed']
+      const expected = new Set(['https://example.com/feed1.xml', 'https://example.com/feed'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
     it('should handle nested anchor tags (invalid HTML)', () => {
       const html = '<a href="/feed"><a href="/atom.xml">Feed</a></a>'
-      const expected = ['https://example.com/feed', 'https://example.com/atom.xml']
+      const expected = new Set(['https://example.com/feed', 'https://example.com/atom.xml'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
@@ -694,7 +694,7 @@ describe('extractFeedUrls', () => {
         </script>
         <link rel="alternate" type="application/rss+xml" href="/real.xml">
       `
-      const expected = ['https://example.com/real.xml']
+      const expected = new Set(['https://example.com/real.xml'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
@@ -706,7 +706,7 @@ describe('extractFeedUrls', () => {
         </style>
         <link rel="alternate" type="application/rss+xml" href="/real.xml">
       `
-      const expected = ['https://example.com/real.xml']
+      const expected = new Set(['https://example.com/real.xml'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
@@ -719,7 +719,7 @@ describe('extractFeedUrls', () => {
         <!-- <link rel="alternate" type="application/rss+xml" href="/old2.xml"> -->
         <link rel="alternate" type="application/rss+xml" href="/feed.xml">
       `
-      const expected = ['https://example.com/feed.xml']
+      const expected = new Set(['https://example.com/feed.xml'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
@@ -727,7 +727,7 @@ describe('extractFeedUrls', () => {
     it('should handle very long href values', () => {
       const longPath = `${'/very/long/path/'.repeat(50)}feed.xml`
       const html = `<link rel="alternate" type="application/rss+xml" href="${longPath}">`
-      const expected = [`https://example.com${longPath}`]
+      const expected = new Set([`https://example.com${longPath}`])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
@@ -748,7 +748,7 @@ describe('extractFeedUrls', () => {
         </body>
         </html>
       `
-      const expected = ['https://example.com/feed.xml', 'https://example.com/feed']
+      const expected = new Set(['https://example.com/feed.xml', 'https://example.com/feed'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })

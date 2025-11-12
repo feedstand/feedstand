@@ -1,8 +1,9 @@
+import pLimit from 'p-limit'
 import { chooseFeedUrl } from '../../actions/chooseFeedUrl.ts'
 import { fetchFeed } from '../../actions/fetchFeed.ts'
 import type { FindFeedsProcessor } from '../../actions/findFeeds.ts'
 import { anyFeedContentTypes } from '../../constants/fetchers.ts'
-import { feedUris, ignoredFeedUris } from '../../constants/finders.ts'
+import { feedFetchConcurrency, feedUris, ignoredFeedUris } from '../../constants/finders.ts'
 import { prepareUrl } from '../../helpers/urls.ts'
 import type { FoundFeeds } from '../../types/schemas.ts'
 
@@ -20,9 +21,8 @@ const relAlternatePattern = /\brel\s*=\s*["']?alternate["']?/i
 const typePattern = new RegExp(`\\btype\\s*=\\s*["']?(${contentTypePattern})["']?`, 'i')
 const hrefPattern = /\bhref\s*=\s*["']?([^"'\s>]+)["']?/i
 
-export const extractFeedUrls = (html: string, baseUrl: string): Array<string> => {
-  const seenUrls = new Set<string>()
-  const uniqueUrls: Array<string> = []
+export const extractFeedUrls = (html: string, baseUrl: string): Set<string> => {
+  const feedUrls = new Set<string>()
 
   const cleanHtml = html.replace(cleanupPattern, '')
 
@@ -35,9 +35,8 @@ export const extractFeedUrls = (html: string, baseUrl: string): Array<string> =>
       validate: true,
     })
 
-    if (preparedUrl && !seenUrls.has(preparedUrl)) {
-      seenUrls.add(preparedUrl)
-      uniqueUrls.push(preparedUrl)
+    if (preparedUrl) {
+      feedUrls.add(preparedUrl)
     }
   }
 
@@ -45,8 +44,9 @@ export const extractFeedUrls = (html: string, baseUrl: string): Array<string> =>
   for (const linkMatch of cleanHtml.matchAll(linkPattern)) {
     const attrs = linkMatch[1]
 
-    if (!relAlternatePattern.test(attrs)) continue
-    if (!typePattern.test(attrs)) continue
+    if (!relAlternatePattern.test(attrs) || !typePattern.test(attrs)) {
+      continue
+    }
 
     const href = hrefPattern.exec(attrs)?.[1]
 
@@ -63,7 +63,7 @@ export const extractFeedUrls = (html: string, baseUrl: string): Array<string> =>
     }
   }
 
-  return uniqueUrls
+  return feedUrls
 }
 
 export const webpageFinder: FindFeedsProcessor = async (context, next) => {
@@ -74,20 +74,29 @@ export const webpageFinder: FindFeedsProcessor = async (context, next) => {
   const html = await context.response.text()
   const feedUrls = extractFeedUrls(html, context.response.url)
   const feeds: FoundFeeds['feeds'] = []
+  const limit = pLimit(feedFetchConcurrency)
 
   const feedResults = await Promise.all(
-    feedUrls.map(async (feedUrl) => {
-      try {
-        const feedData = await fetchFeed({ url: feedUrl, channel: context.channel })
-        const chosenUrl = await chooseFeedUrl(feedData)
-        return { title: feedData.channel.title, url: chosenUrl }
-      } catch {}
-    }),
+    [...feedUrls].map((feedUrl) =>
+      limit(async () => {
+        try {
+          const feedData = await fetchFeed({ url: feedUrl, channel: context.channel })
+          const chosenUrl = await chooseFeedUrl(feedData)
+
+          return {
+            title: feedData.channel.title,
+            url: chosenUrl,
+          }
+        } catch {}
+      }),
+    ),
   )
 
   for (const result of feedResults) {
-    if (!result) continue
-    if (feeds.some(({ url }) => url === result.url)) continue
+    if (!result || feeds.some(({ url }) => url === result.url)) {
+      continue
+    }
+
     feeds.push(result)
   }
 
