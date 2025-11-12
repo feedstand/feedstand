@@ -49,6 +49,10 @@ x-traefik-security-labels: &traefik-security-labels
   traefik.http.middlewares.compression.compress: "true"
 
 services:
+  # NOTE: Requires Docker daemon config: /etc/systemd/system/docker.service.d/override.conf
+  # [Service]
+  # Environment=DOCKER_MIN_API_VERSION=1.24
+  # Fix for: https://github.com/traefik/traefik/issues/12253
   traefik:
     image: traefik:3
     environment:
@@ -155,7 +159,7 @@ services:
         traefik.http.services.frontend.loadbalancer.server.port: "4000"
     healthcheck:
       <<: *common-healthcheck
-      test: ["CMD", "wget", "-q", "--spider", "--method=HEAD", "http://0.0.0.0:4000/health"]
+      test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:4000/health"]
     # networks:
     #   - public
     logging:
@@ -198,6 +202,13 @@ services:
     deploy:
       <<: *common-deploy
       replicas: 20
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
       update_config:
         parallelism: 4
         delay: 30s
