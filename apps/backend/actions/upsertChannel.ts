@@ -86,7 +86,6 @@ export const upsertChannel: UpsertResponse = async ({
         lastScanEtag: feedData.meta.etag,
         lastScanLastModified: feedData.meta.lastModified,
         lastScanHash: feedData.meta.hash,
-        lastScanError: null,
       })
       .onConflictDoNothing()
       .returning()

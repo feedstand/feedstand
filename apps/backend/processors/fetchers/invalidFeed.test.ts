@@ -9,7 +9,7 @@ describe('invalidFeed processor', () => {
   const mockSelf = vi.fn()
   const baseContext: WorkflowContext<FeedData> = {
     url: 'https://example.com',
-    response: new FetchUrlResponse(null, { url: '' }),
+    response: new FetchUrlResponse('', { url: '', contentBytes: 0 }),
   }
 
   beforeEach(() => {
@@ -20,6 +20,7 @@ describe('invalidFeed processor', () => {
     const result: FeedData = {
       meta: {
         etag: null,
+        lastModified: null,
         hash: undefined,
         type: 'rss' as const,
         requestUrl: '',
@@ -30,7 +31,7 @@ describe('invalidFeed processor', () => {
     }
     const context = {
       ...baseContext,
-      response: new FetchUrlResponse('test', { url: '' }),
+      response: new FetchUrlResponse('', { url: '', contentBytes: 0 }),
       result,
     }
 
@@ -53,7 +54,7 @@ describe('invalidFeed processor', () => {
       it(`detects "${testCase.slice(0, 30)}..."`, async () => {
         const context = {
           ...baseContext,
-          response: new FetchUrlResponse(testCase, { url: '' }),
+          response: new FetchUrlResponse(testCase, { url: '', contentBytes: testCase.length }),
         }
 
         await expect(invalidFeed(context, mockNext, mockSelf)).rejects.toThrow(
@@ -75,7 +76,7 @@ describe('invalidFeed processor', () => {
       it(`detects "${testCase.slice(0, 30)}..."`, async () => {
         const context = {
           ...baseContext,
-          response: new FetchUrlResponse(testCase, { url: '' }),
+          response: new FetchUrlResponse(testCase, { url: '', contentBytes: testCase.length }),
         }
 
         await expect(invalidFeed(context, mockNext, mockSelf)).rejects.toThrow(
@@ -88,7 +89,7 @@ describe('invalidFeed processor', () => {
   it('should detect empty response', async () => {
     const context = {
       ...baseContext,
-      response: new FetchUrlResponse('', { url: '' }),
+      response: new FetchUrlResponse('', { url: '', contentBytes: 0 }),
     }
 
     await expect(invalidFeed(context, mockNext, mockSelf)).rejects.toThrow(
@@ -107,7 +108,7 @@ describe('invalidFeed processor', () => {
       it(`accepts "${feed.slice(0, 30)}..."`, async () => {
         const context = {
           ...baseContext,
-          response: new FetchUrlResponse(feed, { url: '' }),
+          response: new FetchUrlResponse(feed, { url: '', contentBytes: feed.length }),
         }
 
         await invalidFeed(context, mockNext, mockSelf)

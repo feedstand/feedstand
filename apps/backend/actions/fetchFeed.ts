@@ -1,11 +1,10 @@
 import { createWorkflow, type WorkflowProcessor } from '../helpers/workflows.ts'
+import { conditionalFetch } from '../processors/common/conditionalFetch.ts'
 import { failedPage } from '../processors/common/failedPage.ts'
 import { guardedPage } from '../processors/common/guardedPage.ts'
-import { preflightFetch } from '../processors/common/preflightFetch.ts'
 import { preflightRateLimit } from '../processors/common/preflightRateLimit.ts'
 import { rateLimitedPage } from '../processors/common/rateLimitedPage.ts'
 import { redirectPage } from '../processors/common/redirectPage.ts'
-import { responseFetch } from '../processors/common/responseFetch.ts'
 import { atomFeed } from '../processors/fetchers/atomFeed.ts'
 import { invalidFeed } from '../processors/fetchers/invalidFeed.ts'
 import { jsonFeed } from '../processors/fetchers/jsonFeed.ts'
@@ -19,8 +18,7 @@ export type FetchFeedProcessor = WorkflowProcessor<FeedData, FetchUrlOptions>
 
 export const fetchFeed = createWorkflow<FeedData, FetchUrlOptions>([
   preflightRateLimit,
-  preflightFetch('lastScanEtag', 'lastScanLastModified'),
-  responseFetch,
+  conditionalFetch('lastScanEtag', 'lastScanLastModified'),
   rateLimitedPage,
   soundCloudFeed,
   rssFeed,

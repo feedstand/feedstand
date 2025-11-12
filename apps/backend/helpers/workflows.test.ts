@@ -96,7 +96,11 @@ describe('createWorkflow', () => {
   it('should throw unprocessed pipeline error with status code', async () => {
     const processors: Array<WorkflowProcessor<TestResult>> = [
       async (context) => {
-        context.response = new FetchUrlResponse(null, { url: '', status: 404 })
+        context.response = new FetchUrlResponse('', {
+          url: '',
+          status: 404,
+          contentBytes: 0,
+        })
       },
     ]
 
@@ -183,7 +187,11 @@ describe('createWorkflow', () => {
   it('should preserve context between processors', async () => {
     const context: WorkflowContext<TestResult> = {
       url: 'test',
-      response: new FetchUrlResponse(null, { url: '', status: 200 }),
+      response: new FetchUrlResponse('', {
+        url: '',
+        status: 200,
+        contentBytes: 0,
+      }),
     }
 
     const processors: Array<WorkflowProcessor<TestResult>> = [

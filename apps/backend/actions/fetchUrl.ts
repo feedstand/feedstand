@@ -1,7 +1,7 @@
 import type { IncomingHttpHeaders } from 'node:http'
 import https from 'node:https'
 import CacheableLookup from 'cacheable-lookup'
-import got, { type Response as GotResponse, RequestError } from 'got'
+import got, { type Response as GotResponse, Headers, RequestError } from 'got'
 import {
   avoidedContentTypes,
   commonHeaders,
@@ -169,7 +169,7 @@ export type FetchUrlOptions = {
     errorCodes?: Array<string>
     statusCodes?: Array<number>
   }
-  headers?: Record<string, string>
+  headers?: Headers
   maxContentSize?: number
 }
 

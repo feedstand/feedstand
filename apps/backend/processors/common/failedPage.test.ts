@@ -8,7 +8,7 @@ describe('failedPage', () => {
   const mockSelf = vi.fn()
   const baseContext: WorkflowContext<unknown> = {
     url: 'https://example.com',
-    response: new FetchUrlResponse('', { url: '' }),
+    response: new FetchUrlResponse('', { url: '', contentBytes: 0 }),
   }
 
   beforeEach(() => {

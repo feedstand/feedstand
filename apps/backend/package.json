@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "node --experimental-transform-types --insecure-http-parser --env-file=.env --watch index.ts",
     "play": "node --experimental-transform-types --insecure-http-parser --env-file=.env --watch play.ts",
-    "test": "vitest run",
+    "test": "UNSAFE_DISABLE_SSRF_CHECK=true vitest run",
     "start": "node --experimental-transform-types --insecure-http-parser index.ts",
     "db:seed": "node --experimental-transform-types database/tasks/seed.ts",
     "db:truncate": "node --experimental-transform-types database/tasks/truncate.ts",

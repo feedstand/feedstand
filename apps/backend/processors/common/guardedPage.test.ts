@@ -11,7 +11,11 @@ describe('guardedPage', () => {
 
   const createContext = (responseBody: string, status: number): WorkflowContext<FeedData> => ({
     url: baseUrl,
-    response: new FetchUrlResponse(responseBody, { url: baseUrl, status }),
+    response: new FetchUrlResponse(responseBody, {
+      url: baseUrl,
+      status,
+      contentBytes: responseBody.length,
+    }),
   })
 
   beforeEach(() => {
@@ -28,13 +32,15 @@ describe('guardedPage', () => {
   it('should pass through when result is already present', async () => {
     const context: WorkflowContext<FeedData> = {
       url: baseUrl,
-      response: new FetchUrlResponse('some content', {
+      response: new FetchUrlResponse('', {
         url: baseUrl,
         status: 200,
+        contentBytes: 0,
       }),
       result: {
         meta: {
           etag: null,
+          lastModified: null,
           hash: '',
           type: 'rss',
           requestUrl: '',

@@ -19,7 +19,12 @@ describe('rateLimitedPage', () => {
     headers?: Record<string, string>,
   ): WorkflowContext<FeedData> => ({
     url,
-    response: new FetchUrlResponse('', { url, status, headers }),
+    response: new FetchUrlResponse('', {
+      url,
+      status,
+      headers,
+      contentBytes: 0,
+    }),
   })
 
   beforeEach(() => {
@@ -36,10 +41,15 @@ describe('rateLimitedPage', () => {
   it('should pass through when result is already present', async () => {
     const context: WorkflowContext<FeedData> = {
       url: 'https://example.com',
-      response: new FetchUrlResponse('', { url: 'https://example.com', status: 200 }),
+      response: new FetchUrlResponse('', {
+        url: 'https://example.com',
+        status: 200,
+        contentBytes: 0,
+      }),
       result: {
         meta: {
           etag: null,
+          lastModified: null,
           hash: '',
           type: 'rss',
           requestUrl: '',

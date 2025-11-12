@@ -1,6 +1,7 @@
 import { and, eq, notInArray } from 'drizzle-orm'
 import { findFeeds } from '../actions/findFeeds.ts'
 import { tables } from '../database/tables.ts'
+import { NotModifiedError } from '../errors/NotModifiedError.ts'
 import { convertErrorToString } from '../helpers/errors.ts'
 import { db } from '../instances/database.ts'
 import type { Channel } from '../types/schemas.ts'
@@ -52,19 +53,31 @@ export const fixChannel = async (channel: Channel) => {
       )
       .onConflictDoNothing()
   } catch (error) {
-    const isNotModified = error instanceof Error && error.cause === 304
-    const lastFixCheckAt = new Date()
-    const lastFixCheckStatus = isNotModified ? 'skipped' : 'failed'
-    const lastFixCheckError = isNotModified
-      ? null
-      : convertErrorToString(error, { showNestedErrors: true })
+    if (error instanceof NotModifiedError) {
+      const headers = error.response.headers
 
+      await db
+        .update(tables.channels)
+        .set({
+          lastFixCheckAt: new Date(),
+          lastFixCheckStatus: 'skipped',
+          lastFixCheckError: null,
+          lastFixCheckEtag: headers.get('etag') ?? channel.lastFixCheckEtag,
+          lastFixCheckLastModified:
+            headers.get('last-modified') ?? channel.lastFixCheckLastModified,
+        })
+        .where(eq(tables.channels.id, channel.id))
+
+      return
+    }
+
+    // Handle other errors
     await db
       .update(tables.channels)
       .set({
-        lastFixCheckAt,
-        lastFixCheckStatus,
-        lastFixCheckError,
+        lastFixCheckAt: new Date(),
+        lastFixCheckStatus: 'failed',
+        lastFixCheckError: convertErrorToString(error, { showNestedErrors: true }),
       })
       .where(eq(tables.channels.id, channel.id))
   }
