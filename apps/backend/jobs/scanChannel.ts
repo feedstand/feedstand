@@ -17,9 +17,10 @@ export const scanChannel = async (channel: Channel) => {
         description: feedData.channel.description ?? channel.description,
         siteUrl: feedData.channel.siteUrl ?? channel.siteUrl,
         feedType: feedData.meta.type || channel.feedType,
-        lastScannedAt: new Date(),
+        lastScanAt: new Date(),
         lastScanStatus: 'scanned',
         lastScanEtag: feedData.meta.etag,
+        lastScanLastModified: feedData.meta.lastModified,
         lastScanHash: feedData.meta.hash,
         lastScanError: null,
       })
@@ -28,7 +29,7 @@ export const scanChannel = async (channel: Channel) => {
     insertItems(channel, feedData.items)
   } catch (error) {
     const isNotModified = error instanceof Error && error.cause === 304
-    const lastScannedAt = new Date()
+    const lastScanAt = new Date()
     const lastScanStatus = isNotModified ? 'skipped' : 'failed'
     // TODO: Extend the error capturing to store last captured error, response status
     // and number of erroreous scans since last successful scan. This way, we can later
@@ -40,7 +41,7 @@ export const scanChannel = async (channel: Channel) => {
     await db
       .update(tables.channels)
       .set({
-        lastScannedAt,
+        lastScanAt,
         lastScanStatus,
         lastScanError,
       })

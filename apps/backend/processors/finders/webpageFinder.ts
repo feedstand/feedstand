@@ -95,6 +95,7 @@ export const webpageFinder: FindFeedsProcessor = async (context, next) => {
     context.result = {
       meta: {
         etag: context.response.headers.get('etag'),
+        lastModified: context.response.headers.get('last-modified'),
         hash: context.response.hash,
       },
       feeds,

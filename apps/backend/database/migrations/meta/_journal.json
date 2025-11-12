@@ -43,6 +43,13 @@
       "when": 1743788469362,
       "tag": "0005_handy_rhodey",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1762945654950,
+      "tag": "0006_free_kid_colt",
+      "breakpoints": true
     }
   ]
 }

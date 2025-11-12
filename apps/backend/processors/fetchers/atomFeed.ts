@@ -55,6 +55,7 @@ export const atomFeed: FetchFeedProcessor = async (context, next) => {
     context.result = {
       meta: {
         etag: context.response.headers.get('etag'),
+        lastModified: context.response.headers.get('last-modified'),
         hash: context.response.hash,
         type: 'atom',
         requestUrl: context.url,

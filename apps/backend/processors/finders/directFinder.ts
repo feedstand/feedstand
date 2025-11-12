@@ -18,6 +18,7 @@ export const directFinder: FindFeedsProcessor = async (context, next) => {
     context.result = {
       meta: {
         etag: feedData.meta.etag,
+        lastModified: feedData.meta.lastModified,
         hash: feedData.meta.hash,
       },
       feeds: [

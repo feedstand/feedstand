@@ -26,7 +26,7 @@ const signatures = [
 ]
 
 // biome-ignore lint/suspicious/noExplicitAny: Don't need to explain myself.
-export const guardedPage: WorkflowProcessor<any> = async (context, next) => {
+export const guardedPage: WorkflowProcessor<any, any> = async (context, next) => {
   if (!context.response || context.result) {
     return await next()
   }

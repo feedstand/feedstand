@@ -15,9 +15,10 @@ export const fixChannel = async (channel: Channel) => {
     await db
       .update(tables.channels)
       .set({
-        lastFixCheckedAt: new Date(),
+        lastFixCheckAt: new Date(),
         lastFixCheckStatus: 'checked',
         lastFixCheckEtag: meta.etag,
+        lastFixCheckLastModified: meta.lastModified,
         lastFixCheckHash: meta.hash,
         lastFixCheckError: null,
       })
@@ -52,7 +53,7 @@ export const fixChannel = async (channel: Channel) => {
       .onConflictDoNothing()
   } catch (error) {
     const isNotModified = error instanceof Error && error.cause === 304
-    const lastFixCheckedAt = new Date()
+    const lastFixCheckAt = new Date()
     const lastFixCheckStatus = isNotModified ? 'skipped' : 'failed'
     const lastFixCheckError = isNotModified
       ? null
@@ -61,7 +62,7 @@ export const fixChannel = async (channel: Channel) => {
     await db
       .update(tables.channels)
       .set({
-        lastFixCheckedAt,
+        lastFixCheckAt,
         lastFixCheckStatus,
         lastFixCheckError,
       })

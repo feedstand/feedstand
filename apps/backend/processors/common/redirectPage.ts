@@ -31,7 +31,7 @@ export const extractRedirectUrl = (html: string): string | undefined => {
 const redirectDepths = new WeakMap<object, number>()
 
 // biome-ignore lint/suspicious/noExplicitAny: Don't need to explain myself.
-export const redirectPage: WorkflowProcessor<any> = async (context, next, self) => {
+export const redirectPage: WorkflowProcessor<any, any> = async (context, next, self) => {
   if (!context.response?.ok || context.result) {
     return await next()
   }

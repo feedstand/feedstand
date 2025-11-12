@@ -19,7 +19,7 @@ export type FetchFeedProcessor = WorkflowProcessor<FeedData, FetchUrlOptions>
 
 export const fetchFeed = createWorkflow<FeedData, FetchUrlOptions>([
   preflightRateLimit,
-  preflightFetch('lastScanEtag', 'lastScannedAt'),
+  preflightFetch('lastScanEtag', 'lastScanLastModified'),
   responseFetch,
   rateLimitedPage,
   soundCloudFeed,

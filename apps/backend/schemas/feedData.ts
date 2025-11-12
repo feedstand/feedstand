@@ -6,6 +6,7 @@ import { feedItem } from './feedItem.ts'
 export const feedData = z.object({
   meta: z.object({
     etag: z.string().nullable(),
+    lastModified: z.string().nullable(),
     hash: z.string().optional(),
     type: channelType,
     requestUrl: z.string(),

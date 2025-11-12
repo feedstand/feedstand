@@ -12,7 +12,7 @@ export const generateChannel = (channel?: Partial<NewChannel>): NewChannel => {
     feedUrl: faker.internet.url(),
     createdAt,
     updatedAt: faker.date.between({ from: createdAt, to: new Date() }),
-    lastScannedAt: faker.date.between({ from: createdAt, to: new Date() }),
+    lastScanAt: faker.date.between({ from: createdAt, to: new Date() }),
     ...channel,
   }
 }

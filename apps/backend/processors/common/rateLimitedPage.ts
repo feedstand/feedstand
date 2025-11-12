@@ -10,7 +10,7 @@ const signatures = [
 ]
 
 // biome-ignore lint/suspicious/noExplicitAny: Don't need to explain myself.
-export const rateLimitedPage: WorkflowProcessor<any> = async (context, next) => {
+export const rateLimitedPage: WorkflowProcessor<any, any> = async (context, next) => {
   if (!context.response || context.result) {
     return await next()
   }

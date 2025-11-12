@@ -46,6 +46,14 @@ export const resolveNonStandardFeedUrl = (url: string) => {
 }
 
 export const isSafePublicUrl = (url: string): boolean => {
+  // UNSAFE: Disable SSRF protection for localhost. Only use in isolated test environments.
+  if (
+    process.env.UNSAFE_DISABLE_SSRF_CHECK === 'true' &&
+    (url.startsWith('http://localhost:') || url.startsWith('https://localhost:'))
+  ) {
+    return true
+  }
+
   // TODO: Add DNS validation to prevent DNS rebinding attacks. ssrfcheck only validates
   // the URL string, not the actual DNS resolution. An attacker could control DNS to
   // resolve a public domain (passes check) to a private IP (169.254.169.254, etc).
