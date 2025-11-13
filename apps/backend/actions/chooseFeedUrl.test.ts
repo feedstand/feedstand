@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, it, vi } from 'vitest'
 import type { FeedData } from '../types/schemas.ts'
 import { chooseFeedUrl } from './chooseFeedUrl.ts'
 
@@ -19,6 +19,8 @@ describe('chooseFeedUrl', () => {
     meta: {
       etag: null,
       hash: 'hash123',
+      lastModified: null,
+      contentBytes: 0,
       type: 'rss',
       requestUrl: 'https://example.com/feed.xml',
       responseUrl: 'https://example.com/feed.xml',
