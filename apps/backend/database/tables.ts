@@ -49,6 +49,7 @@ export const channels = pgTable(
     lastScanStatus: channelScanStatus('last_scan_status'),
     lastScanEtag: safeVarchar('last_scan_etag'),
     lastScanLastModified: safeVarchar('last_scan_last_modified'),
+    lastScanContentBytes: integer('last_scan_content_bytes'),
     lastScanHash: safeVarchar('last_scan_hash'),
     lastScanError: safeText('last_scan_error'),
     lastFixCheckAt: timestamp('last_fix_check_at'),

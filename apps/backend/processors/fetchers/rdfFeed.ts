@@ -56,6 +56,7 @@ export const rdfFeed: FetchFeedProcessor = async (context, next) => {
       meta: {
         etag: context.response.headers.get('etag'),
         lastModified: context.response.headers.get('last-modified'),
+        contentBytes: context.response.contentBytes,
         hash: context.response.hash,
         type: 'rdf',
         requestUrl: context.url,

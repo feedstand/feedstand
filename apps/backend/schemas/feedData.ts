@@ -7,6 +7,7 @@ export const feedData = z.object({
   meta: z.object({
     etag: z.string().nullable(),
     lastModified: z.string().nullable(),
+    contentBytes: z.number(),
     hash: z.string().optional(),
     type: channelType,
     requestUrl: z.string(),

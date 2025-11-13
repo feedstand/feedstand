@@ -1,0 +1,1 @@
+ALTER TABLE "channels" ADD COLUMN "last_scan_content_bytes" integer;

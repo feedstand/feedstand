@@ -22,6 +22,7 @@ export const scanChannel = async (channel: Channel) => {
         lastScanStatus: 'scanned',
         lastScanEtag: feedData.meta.etag,
         lastScanLastModified: feedData.meta.lastModified,
+        lastScanContentBytes: feedData.meta.contentBytes,
         lastScanHash: feedData.meta.hash,
         lastScanError: null,
       })
