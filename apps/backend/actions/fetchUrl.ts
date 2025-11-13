@@ -1,5 +1,6 @@
 import type { IncomingHttpHeaders } from 'node:http'
 import https from 'node:https'
+import { StringDecoder } from 'node:string_decoder'
 import CacheableLookup from 'cacheable-lookup'
 import got, { type Headers as GotHeaders, type Response as GotResponse, RequestError } from 'got'
 import {
@@ -178,6 +179,16 @@ export type FetchUrlOptions = {
   }
   headers?: GotHeaders
   maxContentSize?: number
+  /**
+   * Callback to check final URL after redirects but before downloading body.
+   * Return false to abort download and return minimal response.
+   * Useful for avoiding redundant downloads when final URL is already known.
+   *
+   * @param finalUrl - The URL after all redirects have been resolved
+   * @param response - The response object with headers and status
+   * @returns true to continue download, false to abort
+   */
+  shouldContinueDownload?: (finalUrl: string, response: GotResponse) => boolean
 }
 
 type FetchUrlAttemptOptions = FetchUrlOptions & {
@@ -251,8 +262,29 @@ const fetchUrlAttempt: FetchUrlAttempt = async (url, options) => {
     throw new Error(`Unwanted content-type: ${contentType}`)
   }
 
+  // Check if caller wants to abort download based on final URL (after redirects).
+  // This is called before downloading the body to save bandwidth/processing.
+  if (options?.shouldContinueDownload && !options.shouldContinueDownload(response.url, response)) {
+    stream.destroy()
+
+    console.debug('[fetchUrl] Download aborted by shouldContinueDownload:', {
+      originalUrl: url,
+      finalUrl: response.url,
+      status: response.statusCode,
+    })
+
+    return new FetchUrlResponse('', {
+      url: response.url,
+      status: response.statusCode,
+      statusText: response.statusMessage,
+      headers: toHeaders(response.headers),
+      contentBytes: 0,
+    })
+  }
+
   const hash = createStreamingChecksum()
-  const chunks: Array<Buffer> = []
+  const decoder = new StringDecoder('utf8')
+  const stringChunks: Array<string> = []
   const contentSizeLimit = options?.maxContentSize ?? defaultMaxContentSize
   const declaredContentSize = getDeclaredContentLength(response)
 
@@ -277,13 +309,18 @@ const fetchUrlAttempt: FetchUrlAttempt = async (url, options) => {
     }
 
     hash.update(chunk)
-    chunks.push(chunk)
+    // StringDecoder handles multi-byte UTF-8 sequences split across chunks
+    stringChunks.push(decoder.write(chunk))
   }
 
-  let buffer: Buffer | undefined = Buffer.concat(chunks, downloadedBytes)
-  chunks.length = 0
-  const body = buffer.toString('utf8')
-  buffer = undefined
+  // Flush any remaining bytes from decoder
+  const remaining = decoder.end()
+  if (remaining) {
+    stringChunks.push(remaining)
+  }
+
+  // Single string concatenation - no buffer duplication
+  const body = stringChunks.join('')
 
   return new FetchUrlResponse(body, {
     url: response.url,

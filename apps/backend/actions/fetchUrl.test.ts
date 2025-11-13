@@ -2295,6 +2295,70 @@ describe('fetchUrl: Streaming Edge Cases (E2E)', () => {
   })
 
   /**
+   * Test: UTF-8 multi-byte characters split across chunk boundaries
+   *
+   * Setup:
+   * - Send UTF-8 content with emojis and multi-byte characters
+   * - Deliberately split multi-byte sequences across chunks
+   * - Example: emoji 🎉 (4 bytes: F0 9F 98 80) split as [F0 9F] [98 80]
+   *
+   * Expected behavior:
+   * - StringDecoder correctly buffers incomplete sequences
+   * - Final text has correct Unicode characters (no � corruption)
+   * - All emojis and multi-byte chars decoded properly
+   *
+   * Implementation notes:
+   * - Tests StringDecoder('utf8') in fetchUrl.ts
+   * - Critical for preventing corruption when chunks split mid-character
+   * - Emoji requires 4 UTF-8 bytes, Chinese chars require 3 bytes
+   */
+  it('should correctly decode UTF-8 multi-byte characters split across chunks', async () => {
+    const server = new TestHttpServer()
+
+    // Content with multi-byte characters: emojis (4 bytes) and Chinese (3 bytes)
+    const testContent = 'Hello 🎉 世界 🚀 Test'
+    const buffer = Buffer.from(testContent, 'utf8')
+
+    await server.start(async (_, res) => {
+      res.writeHead(200, {
+        'Content-Type': 'text/xml; charset=utf-8',
+        'Transfer-Encoding': 'chunked',
+      })
+
+      // Split buffer at positions that will break multi-byte sequences
+      // Emoji 🎉 is at bytes 6-9 (4 bytes: F0 9F 8E 89)
+      // Split it in the middle to test StringDecoder buffering
+
+      // Send chunks that deliberately split multi-byte characters
+      res.write(buffer.subarray(0, 8)) // "Hello 🎉" but emoji is incomplete (only first 2 bytes)
+      await new Promise((resolve) => setTimeout(resolve, 5))
+
+      res.write(buffer.subarray(8, 15)) // Complete emoji + " 世" (Chinese char split)
+      await new Promise((resolve) => setTimeout(resolve, 5))
+
+      res.write(buffer.subarray(15)) // Rest of content
+      res.end()
+    })
+
+    const response = await fetchUrl(server.url)
+    expect(response.status).toBe(200)
+    const decodedText = await response.text()
+
+    // Verify no corruption (� characters indicate decoding failure)
+    expect(decodedText).not.toContain('�')
+
+    // Verify exact match - all multi-byte characters decoded correctly
+    expect(decodedText).toBe(testContent)
+
+    // Verify specific characters are intact
+    expect(decodedText).toContain('🎉')
+    expect(decodedText).toContain('世界')
+    expect(decodedText).toContain('🚀')
+
+    await server.stop()
+  })
+
+  /**
    * Test: Mixed chunk sizes
    *
    * Setup:
