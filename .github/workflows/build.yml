@@ -38,7 +38,7 @@ jobs:
       - name: Build and push ${{ matrix.app }}
         run: |
           docker buildx build \
-            --platform linux/amd64,linux/arm64 \
+            --platform linux/amd64 \
             -t ${{ env.TAG_LATEST }} \
             -t ${{ env.TAG_COMMIT }} \
             -f apps/${{ matrix.app }}/.docker/Dockerfile.prod \
