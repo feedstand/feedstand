@@ -1,28 +1,28 @@
 import { maxRedirects } from '../../constants/fetchers.ts'
+import { roughlyCleanHtml } from '../../helpers/strings.ts'
 import { prepareUrl } from '../../helpers/urls.ts'
 import type { WorkflowProcessor } from '../../helpers/workflows.ts'
 
 // Compile static regex patterns once at module load.
-const cleanupPattern = /<!--[\s\S]*?-->|<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi
 const metaPattern = /<meta\s+([^>]*)>?/gi
 const httpEquivPattern = /\bhttp-equiv\s*=\s*["']?refresh["']?/i
 const contentPattern = /\bcontent\s*=\s*["']?\d*\s*;\s*url\s*=\s*([^"'\s>]+)/i
 
 export const extractRedirectUrl = (html: string): string | undefined => {
-  // Remove comments, scripts, and styles in single pass.
-  const cleanHtml = html.replace(cleanupPattern, '')
+  const cleanHtml = roughlyCleanHtml(html)
 
-  // Match meta tags with http-equiv="refresh"
   for (const metaMatch of cleanHtml.matchAll(metaPattern)) {
     const attrs = metaMatch[1]
 
-    // Check if has http-equiv="refresh"
-    if (!httpEquivPattern.test(attrs)) continue
+    if (!httpEquivPattern.test(attrs)) {
+      continue
+    }
 
-    // Extract URL from content attribute
     const url = contentPattern.exec(attrs)?.[1]?.trim()
 
-    if (url) return url
+    if (url) {
+      return url
+    }
   }
 
   return undefined

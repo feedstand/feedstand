@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isJson, removeNullBytes } from './strings.ts'
+import { isJsonLike, removeNullBytes, roughlyCleanHtml } from './strings.ts'
 
 describe('removeNullBytes', () => {
   describe('string inputs', () => {
@@ -65,26 +65,26 @@ describe('removeNullBytes', () => {
   })
 })
 
-describe('isJson', () => {
+describe('isJsonLike', () => {
   describe('valid JSON objects', () => {
     it('should identify simple JSON object', () => {
-      expect(isJson('{"name":"John","age":30}')).toBe(true)
+      expect(isJsonLike('{"name":"John","age":30}')).toBe(true)
     })
 
     it('should identify JSON object with whitespace', () => {
-      expect(isJson('  {  "name" : "John"  }  ')).toBe(true)
+      expect(isJsonLike('  {  "name" : "John"  }  ')).toBe(true)
     })
 
     it('should identify empty JSON object', () => {
-      expect(isJson('{}')).toBe(true)
+      expect(isJsonLike('{}')).toBe(true)
     })
 
     it('should identify empty JSON object with whitespace', () => {
-      expect(isJson('  {  }  ')).toBe(true)
+      expect(isJsonLike('  {  }  ')).toBe(true)
     })
 
     it('should identify nested JSON object', () => {
-      expect(isJson('{"person":{"name":"John","age":30}}')).toBe(true)
+      expect(isJsonLike('{"person":{"name":"John","age":30}}')).toBe(true)
     })
 
     it('should identify multiline JSON object', () => {
@@ -92,29 +92,29 @@ describe('isJson', () => {
         "name": "John",
         "age": 30
       }`
-      expect(isJson(json)).toBe(true)
+      expect(isJsonLike(json)).toBe(true)
     })
   })
 
   describe('valid JSON arrays', () => {
     it('should identify simple JSON array', () => {
-      expect(isJson('[1,2,3]')).toBe(true)
+      expect(isJsonLike('[1,2,3]')).toBe(true)
     })
 
     it('should identify JSON array with whitespace', () => {
-      expect(isJson('  [  1, 2, 3  ]  ')).toBe(true)
+      expect(isJsonLike('  [  1, 2, 3  ]  ')).toBe(true)
     })
 
     it('should identify empty JSON array', () => {
-      expect(isJson('[]')).toBe(true)
+      expect(isJsonLike('[]')).toBe(true)
     })
 
     it('should identify empty JSON array with whitespace', () => {
-      expect(isJson('  [  ]  ')).toBe(true)
+      expect(isJsonLike('  [  ]  ')).toBe(true)
     })
 
     it('should identify array of objects', () => {
-      expect(isJson('[{"id":1},{"id":2}]')).toBe(true)
+      expect(isJsonLike('[{"id":1},{"id":2}]')).toBe(true)
     })
 
     it('should identify multiline JSON array', () => {
@@ -122,55 +122,159 @@ describe('isJson', () => {
         {"name": "John"},
         {"name": "Jane"}
       ]`
-      expect(isJson(json)).toBe(true)
+      expect(isJsonLike(json)).toBe(true)
     })
   })
 
-  describe('invalid JSON', () => {
+  describe('invalid JSON-like structures', () => {
     it('should reject plain string', () => {
-      expect(isJson('Hello World')).toBe(false)
+      expect(isJsonLike('Hello World')).toBe(false)
     })
 
     it('should reject number', () => {
-      expect(isJson('42')).toBe(false)
+      expect(isJsonLike('42')).toBe(false)
     })
 
     it('should reject boolean', () => {
-      expect(isJson('true')).toBe(false)
+      expect(isJsonLike('true')).toBe(false)
     })
 
     it('should reject null', () => {
-      expect(isJson('null')).toBe(false)
+      expect(isJsonLike('null')).toBe(false)
     })
 
     it('should reject unbalanced braces', () => {
-      expect(isJson('{"name":"John"')).toBe(false)
+      expect(isJsonLike('{"name":"John"')).toBe(false)
     })
 
     it('should reject unbalanced brackets', () => {
-      expect(isJson('[1,2,3')).toBe(false)
+      expect(isJsonLike('[1,2,3')).toBe(false)
     })
 
-    it('should reject mixed opening/closing', () => {
-      expect(isJson('{]')).toBe(false)
+    it('should reject mixed opening/closing (braces)', () => {
+      expect(isJsonLike('{]')).toBe(false)
+    })
+
+    it('should reject mixed opening/closing (brackets)', () => {
+      expect(isJsonLike('[}')).toBe(false)
     })
 
     it('should reject empty string', () => {
-      expect(isJson('')).toBe(false)
+      expect(isJsonLike('')).toBe(false)
     })
 
     it('should reject whitespace only', () => {
-      expect(isJson('   ')).toBe(false)
+      expect(isJsonLike('   ')).toBe(false)
+    })
+
+    it('should reject too short string', () => {
+      expect(isJsonLike('{')).toBe(false)
+      expect(isJsonLike('[')).toBe(false)
     })
   })
 
   describe('edge cases', () => {
-    it('should handle string with JSON-like content', () => {
-      expect(isJson('Text before {"name":"John"} text after')).toBe(false)
+    it('should reject string with JSON-like content embedded', () => {
+      expect(isJsonLike('Text before {"name":"John"} text after')).toBe(false)
     })
 
-    it('should handle string with escaped braces', () => {
-      expect(isJson('"\\{\\"name\\":\\"John\\"\\}"')).toBe(false)
+    it('should reject string with escaped braces', () => {
+      expect(isJsonLike('"\\{\\"name\\":\\"John\\"\\}"')).toBe(false)
     })
+
+    it('should reject strings that start with brace but end differently', () => {
+      expect(isJsonLike('{ "name": "test" ]')).toBe(false)
+    })
+
+    it('should reject strings that start with bracket but end differently', () => {
+      expect(isJsonLike('[ 1, 2, 3 }')).toBe(false)
+    })
+  })
+})
+
+describe('roughlyCleanHtml', () => {
+  it('should remove HTML comments', () => {
+    const html = '<div>Hello <!-- comment --> World</div>'
+    expect(roughlyCleanHtml(html)).toBe('<div>Hello  World</div>')
+  })
+
+  it('should remove multiple HTML comments', () => {
+    const html = '<!-- comment 1 --><p>Text</p><!-- comment 2 -->'
+    expect(roughlyCleanHtml(html)).toBe('<p>Text</p>')
+  })
+
+  it('should remove script tags and content', () => {
+    const html = '<div>Before<script>alert("test")</script>After</div>'
+    expect(roughlyCleanHtml(html)).toBe('<div>BeforeAfter</div>')
+  })
+
+  it('should remove script tags with attributes', () => {
+    const html = '<div>Before<script type="text/javascript">var x = 1;</script>After</div>'
+    expect(roughlyCleanHtml(html)).toBe('<div>BeforeAfter</div>')
+  })
+
+  it('should remove style tags and content', () => {
+    const html = '<div>Before<style>.class { color: red; }</style>After</div>'
+    expect(roughlyCleanHtml(html)).toBe('<div>BeforeAfter</div>')
+  })
+
+  it('should remove style tags with attributes', () => {
+    const html = '<div>Before<style type="text/css">.class { color: red; }</style>After</div>'
+    expect(roughlyCleanHtml(html)).toBe('<div>BeforeAfter</div>')
+  })
+
+  it('should handle multiple script and style tags', () => {
+    const html = '<script>x</script><p>Text</p><style>y</style><span>More</span><script>z</script>'
+    expect(roughlyCleanHtml(html)).toBe('<p>Text</p><span>More</span>')
+  })
+
+  it('should handle all types together', () => {
+    const html = '<!-- comment --><script>code</script><style>css</style><div>Content</div>'
+    expect(roughlyCleanHtml(html)).toBe('<div>Content</div>')
+  })
+
+  it('should handle unclosed comments gracefully', () => {
+    const html = '<div>Before<!-- unclosed comment'
+    expect(roughlyCleanHtml(html)).toBe('<div>Before')
+  })
+
+  it('should handle unclosed script tags gracefully', () => {
+    const html = '<div>Before<script>unclosed'
+    expect(roughlyCleanHtml(html)).toBe('<div>Before')
+  })
+
+  it('should handle unclosed style tags gracefully', () => {
+    const html = '<div>Before<style>unclosed'
+    expect(roughlyCleanHtml(html)).toBe('<div>Before')
+  })
+
+  it('should handle empty string', () => {
+    expect(roughlyCleanHtml('')).toBe('')
+  })
+
+  it('should handle plain text without tags', () => {
+    const html = 'Just plain text'
+    expect(roughlyCleanHtml(html)).toBe('Just plain text')
+  })
+
+  it('should preserve other HTML tags', () => {
+    const html = '<div><p>Text</p><span>More</span></div>'
+    expect(roughlyCleanHtml(html)).toBe('<div><p>Text</p><span>More</span></div>')
+  })
+
+  it('should handle case-insensitive script tags', () => {
+    const html = '<div>Before<SCRIPT>code</SCRIPT>After</div>'
+    expect(roughlyCleanHtml(html)).toBe('<div>BeforeAfter</div>')
+  })
+
+  it('should handle case-insensitive style tags', () => {
+    const html = '<div>Before<STYLE>css</STYLE>After</div>'
+    expect(roughlyCleanHtml(html)).toBe('<div>BeforeAfter</div>')
+  })
+
+  it('should handle nested structures efficiently', () => {
+    const html =
+      '<div><!-- start --><script>var x = "<style>nested</style>";</script><!-- end --></div>'
+    expect(roughlyCleanHtml(html)).toBe('<div></div>')
   })
 })

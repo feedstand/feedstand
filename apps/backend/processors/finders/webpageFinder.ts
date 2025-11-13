@@ -4,6 +4,7 @@ import { fetchFeed } from '../../actions/fetchFeed.ts'
 import type { FindFeedsProcessor } from '../../actions/findFeeds.ts'
 import { anyFeedContentTypes } from '../../constants/fetchers.ts'
 import { feedFetchConcurrency, feedUris, ignoredFeedUris } from '../../constants/finders.ts'
+import { roughlyCleanHtml } from '../../helpers/strings.ts'
 import { prepareUrl } from '../../helpers/urls.ts'
 import type { FoundFeeds } from '../../types/schemas.ts'
 
@@ -20,61 +21,9 @@ const relAlternatePattern = /\brel\s*=\s*["']?alternate["']?/i
 const typePattern = new RegExp(`\\btype\\s*=\\s*["']?(${contentTypePattern})["']?`, 'i')
 const hrefPattern = /\bhref\s*=\s*["']?([^"'\s>]+)["']?/i
 
-/**
- * Remove script tags, style tags, and HTML comments without regex backtracking.
- * Uses linear-time string scanning instead of regex to avoid catastrophic backtracking on large files.
- */
-const cleanHtml = (html: string): string => {
-  let result = ''
-  let i = 0
-
-  while (i < html.length) {
-    // Check for HTML comments: <!-- ... -->
-    if (html.substring(i, i + 4) === '<!--') {
-      const end = html.indexOf('-->', i + 4)
-      if (end === -1) break // Unclosed comment, stop processing
-      i = end + 3
-      continue
-    }
-
-    // Check for script tags: <script...>...</script>
-    if (html.substring(i, i + 7).toLowerCase() === '<script') {
-      // Find the end of opening tag
-      const openTagEnd = html.indexOf('>', i)
-      if (openTagEnd === -1) break
-
-      // Find closing </script>
-      const closeTagStart = html.toLowerCase().indexOf('</script>', openTagEnd)
-      if (closeTagStart === -1) break
-
-      i = closeTagStart + 9 // Skip past </script>
-      continue
-    }
-
-    // Check for style tags: <style...>...</style>
-    if (html.substring(i, i + 6).toLowerCase() === '<style') {
-      // Find the end of opening tag
-      const openTagEnd = html.indexOf('>', i)
-      if (openTagEnd === -1) break
-
-      // Find closing </style>
-      const closeTagStart = html.toLowerCase().indexOf('</style>', openTagEnd)
-      if (closeTagStart === -1) break
-
-      i = closeTagStart + 8 // Skip past </style>
-      continue
-    }
-
-    result += html[i]
-    i++
-  }
-
-  return result
-}
-
 export const extractFeedUrls = (html: string, baseUrl: string): Set<string> => {
   const feedUrls = new Set<string>()
-  const processedHtml = cleanHtml(html)
+  const processedHtml = roughlyCleanHtml(html)
 
   // Helper to add URL if valid and not seen.
   const addUrlIfValid = (href: string | undefined): void => {

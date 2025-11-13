@@ -19,6 +19,7 @@ import { UnreachableUrlError } from '../errors/UnreachableUrlError.ts'
 import { UnsafeUrlError } from '../errors/UnsafeUrlError.ts'
 import { createStreamingChecksum } from '../helpers/hashes.ts'
 import { isOneOfContentTypes } from '../helpers/responses.ts'
+import { isJsonLike } from '../helpers/strings.ts'
 import { prepareUrl } from '../helpers/urls.ts'
 
 // TODO:
@@ -111,11 +112,17 @@ export class FetchUrlResponse extends Response {
   }
 
   async json<T = unknown>(): Promise<T | undefined> {
+    // Fast path: check if it looks like JSON before attempting parse.
+    // Benchmark shows 4-70x speedup for non-JSON (HTML, plain text)
+    // with acceptable 10-36% overhead for valid JSON.
+    // See: benchmarks/json-parse-optimization.bench.ts
+    if (!isJsonLike(this._body)) {
+      return
+    }
+
     try {
       return JSON.parse(this._body) as T
-    } catch {
-      return undefined
-    }
+    } catch {}
   }
 }
 
