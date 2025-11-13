@@ -198,6 +198,8 @@ services:
     environment:
       <<: *backend-environment
       FEATURE_WORKER: "true"
+      # Set heap to ~80% of container memory (512M)
+      NODE_OPTIONS: "--max-old-space-size=400"
     deploy:
       <<: *common-deploy
       replicas: 20
