@@ -17,17 +17,17 @@ export const fixChannels = async () => {
         // Once in 30 days: Channels which were successfully fixes-checked.
         and(
           ne(tables.channels.lastFixCheckStatus, 'failed'),
-          lte(tables.channels.lastFixCheckedAt, subDays(new Date(), 30)),
+          lte(tables.channels.lastFixCheckAt, subDays(new Date(), 30)),
         ),
         // Once in 14 days: Channels which failed fixes check the last time.
         // TODO: Consider different types of errors and whether to perform the fix check
         // more frequently when certain type of error occurs (eg. network error).
         and(
           eq(tables.channels.lastFixCheckStatus, 'failed'),
-          lte(tables.channels.lastFixCheckedAt, subDays(new Date(), 14)),
+          lte(tables.channels.lastFixCheckAt, subDays(new Date(), 14)),
         ),
         // Always: Channels that were never scanned for fixes.
-        isNull(tables.channels.lastFixCheckedAt),
+        isNull(tables.channels.lastFixCheckAt),
       ),
     ),
   ]
