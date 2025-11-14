@@ -1,31 +1,34 @@
+import { Parser } from 'htmlparser2'
 import { maxRedirects } from '../../constants/fetchers.ts'
-import { cleanHtml } from '../../helpers/html.ts'
 import { prepareUrl } from '../../helpers/urls.ts'
 import type { WorkflowProcessor } from '../../helpers/workflows.ts'
 
-// Compile static regex patterns once at module load.
-const metaPattern = /<meta\s+([^>]*)>?/gi
-const httpEquivPattern = /\bhttp-equiv\s*=\s*["']?refresh["']?/i
-const contentPattern = /\bcontent\s*=\s*["']?\d*\s*;\s*url\s*=\s*([^"'\s>]+)/i
+const urlPattern = /\d*\s*;\s*url\s*=\s*([^"'\s>]+)/i
 
 export const extractRedirectUrl = (html: string): string | undefined => {
-  const cleaned = cleanHtml(html)
+  let redirectUrl: string | undefined
 
-  for (const metaMatch of cleaned.matchAll(metaPattern)) {
-    const attrs = metaMatch[1]
+  const parser = new Parser({
+    onopentag(name, attribs) {
+      if (redirectUrl) return
 
-    if (!httpEquivPattern.test(attrs)) {
-      continue
-    }
+      if (
+        name === 'meta' &&
+        attribs['http-equiv']?.toLowerCase() === 'refresh' &&
+        attribs.content
+      ) {
+        const match = urlPattern.exec(attribs.content)
+        if (match?.[1]) {
+          redirectUrl = match[1].trim()
+        }
+      }
+    },
+  })
 
-    const url = contentPattern.exec(attrs)?.[1]?.trim()
+  parser.write(html)
+  parser.end()
 
-    if (url) {
-      return url
-    }
-  }
-
-  return undefined
+  return redirectUrl
 }
 
 const redirectDepths = new WeakMap<object, number>()

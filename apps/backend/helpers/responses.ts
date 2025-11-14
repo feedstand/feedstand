@@ -1,7 +1,8 @@
 export const isOneOfContentTypes = (response: Response | string, contentTypes: Array<string>) => {
   const contentType = typeof response === 'string' ? response : response.headers.get('content-type')
+  const lowerContentType = contentType?.toLowerCase()
 
-  return contentTypes.some((type) => contentType?.includes(type))
+  return contentTypes.some((type) => lowerContentType?.includes(type))
 }
 
 export const extractValueByRegex = async (

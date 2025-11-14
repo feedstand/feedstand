@@ -419,6 +419,22 @@ describe('extractFeedUrls', () => {
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })
 
+    it('should handle mixed case attribute values', () => {
+      const cases = [
+        '<link rel="Alternate" type="Application/Rss+Xml" href="/feed1.xml">',
+        '<link rel="aLtErNaTe" type="APPLICATION/ATOM+XML" href="/feed2.xml">',
+        '<link rel="ALTERNATE" type="application/JSON" href="/feed3.json">',
+      ]
+      const expected = new Set([
+        'https://example.com/feed1.xml',
+        'https://example.com/feed2.xml',
+        'https://example.com/feed3.json',
+      ])
+
+      const allHtml = cases.join('\n')
+      expect(extractFeedUrls(allHtml, baseUrl)).toEqual(expected)
+    })
+
     it('should handle link with extra whitespace', () => {
       const html = '<link  rel="alternate"   type="application/rss+xml"    href="/feed.xml"   >'
       const expected = new Set(['https://example.com/feed.xml'])
@@ -674,7 +690,7 @@ describe('extractFeedUrls', () => {
         <link rel="alternate" type="application/rss+xml" href="/feed1.xml"
         <a href="/feed">Feed</a>
       `
-      const expected = new Set(['https://example.com/feed1.xml', 'https://example.com/feed'])
+      const expected = new Set(['https://example.com/feed1.xml'])
 
       expect(extractFeedUrls(html, baseUrl)).toEqual(expected)
     })

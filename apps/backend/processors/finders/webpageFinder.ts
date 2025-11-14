@@ -1,29 +1,16 @@
+import { Parser } from 'htmlparser2'
 import pLimit from 'p-limit'
 import { chooseFeedUrl } from '../../actions/chooseFeedUrl.ts'
 import { fetchFeed } from '../../actions/fetchFeed.ts'
 import type { FindFeedsProcessor } from '../../actions/findFeeds.ts'
 import { anyFeedContentTypes } from '../../constants/fetchers.ts'
 import { feedFetchConcurrency, feedUris, ignoredFeedUris } from '../../constants/finders.ts'
-import { cleanHtml } from '../../helpers/html.ts'
+import { isOneOfContentTypes } from '../../helpers/responses.ts'
 import { prepareUrl } from '../../helpers/urls.ts'
 import type { FoundFeeds } from '../../types/schemas.ts'
 
-// Build dynamic regex pattern for feed content type.
-const escapedContentTypes = anyFeedContentTypes.map((type) =>
-  type.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\//g, '\\/'),
-)
-const contentTypePattern = escapedContentTypes.join('|')
-
-// Compile static regex patterns once at module load.
-const linkPattern = /<link\s+([^>]*?)>/gi
-const anchorPattern = /<a\s+([^>]*?)>/gi
-const relAlternatePattern = /\brel\s*=\s*["']?alternate["']?/i
-const typePattern = new RegExp(`\\btype\\s*=\\s*["']?(${contentTypePattern})["']?`, 'i')
-const hrefPattern = /\bhref\s*=\s*["']?([^"'\s>]+)["']?/i
-
 export const extractFeedUrls = (html: string, baseUrl: string): Set<string> => {
   const feedUrls = new Set<string>()
-  const processedHtml = cleanHtml(html)
 
   // Helper to add URL if valid and not seen.
   const addUrlIfValid = (href: string | undefined): void => {
@@ -39,28 +26,27 @@ export const extractFeedUrls = (html: string, baseUrl: string): Set<string> => {
     }
   }
 
-  // Match link elements with rel="alternate" and feed content type.
-  for (const linkMatch of processedHtml.matchAll(linkPattern)) {
-    const attrs = linkMatch[1]
+  const parser = new Parser({
+    onopentag(name, attribs) {
+      if (name === 'link' && attribs.href) {
+        const rel = attribs.rel?.toLowerCase()
 
-    if (!relAlternatePattern.test(attrs) || !typePattern.test(attrs)) {
-      continue
-    }
+        if (rel === 'alternate' && isOneOfContentTypes(attribs.type, anyFeedContentTypes)) {
+          addUrlIfValid(attribs.href)
+        }
+      }
 
-    const href = hrefPattern.exec(attrs)?.[1]
+      // Extract anchor elements with href ending in feed URIs.
+      if (name === 'a' && attribs.href) {
+        if (feedUris.some((uri) => attribs.href.endsWith(uri))) {
+          addUrlIfValid(attribs.href)
+        }
+      }
+    },
+  })
 
-    addUrlIfValid(href)
-  }
-
-  // Match anchor elements with href ending in feed URIs.
-  for (const anchorMatch of processedHtml.matchAll(anchorPattern)) {
-    const attrs = anchorMatch[1]
-    const href = hrefPattern.exec(attrs)?.[1]
-
-    if (href && feedUris.some((uri) => href.endsWith(uri))) {
-      addUrlIfValid(href)
-    }
-  }
+  parser.write(html)
+  parser.end()
 
   return feedUrls
 }

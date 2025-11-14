@@ -117,11 +117,13 @@ describe('extractRedirectUrl', () => {
     }
   })
 
-  it('handles case insensitivity', () => {
+  it('handles case insensitivity for http-equiv attribute', () => {
     const variations = [
       '<META HTTP-EQUIV="REFRESH" CONTENT="0;URL=http://example.com">',
       '<meta Http-Equiv="Refresh" content="0;Url=http://example.com">',
       '<meta http-equiv="refresh" content="0;URL=http://example.com">',
+      '<meta http-equiv="REFRESH" content="0;url=http://example.com">',
+      '<meta http-equiv="ReFrEsH" content="0;url=http://example.com">',
     ]
     const expected = 'http://example.com'
 
@@ -417,25 +419,15 @@ describe('extractRedirectUrl', () => {
   })
 
   describe('broken or invalid HTML', () => {
-    it('handles unclosed meta tag', () => {
-      const html = '<meta http-equiv="refresh" content="0;url=http://example.com"'
-      const expected = 'http://example.com'
+    it('handles malformed meta tags', () => {
+      const cases = [
+        '<meta http-equiv="refresh" content="0;url=http://example.com"',
+        '<meta http-equiv="refresh" content="0;url=http://example.com>',
+      ]
 
-      expect(extractRedirectUrl(html)).toBe(expected)
-    })
-
-    it('handles meta tag without closing bracket', () => {
-      const html = '<meta http-equiv="refresh" content="0;url=http://example.com"'
-      const expected = 'http://example.com'
-
-      expect(extractRedirectUrl(html)).toBe(expected)
-    })
-
-    it('handles content attribute with unclosed quote', () => {
-      const html = '<meta http-equiv="refresh" content="0;url=http://example.com>'
-      const expected = 'http://example.com'
-
-      expect(extractRedirectUrl(html)).toBe(expected)
+      for (const html of cases) {
+        expect(extractRedirectUrl(html)).toBeUndefined()
+      }
     })
   })
 

@@ -38,6 +38,18 @@ describe('isOneOfContentTypes', () => {
 
     expect(result).toBe(true)
   })
+
+  it('should handle case-insensitive content-type matching', () => {
+    const upperCaseResponse = new Response(null, {
+      headers: new Headers({
+        'content-type': 'APPLICATION/RSS+XML',
+      }),
+    })
+
+    expect(isOneOfContentTypes(upperCaseResponse, ['application/rss+xml'])).toBe(true)
+    expect(isOneOfContentTypes('APPLICATION/ATOM+XML', ['application/atom+xml'])).toBe(true)
+    expect(isOneOfContentTypes('Application/Json', ['application/json'])).toBe(true)
+  })
 })
 
 describe('extractValueByRegex', () => {
