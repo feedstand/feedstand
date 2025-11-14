@@ -4,7 +4,7 @@ import { fetchFeed } from '../../actions/fetchFeed.ts'
 import type { FindFeedsProcessor } from '../../actions/findFeeds.ts'
 import { anyFeedContentTypes } from '../../constants/fetchers.ts'
 import { feedFetchConcurrency, feedUris, ignoredFeedUris } from '../../constants/finders.ts'
-import { roughlyCleanHtml } from '../../helpers/strings.ts'
+import { cleanHtml } from '../../helpers/html.ts'
 import { prepareUrl } from '../../helpers/urls.ts'
 import type { FoundFeeds } from '../../types/schemas.ts'
 
@@ -23,7 +23,7 @@ const hrefPattern = /\bhref\s*=\s*["']?([^"'\s>]+)["']?/i
 
 export const extractFeedUrls = (html: string, baseUrl: string): Set<string> => {
   const feedUrls = new Set<string>()
-  const processedHtml = roughlyCleanHtml(html)
+  const processedHtml = cleanHtml(html)
 
   // Helper to add URL if valid and not seen.
   const addUrlIfValid = (href: string | undefined): void => {

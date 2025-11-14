@@ -20,6 +20,7 @@ describe('createWorkflow', () => {
     lastScanStatus: null,
     lastScanEtag: null,
     lastScanLastModified: null,
+    lastScanContentBytes: 0,
     lastScanHash: null,
     lastScanError: null,
     lastFixCheckAt: null,

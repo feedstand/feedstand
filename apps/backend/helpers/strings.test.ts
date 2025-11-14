@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isJsonLike, removeNullBytes, roughlyCleanHtml } from './strings.ts'
+import { isJsonLike, removeNullBytes } from './strings.ts'
 
 describe('removeNullBytes', () => {
   describe('string inputs', () => {
@@ -189,92 +189,5 @@ describe('isJsonLike', () => {
     it('should reject strings that start with bracket but end differently', () => {
       expect(isJsonLike('[ 1, 2, 3 }')).toBe(false)
     })
-  })
-})
-
-describe('roughlyCleanHtml', () => {
-  it('should remove HTML comments', () => {
-    const html = '<div>Hello <!-- comment --> World</div>'
-    expect(roughlyCleanHtml(html)).toBe('<div>Hello  World</div>')
-  })
-
-  it('should remove multiple HTML comments', () => {
-    const html = '<!-- comment 1 --><p>Text</p><!-- comment 2 -->'
-    expect(roughlyCleanHtml(html)).toBe('<p>Text</p>')
-  })
-
-  it('should remove script tags and content', () => {
-    const html = '<div>Before<script>alert("test")</script>After</div>'
-    expect(roughlyCleanHtml(html)).toBe('<div>BeforeAfter</div>')
-  })
-
-  it('should remove script tags with attributes', () => {
-    const html = '<div>Before<script type="text/javascript">var x = 1;</script>After</div>'
-    expect(roughlyCleanHtml(html)).toBe('<div>BeforeAfter</div>')
-  })
-
-  it('should remove style tags and content', () => {
-    const html = '<div>Before<style>.class { color: red; }</style>After</div>'
-    expect(roughlyCleanHtml(html)).toBe('<div>BeforeAfter</div>')
-  })
-
-  it('should remove style tags with attributes', () => {
-    const html = '<div>Before<style type="text/css">.class { color: red; }</style>After</div>'
-    expect(roughlyCleanHtml(html)).toBe('<div>BeforeAfter</div>')
-  })
-
-  it('should handle multiple script and style tags', () => {
-    const html = '<script>x</script><p>Text</p><style>y</style><span>More</span><script>z</script>'
-    expect(roughlyCleanHtml(html)).toBe('<p>Text</p><span>More</span>')
-  })
-
-  it('should handle all types together', () => {
-    const html = '<!-- comment --><script>code</script><style>css</style><div>Content</div>'
-    expect(roughlyCleanHtml(html)).toBe('<div>Content</div>')
-  })
-
-  it('should handle unclosed comments gracefully', () => {
-    const html = '<div>Before<!-- unclosed comment'
-    expect(roughlyCleanHtml(html)).toBe('<div>Before')
-  })
-
-  it('should handle unclosed script tags gracefully', () => {
-    const html = '<div>Before<script>unclosed'
-    expect(roughlyCleanHtml(html)).toBe('<div>Before')
-  })
-
-  it('should handle unclosed style tags gracefully', () => {
-    const html = '<div>Before<style>unclosed'
-    expect(roughlyCleanHtml(html)).toBe('<div>Before')
-  })
-
-  it('should handle empty string', () => {
-    expect(roughlyCleanHtml('')).toBe('')
-  })
-
-  it('should handle plain text without tags', () => {
-    const html = 'Just plain text'
-    expect(roughlyCleanHtml(html)).toBe('Just plain text')
-  })
-
-  it('should preserve other HTML tags', () => {
-    const html = '<div><p>Text</p><span>More</span></div>'
-    expect(roughlyCleanHtml(html)).toBe('<div><p>Text</p><span>More</span></div>')
-  })
-
-  it('should handle case-insensitive script tags', () => {
-    const html = '<div>Before<SCRIPT>code</SCRIPT>After</div>'
-    expect(roughlyCleanHtml(html)).toBe('<div>BeforeAfter</div>')
-  })
-
-  it('should handle case-insensitive style tags', () => {
-    const html = '<div>Before<STYLE>css</STYLE>After</div>'
-    expect(roughlyCleanHtml(html)).toBe('<div>BeforeAfter</div>')
-  })
-
-  it('should handle nested structures efficiently', () => {
-    const html =
-      '<div><!-- start --><script>var x = "<style>nested</style>";</script><!-- end --></div>'
-    expect(roughlyCleanHtml(html)).toBe('<div></div>')
   })
 })

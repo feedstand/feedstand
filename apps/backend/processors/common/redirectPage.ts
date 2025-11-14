@@ -1,5 +1,5 @@
 import { maxRedirects } from '../../constants/fetchers.ts'
-import { roughlyCleanHtml } from '../../helpers/strings.ts'
+import { cleanHtml } from '../../helpers/html.ts'
 import { prepareUrl } from '../../helpers/urls.ts'
 import type { WorkflowProcessor } from '../../helpers/workflows.ts'
 
@@ -9,9 +9,9 @@ const httpEquivPattern = /\bhttp-equiv\s*=\s*["']?refresh["']?/i
 const contentPattern = /\bcontent\s*=\s*["']?\d*\s*;\s*url\s*=\s*([^"'\s>]+)/i
 
 export const extractRedirectUrl = (html: string): string | undefined => {
-  const cleanHtml = roughlyCleanHtml(html)
+  const cleaned = cleanHtml(html)
 
-  for (const metaMatch of cleanHtml.matchAll(metaPattern)) {
+  for (const metaMatch of cleaned.matchAll(metaPattern)) {
     const attrs = metaMatch[1]
 
     if (!httpEquivPattern.test(attrs)) {
