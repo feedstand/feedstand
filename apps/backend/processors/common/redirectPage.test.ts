@@ -2,35 +2,35 @@ import { describe, expect, it } from 'vitest'
 import { extractRedirectUrl } from './redirectPage.ts'
 
 describe('extractRedirectUrl', () => {
-  it('extracts URL from double-quoted attributes', () => {
-    const html = '<meta http-equiv="refresh" content="0;url=http://example.com">'
+  it('should extract URL from double-quoted attributes', () => {
+    const value = '<meta http-equiv="refresh" content="0;url=http://example.com">'
     const expected = 'http://example.com'
 
-    expect(extractRedirectUrl(html)).toBe(expected)
+    expect(extractRedirectUrl(value)).toBe(expected)
   })
 
-  it('extracts URL from single-quoted attributes', () => {
-    const html = "<meta http-equiv='refresh' content='0; url=http://example.com'>"
+  it('should extract URL from single-quoted attributes', () => {
+    const value = "<meta http-equiv='refresh' content='0; url=http://example.com'>"
     const expected = 'http://example.com'
 
-    expect(extractRedirectUrl(html)).toBe(expected)
+    expect(extractRedirectUrl(value)).toBe(expected)
   })
 
-  it('extracts URL from unquoted attributes', () => {
-    const html = '<meta http-equiv=refresh content="0;url=http://example.com">'
+  it('should extract URL from unquoted attributes', () => {
+    const value = '<meta http-equiv=refresh content="0;url=http://example.com">'
     const expected = 'http://example.com'
 
-    expect(extractRedirectUrl(html)).toBe(expected)
+    expect(extractRedirectUrl(value)).toBe(expected)
   })
 
-  it('extracts URL when attributes are in different order', () => {
-    const html = '<meta content="0; url=http://example.com" http-equiv="refresh">'
+  it('should extract URL when attributes are in different order', () => {
+    const value = '<meta content="0; url=http://example.com" http-equiv="refresh">'
     const expected = 'http://example.com'
 
-    expect(extractRedirectUrl(html)).toBe(expected)
+    expect(extractRedirectUrl(value)).toBe(expected)
   })
 
-  it('extracts URL with different spacing patterns', () => {
+  it('should extract URL with different spacing patterns', () => {
     const variations = [
       '<meta http-equiv="refresh" content="0;url=http://example.com">',
       '<meta http-equiv="refresh" content="0; url=http://example.com">',
@@ -39,12 +39,12 @@ describe('extractRedirectUrl', () => {
     ]
     const expected = 'http://example.com'
 
-    for (const html of variations) {
-      expect(extractRedirectUrl(html)).toBe(expected)
+    for (const value of variations) {
+      expect(extractRedirectUrl(value)).toBe(expected)
     }
   })
 
-  it('extracts URL with different delay values', () => {
+  it('should extract URL with different delay values', () => {
     const variations = [
       '<meta http-equiv="refresh" content="0;url=http://example.com">',
       '<meta http-equiv="refresh" content="5; url=http://example.com">',
@@ -52,13 +52,13 @@ describe('extractRedirectUrl', () => {
     ]
     const expected = 'http://example.com'
 
-    for (const html of variations) {
-      expect(extractRedirectUrl(html)).toBe(expected)
+    for (const value of variations) {
+      expect(extractRedirectUrl(value)).toBe(expected)
     }
   })
 
-  it('extracts URL from full HTML document', () => {
-    const html = `
+  it('should extract URL from full HTML document', () => {
+    const value = `
       <!DOCTYPE html>
       <html>
       <head>
@@ -72,10 +72,10 @@ describe('extractRedirectUrl', () => {
     `
     const expected = 'http://example.com'
 
-    expect(extractRedirectUrl(html)).toBe(expected)
+    expect(extractRedirectUrl(value)).toBe(expected)
   })
 
-  it('extracts URLs with different protocols and formats', () => {
+  it('should extract URLs with different protocols and formats', () => {
     const variations = [
       '<meta http-equiv="refresh" content="0;url=https://example.com">',
       '<meta http-equiv="refresh" content="0;url=http://sub.example.com">',
@@ -84,14 +84,14 @@ describe('extractRedirectUrl', () => {
       '<meta http-equiv="refresh" content="0;url=https://example.com#section">',
     ]
 
-    for (const html of variations) {
-      const expected = html.match(/url=([^"'>]+)/i)?.[1]
+    for (const value of variations) {
+      const expected = value.match(/url=([^"'>]+)/i)?.[1]
 
-      expect(extractRedirectUrl(html)).toBe(expected)
+      expect(extractRedirectUrl(value)).toBe(expected)
     }
   })
 
-  it('returns undefined for HTML without redirect meta tag', () => {
+  it('should return undefined for HTML without redirect meta tag', () => {
     const variations = [
       '',
       '<html></html>',
@@ -99,8 +99,8 @@ describe('extractRedirectUrl', () => {
       '<meta http-equiv="content-type" content="text/html">',
     ]
 
-    for (const html of variations) {
-      expect(extractRedirectUrl(html)).toBeUndefined()
+    for (const value of variations) {
+      expect(extractRedirectUrl(value)).toBeUndefined()
     }
   })
 
@@ -112,8 +112,8 @@ describe('extractRedirectUrl', () => {
       '<meta http-equiv="refresh" content="0;">',
     ]
 
-    for (const html of variations) {
-      expect(extractRedirectUrl(html)).toBeUndefined()
+    for (const value of variations) {
+      expect(extractRedirectUrl(value)).toBeUndefined()
     }
   })
 
@@ -127,218 +127,218 @@ describe('extractRedirectUrl', () => {
     ]
     const expected = 'http://example.com'
 
-    for (const html of variations) {
-      expect(extractRedirectUrl(html)).toBe(expected)
+    for (const value of variations) {
+      expect(extractRedirectUrl(value)).toBe(expected)
     }
   })
 
   describe('self-closing tags', () => {
-    it('handles self-closing meta tag', () => {
-      const html = '<meta http-equiv="refresh" content="0;url=http://example.com" />'
+    it('should handle self-closing meta tag', () => {
+      const value = '<meta http-equiv="refresh" content="0;url=http://example.com" />'
       const expected = 'http://example.com'
 
-      expect(extractRedirectUrl(html)).toBe(expected)
+      expect(extractRedirectUrl(value)).toBe(expected)
     })
 
-    it('handles self-closing tag with extra slashes', () => {
-      const html = '<meta http-equiv="refresh" content="0;url=http://example.com"  //>'
+    it('should handle self-closing tag with extra slashes', () => {
+      const value = '<meta http-equiv="refresh" content="0;url=http://example.com"  //>'
       const expected = 'http://example.com'
 
-      expect(extractRedirectUrl(html)).toBe(expected)
+      expect(extractRedirectUrl(value)).toBe(expected)
     })
   })
 
   describe('extra whitespace and formatting', () => {
-    it('handles extra whitespace between attributes', () => {
-      const html = '<meta  http-equiv="refresh"   content="0;url=http://example.com"   >'
+    it('should handleextra whitespace between attributes', () => {
+      const value = '<meta  http-equiv="refresh"   content="0;url=http://example.com"   >'
       const expected = 'http://example.com'
 
-      expect(extractRedirectUrl(html)).toBe(expected)
+      expect(extractRedirectUrl(value)).toBe(expected)
     })
 
-    it('handles newlines between attributes', () => {
-      const html = `<meta
+    it('should handlenewlines between attributes', () => {
+      const value = `<meta
         http-equiv="refresh"
         content="0;url=http://example.com"
       >`
       const expected = 'http://example.com'
 
-      expect(extractRedirectUrl(html)).toBe(expected)
+      expect(extractRedirectUrl(value)).toBe(expected)
     })
 
-    it('handles spaces around equals signs', () => {
-      const html = '<meta http-equiv = "refresh" content = "0;url=http://example.com">'
+    it('should handlespaces around equals signs', () => {
+      const value = '<meta http-equiv = "refresh" content = "0;url=http://example.com">'
       const expected = 'http://example.com'
 
-      expect(extractRedirectUrl(html)).toBe(expected)
+      expect(extractRedirectUrl(value)).toBe(expected)
     })
 
-    it('handles tabs and mixed whitespace', () => {
-      const html = '<meta\thttp-equiv="refresh"\t\tcontent="0;url=http://example.com">'
+    it('should handletabs and mixed whitespace', () => {
+      const value = '<meta\thttp-equiv="refresh"\t\tcontent="0;url=http://example.com">'
       const expected = 'http://example.com'
 
-      expect(extractRedirectUrl(html)).toBe(expected)
+      expect(extractRedirectUrl(value)).toBe(expected)
     })
   })
 
   describe('mixed quotes', () => {
-    it('handles mixed single and double quotes', () => {
-      const html = '<meta http-equiv="refresh" content=\'0;url=http://example.com\'>'
+    it('should handlemixed single and double quotes', () => {
+      const value = '<meta http-equiv="refresh" content=\'0;url=http://example.com\'>'
       const expected = 'http://example.com'
 
-      expect(extractRedirectUrl(html)).toBe(expected)
+      expect(extractRedirectUrl(value)).toBe(expected)
     })
 
-    it('handles unquoted content with quoted URL', () => {
-      const html = '<meta http-equiv=refresh content="0;url=http://example.com">'
+    it('should handleunquoted content with quoted URL', () => {
+      const value = '<meta http-equiv=refresh content="0;url=http://example.com">'
       const expected = 'http://example.com'
 
-      expect(extractRedirectUrl(html)).toBe(expected)
+      expect(extractRedirectUrl(value)).toBe(expected)
     })
   })
 
   describe('meta tag with extra attributes', () => {
-    it('handles meta tag with charset attribute', () => {
-      const html = '<meta charset="utf-8" http-equiv="refresh" content="0;url=http://example.com">'
+    it('should handlemeta tag with charset attribute', () => {
+      const value = '<meta charset="utf-8" http-equiv="refresh" content="0;url=http://example.com">'
       const expected = 'http://example.com'
 
-      expect(extractRedirectUrl(html)).toBe(expected)
+      expect(extractRedirectUrl(value)).toBe(expected)
     })
 
-    it('handles meta tag with name attribute', () => {
-      const html = '<meta name="viewport" http-equiv="refresh" content="0;url=http://example.com">'
+    it('should handlemeta tag with name attribute', () => {
+      const value = '<meta name="viewport" http-equiv="refresh" content="0;url=http://example.com">'
       const expected = 'http://example.com'
 
-      expect(extractRedirectUrl(html)).toBe(expected)
+      expect(extractRedirectUrl(value)).toBe(expected)
     })
 
-    it('handles meta tag with id and class', () => {
-      const html =
+    it('should handlemeta tag with id and class', () => {
+      const value =
         '<meta id="redirect" class="auto-redirect" http-equiv="refresh" content="0;url=http://example.com">'
       const expected = 'http://example.com'
 
-      expect(extractRedirectUrl(html)).toBe(expected)
+      expect(extractRedirectUrl(value)).toBe(expected)
     })
   })
 
   describe('URL variations', () => {
-    it('handles relative URLs', () => {
-      const html = '<meta http-equiv="refresh" content="0;url=/path/to/page">'
+    it('should handlerelative URLs', () => {
+      const value = '<meta http-equiv="refresh" content="0;url=/path/to/page">'
       const expected = '/path/to/page'
 
-      expect(extractRedirectUrl(html)).toBe(expected)
+      expect(extractRedirectUrl(value)).toBe(expected)
     })
 
-    it('handles protocol-relative URLs', () => {
-      const html = '<meta http-equiv="refresh" content="0;url=//example.com/path">'
+    it('should handleprotocol-relative URLs', () => {
+      const value = '<meta http-equiv="refresh" content="0;url=//example.com/path">'
       const expected = '//example.com/path'
 
-      expect(extractRedirectUrl(html)).toBe(expected)
+      expect(extractRedirectUrl(value)).toBe(expected)
     })
 
-    it('handles URL with port', () => {
-      const html = '<meta http-equiv="refresh" content="0;url=http://example.com:8080/path">'
+    it('should handleURL with port', () => {
+      const value = '<meta http-equiv="refresh" content="0;url=http://example.com:8080/path">'
       const expected = 'http://example.com:8080/path'
 
-      expect(extractRedirectUrl(html)).toBe(expected)
+      expect(extractRedirectUrl(value)).toBe(expected)
     })
 
-    it('handles URL with authentication', () => {
-      const html = '<meta http-equiv="refresh" content="0;url=http://user:pass@example.com">'
+    it('should handleURL with authentication', () => {
+      const value = '<meta http-equiv="refresh" content="0;url=http://user:pass@example.com">'
       const expected = 'http://user:pass@example.com'
 
-      expect(extractRedirectUrl(html)).toBe(expected)
+      expect(extractRedirectUrl(value)).toBe(expected)
     })
 
-    it('handles URL with fragment', () => {
-      const html = '<meta http-equiv="refresh" content="0;url=http://example.com#section">'
+    it('should handleURL with fragment', () => {
+      const value = '<meta http-equiv="refresh" content="0;url=http://example.com#section">'
       const expected = 'http://example.com#section'
 
-      expect(extractRedirectUrl(html)).toBe(expected)
+      expect(extractRedirectUrl(value)).toBe(expected)
     })
 
-    it('handles URL with query parameters', () => {
-      const html = '<meta http-equiv="refresh" content="0;url=http://example.com?foo=bar&baz=qux">'
+    it('should handleURL with query parameters', () => {
+      const value = '<meta http-equiv="refresh" content="0;url=http://example.com?foo=bar&baz=qux">'
       const expected = 'http://example.com?foo=bar&baz=qux'
 
-      expect(extractRedirectUrl(html)).toBe(expected)
+      expect(extractRedirectUrl(value)).toBe(expected)
     })
 
-    it('handles URL-encoded characters', () => {
-      const html =
+    it('should handleURL-encoded characters', () => {
+      const value =
         '<meta http-equiv="refresh" content="0;url=http://example.com/path%20with%20spaces">'
       const expected = 'http://example.com/path%20with%20spaces'
 
-      expect(extractRedirectUrl(html)).toBe(expected)
+      expect(extractRedirectUrl(value)).toBe(expected)
     })
 
-    it('handles very long URLs', () => {
+    it('should handlevery long URLs', () => {
       const longPath = `${'/very/long/path/'.repeat(50)}page.html`
-      const html = `<meta http-equiv="refresh" content="0;url=http://example.com${longPath}">`
+      const value = `<meta http-equiv="refresh" content="0;url=http://example.com${longPath}">`
       const expected = `http://example.com${longPath}`
 
-      expect(extractRedirectUrl(html)).toBe(expected)
+      expect(extractRedirectUrl(value)).toBe(expected)
     })
 
-    it('handles URL with special characters', () => {
-      const html =
+    it('should handleURL with special characters', () => {
+      const value =
         '<meta http-equiv="refresh" content="0;url=http://example.com/path/to/page_(test).html">'
       const expected = 'http://example.com/path/to/page_(test).html'
 
-      expect(extractRedirectUrl(html)).toBe(expected)
+      expect(extractRedirectUrl(value)).toBe(expected)
     })
   })
 
   describe('content attribute variations', () => {
-    it('handles content with no delay (just semicolon)', () => {
-      const html = '<meta http-equiv="refresh" content=";url=http://example.com">'
+    it('should handlecontent with no delay (just semicolon)', () => {
+      const value = '<meta http-equiv="refresh" content=";url=http://example.com">'
       const expected = 'http://example.com'
 
-      expect(extractRedirectUrl(html)).toBe(expected)
+      expect(extractRedirectUrl(value)).toBe(expected)
     })
 
-    it('handles uppercase URL keyword', () => {
-      const html = '<meta http-equiv="refresh" content="0;URL=http://example.com">'
+    it('should handleuppercase URL keyword', () => {
+      const value = '<meta http-equiv="refresh" content="0;URL=http://example.com">'
       const expected = 'http://example.com'
 
-      expect(extractRedirectUrl(html)).toBe(expected)
+      expect(extractRedirectUrl(value)).toBe(expected)
     })
 
-    it('handles mixed case URL keyword', () => {
-      const html = '<meta http-equiv="refresh" content="0;Url=http://example.com">'
+    it('should handlemixed case URL keyword', () => {
+      const value = '<meta http-equiv="refresh" content="0;Url=http://example.com">'
       const expected = 'http://example.com'
 
-      expect(extractRedirectUrl(html)).toBe(expected)
+      expect(extractRedirectUrl(value)).toBe(expected)
     })
 
-    it('handles content ending with closing quote', () => {
-      const html = '<meta http-equiv="refresh" content="0;url=http://example.com">'
+    it('should handlecontent ending with closing quote', () => {
+      const value = '<meta http-equiv="refresh" content="0;url=http://example.com">'
       const expected = 'http://example.com'
 
-      expect(extractRedirectUrl(html)).toBe(expected)
+      expect(extractRedirectUrl(value)).toBe(expected)
     })
 
-    it('handles content ending with single quote', () => {
-      const html = "<meta http-equiv='refresh' content='0;url=http://example.com'>"
+    it('should handlecontent ending with single quote', () => {
+      const value = "<meta http-equiv='refresh' content='0;url=http://example.com'>"
       const expected = 'http://example.com'
 
-      expect(extractRedirectUrl(html)).toBe(expected)
+      expect(extractRedirectUrl(value)).toBe(expected)
     })
   })
 
   describe('multiple meta tags', () => {
-    it('extracts URL from first meta refresh when multiple exist', () => {
-      const html = `
+    it('should extract URL from first meta refresh when multiple exist', () => {
+      const value = `
         <meta http-equiv="refresh" content="0;url=http://first.com">
         <meta http-equiv="refresh" content="0;url=http://second.com">
       `
       const expected = 'http://first.com'
 
-      expect(extractRedirectUrl(html)).toBe(expected)
+      expect(extractRedirectUrl(value)).toBe(expected)
     })
 
     it('ignores non-refresh meta tags and finds refresh', () => {
-      const html = `
+      const value = `
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width">
         <meta http-equiv="refresh" content="0;url=http://example.com">
@@ -346,23 +346,23 @@ describe('extractRedirectUrl', () => {
       `
       const expected = 'http://example.com'
 
-      expect(extractRedirectUrl(html)).toBe(expected)
+      expect(extractRedirectUrl(value)).toBe(expected)
     })
   })
 
   describe('edge cases with comments and scripts', () => {
     it('should NOT extract meta refresh from HTML comments', () => {
-      const html = `
+      const value = `
         <!-- <meta http-equiv="refresh" content="0;url=http://commented.com"> -->
         <meta http-equiv="refresh" content="0;url=http://real.com">
       `
       const expected = 'http://real.com'
 
-      expect(extractRedirectUrl(html)).toBe(expected)
+      expect(extractRedirectUrl(value)).toBe(expected)
     })
 
     it('should NOT extract meta refresh from script tags', () => {
-      const html = `
+      const value = `
         <script>
           var html = '<meta http-equiv="refresh" content="0;url=http://fake.com">';
         </script>
@@ -370,11 +370,11 @@ describe('extractRedirectUrl', () => {
       `
       const expected = 'http://real.com'
 
-      expect(extractRedirectUrl(html)).toBe(expected)
+      expect(extractRedirectUrl(value)).toBe(expected)
     })
 
     it('should NOT extract meta refresh from style tags', () => {
-      const html = `
+      const value = `
         <style>
           /* meta { content: "0;url=http://fake.com"; } */
         </style>
@@ -382,11 +382,11 @@ describe('extractRedirectUrl', () => {
       `
       const expected = 'http://real.com'
 
-      expect(extractRedirectUrl(html)).toBe(expected)
+      expect(extractRedirectUrl(value)).toBe(expected)
     })
 
-    it('handles multiple consecutive comments', () => {
-      const html = `
+    it('should handlemultiple consecutive comments', () => {
+      const value = `
         <!-- Comment 1 -->
         <!-- <meta http-equiv="refresh" content="0;url=http://old1.com"> -->
         <!-- Comment 2 -->
@@ -394,11 +394,11 @@ describe('extractRedirectUrl', () => {
       `
       const expected = 'http://real.com'
 
-      expect(extractRedirectUrl(html)).toBe(expected)
+      expect(extractRedirectUrl(value)).toBe(expected)
     })
 
-    it('handles mixed content with scripts, styles, and comments', () => {
-      const html = `
+    it('should handlemixed content with scripts, styles, and comments', () => {
+      const value = `
         <!DOCTYPE html>
         <html>
         <head>
@@ -414,52 +414,52 @@ describe('extractRedirectUrl', () => {
       `
       const expected = 'http://real.com'
 
-      expect(extractRedirectUrl(html)).toBe(expected)
+      expect(extractRedirectUrl(value)).toBe(expected)
     })
   })
 
   describe('broken or invalid HTML', () => {
-    it('handles malformed meta tags', () => {
+    it('should handlemalformed meta tags', () => {
       const cases = [
         '<meta http-equiv="refresh" content="0;url=http://example.com"',
         '<meta http-equiv="refresh" content="0;url=http://example.com>',
       ]
 
-      for (const html of cases) {
-        expect(extractRedirectUrl(html)).toBeUndefined()
+      for (const value of cases) {
+        expect(extractRedirectUrl(value)).toBeUndefined()
       }
     })
   })
 
   describe('empty and edge values', () => {
-    it('handles empty string', () => {
-      const html = ''
+    it('should handleempty string', () => {
+      const value = ''
 
-      expect(extractRedirectUrl(html)).toBeUndefined()
+      expect(extractRedirectUrl(value)).toBeUndefined()
     })
 
-    it('handles whitespace only', () => {
-      const html = '   \n\t  '
+    it('should handlewhitespace only', () => {
+      const value = '   \n\t  '
 
-      expect(extractRedirectUrl(html)).toBeUndefined()
+      expect(extractRedirectUrl(value)).toBeUndefined()
     })
 
-    it('handles meta refresh with empty URL', () => {
-      const html = '<meta http-equiv="refresh" content="0;url=">'
+    it('should handlemeta refresh with empty URL', () => {
+      const value = '<meta http-equiv="refresh" content="0;url=">'
 
-      expect(extractRedirectUrl(html)).toBeUndefined()
+      expect(extractRedirectUrl(value)).toBeUndefined()
     })
 
-    it('handles meta refresh with just whitespace URL', () => {
-      const html = '<meta http-equiv="refresh" content="0;url=   ">'
+    it('should handlemeta refresh with just whitespace URL', () => {
+      const value = '<meta http-equiv="refresh" content="0;url=   ">'
 
-      expect(extractRedirectUrl(html)).toBeUndefined()
+      expect(extractRedirectUrl(value)).toBeUndefined()
     })
   })
 
   describe('real-world examples', () => {
-    it('handles typical redirect page', () => {
-      const html = `
+    it('should handletypical redirect page', () => {
+      const value = `
         <!DOCTYPE html>
         <html>
         <head>
@@ -475,11 +475,11 @@ describe('extractRedirectUrl', () => {
       `
       const expected = 'https://newsite.com/page'
 
-      expect(extractRedirectUrl(html)).toBe(expected)
+      expect(extractRedirectUrl(value)).toBe(expected)
     })
 
-    it('handles instant redirect (0 delay)', () => {
-      const html = `
+    it('should handleinstant redirect (0 delay)', () => {
+      const value = `
         <html>
         <head>
           <meta http-equiv="refresh" content="0;url=https://example.com/new-location">
@@ -488,14 +488,14 @@ describe('extractRedirectUrl', () => {
       `
       const expected = 'https://example.com/new-location'
 
-      expect(extractRedirectUrl(html)).toBe(expected)
+      expect(extractRedirectUrl(value)).toBe(expected)
     })
 
-    it('handles redirect with relative path', () => {
-      const html = '<meta http-equiv="refresh" content="0;url=../moved.html">'
+    it('should handle redirect with relative path', () => {
+      const value = '<meta http-equiv="refresh" content="0;url=../moved.html">'
       const expected = '../moved.html'
 
-      expect(extractRedirectUrl(html)).toBe(expected)
+      expect(extractRedirectUrl(value)).toBe(expected)
     })
   })
 })

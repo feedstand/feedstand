@@ -1,11 +1,3 @@
-/**
- * Test suite for conditionalFetch processor
- *
- * NOTE: These tests require UNSAFE_DISABLE_SSRF_CHECK=true environment variable
- * to allow localhost connections. This is only safe in isolated test environments.
- * DO NOT set this variable in production - it disables SSRF protection for localhost.
- */
-
 import type http from 'node:http'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { NotModifiedError } from '../../errors/NotModifiedError.ts'
@@ -14,6 +6,13 @@ import type { WorkflowContext } from '../../helpers/workflows.ts'
 import type { Channel } from '../../types/schemas.ts'
 import { conditionalFetch } from './conditionalFetch.ts'
 
+/**
+ * Test suite for conditionalFetch processor
+ *
+ * NOTE: These tests require UNSAFE_DISABLE_SSRF_CHECK=true environment variable
+ * to allow localhost connections. This is only safe in isolated test environments.
+ * DO NOT set this variable in production - it disables SSRF protection for localhost.
+ */
 describe('conditionalFetch', () => {
   let server: TestHttpServer
 

@@ -3,9 +3,9 @@ import { convertErrorToString } from './errors.ts'
 
 describe('convertErrorToString', () => {
   it('should convert Error', () => {
-    const error = new Error('Test error')
-    error.stack = undefined
-    const result = convertErrorToString(error)
+    const value = new Error('Test error')
+    value.stack = undefined
+    const result = convertErrorToString(value)
 
     expect(result).toBe('Error: Test error')
   })

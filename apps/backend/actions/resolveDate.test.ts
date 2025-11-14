@@ -13,24 +13,24 @@ describe('parsers/resolveDate', () => {
   })
 
   it('should parse valid Date object', () => {
-    const date = new Date('2024-01-01')
-    const result = resolveDate(date)
+    const value = new Date('2024-01-01')
+    const result = resolveDate(value)
 
     expect(result).toBeInstanceOf(Date)
     expect(result?.toISOString().substring(0, 10)).toEqual('2024-01-01')
   })
 
   it('should parse valid timestamp', () => {
-    const timestamp = 1704067200000
-    const result = resolveDate(timestamp)
+    const value = 1704067200000
+    const result = resolveDate(value)
 
     expect(result).toBeInstanceOf(Date)
     expect(result?.toISOString().startsWith('2024-01-01')).toBeTruthy()
   })
 
   it('should handle different timezones', () => {
-    const date = '2024-01-01T00:00:00+02:00'
-    const result = resolveDate(date)
+    const value = '2024-01-01T00:00:00+02:00'
+    const result = resolveDate(value)
 
     expect(result).toBeInstanceOf(Date)
     // UTC time should be 2 hours behind the input time.

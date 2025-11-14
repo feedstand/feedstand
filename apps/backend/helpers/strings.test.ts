@@ -126,6 +126,24 @@ describe('isJsonLike', () => {
     })
   })
 
+  describe('edge cases', () => {
+    it('should reject string with JSON-like content embedded', () => {
+      expect(isJsonLike('Text before {"name":"John"} text after')).toBe(false)
+    })
+
+    it('should reject string with escaped braces', () => {
+      expect(isJsonLike('"\\{\\"name\\":\\"John\\"\\}"')).toBe(false)
+    })
+
+    it('should reject strings that start with brace but end differently', () => {
+      expect(isJsonLike('{ "name": "test" ]')).toBe(false)
+    })
+
+    it('should reject strings that start with bracket but end differently', () => {
+      expect(isJsonLike('[ 1, 2, 3 }')).toBe(false)
+    })
+  })
+
   describe('invalid JSON-like structures', () => {
     it('should reject plain string', () => {
       expect(isJsonLike('Hello World')).toBe(false)
@@ -170,24 +188,6 @@ describe('isJsonLike', () => {
     it('should reject too short string', () => {
       expect(isJsonLike('{')).toBe(false)
       expect(isJsonLike('[')).toBe(false)
-    })
-  })
-
-  describe('edge cases', () => {
-    it('should reject string with JSON-like content embedded', () => {
-      expect(isJsonLike('Text before {"name":"John"} text after')).toBe(false)
-    })
-
-    it('should reject string with escaped braces', () => {
-      expect(isJsonLike('"\\{\\"name\\":\\"John\\"\\}"')).toBe(false)
-    })
-
-    it('should reject strings that start with brace but end differently', () => {
-      expect(isJsonLike('{ "name": "test" ]')).toBe(false)
-    })
-
-    it('should reject strings that start with bracket but end differently', () => {
-      expect(isJsonLike('[ 1, 2, 3 }')).toBe(false)
     })
   })
 })

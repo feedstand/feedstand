@@ -54,42 +54,42 @@ describe('isOneOfContentTypes', () => {
 
 describe('extractValueByRegex', () => {
   it('should extract value using regex with default match index', async () => {
-    const response = new Response('Hello World 123')
+    const value = new Response('Hello World 123')
     const regex = /World \d+/
-    const result = await extractValueByRegex(response, regex)
+    const result = await extractValueByRegex(value, regex)
 
     expect(result).toBe('World 123')
   })
 
   it('should extract value using regex', async () => {
-    const response = new Response('Hello World 123')
+    const value = new Response('Hello World 123')
     const regex = /World (\d+)/
-    const result = await extractValueByRegex(response, regex, { matchIndex: 1 })
+    const result = await extractValueByRegex(value, regex, { matchIndex: 1 })
 
     expect(result).toBe('123')
   })
 
   it('should return false when no match is found', async () => {
-    const response = new Response('Hello World')
+    const value = new Response('Hello World')
     const regex = /(\d+)/
-    const result = await extractValueByRegex(response, regex)
+    const result = await extractValueByRegex(value, regex)
 
     expect(result).toBe(false)
   })
 
   it('should handle empty response body', async () => {
-    const response = new Response(null)
+    const value = new Response(null)
     const regex = /test/
-    const result = await extractValueByRegex(response, regex)
+    const result = await extractValueByRegex(value, regex)
 
     expect(result).toBe(false)
   })
 
   it('should handle large content with chunk overlap', async () => {
     const longContent = 'a'.repeat(2000) + 'target123' + 'b'.repeat(2000)
-    const response = new Response(longContent)
+    const value = new Response(longContent)
     const regex = /target(\d+)/
-    const result = await extractValueByRegex(response, regex, {
+    const result = await extractValueByRegex(value, regex, {
       matchIndex: 1,
       chunkOverlap: 1000,
     })
@@ -98,9 +98,9 @@ describe('extractValueByRegex', () => {
   })
 
   it('should handle regex with multiple capture groups', async () => {
-    const response = new Response('Hello World 123')
+    const value = new Response('Hello World 123')
     const regex = /(World) (\d+)/
-    const result = await extractValueByRegex(response, regex, { matchIndex: 2 })
+    const result = await extractValueByRegex(value, regex, { matchIndex: 2 })
 
     expect(result).toBe('123')
   })
