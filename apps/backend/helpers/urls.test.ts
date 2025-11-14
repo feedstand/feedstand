@@ -652,6 +652,7 @@ describe('prepareUrl', () => {
 
     it('should decode HTML entity loops but reject due to validation', () => {
       const input = 'https://example.com/feed?x=1&amp;amp;amp;y=2'
+
       // Decodes to &&&, but validateUrl() rejects &amp;amp; pattern.
       expect(prepareUrl(input)).toBeUndefined()
     })
@@ -697,6 +698,7 @@ describe('prepareUrl', () => {
 
     it('should not convert file paths starting with //', () => {
       const input = '//Users/file.xml'
+
       expect(prepareUrl(input)).toBeUndefined()
     })
   })
@@ -752,6 +754,7 @@ describe('prepareUrl', () => {
   describe('Validation option', () => {
     it('should validate by default', () => {
       const input = 'http://localhost/feed'
+
       expect(prepareUrl(input)).toBeUndefined()
     })
 
@@ -789,22 +792,103 @@ describe('prepareUrl', () => {
   describe('Invalid inputs', () => {
     it('should return undefined for invalid URL after processing', () => {
       const input = 'not a url'
+
       expect(prepareUrl(input)).toBeUndefined()
     })
 
     it('should return undefined for SSRF unsafe URL', () => {
       const input = 'https://192.168.1.1/feed'
+
       expect(prepareUrl(input)).toBeUndefined()
     })
 
     it('should return undefined for URL exceeding length limit', () => {
       const input = `https://example.com/${'a'.repeat(2050)}`
+
       expect(prepareUrl(input)).toBeUndefined()
     })
 
     it('should return undefined for relative URL without base', () => {
       const input = 'relative/path'
+
       expect(prepareUrl(input)).toBeUndefined()
+    })
+  })
+
+  describe('Pipe character handling', () => {
+    it('should reject URLs with pipe in query parameters', () => {
+      const input = 'https://example.com/feed?filter=a|b'
+
+      // ssrfcheck rejects URLs with unencoded pipe characters.
+      expect(prepareUrl(input)).toBeUndefined()
+    })
+
+    it('should reject URLs with pipe in path', () => {
+      const input = 'https://example.com/path|with|pipes'
+
+      // ssrfcheck rejects URLs with unencoded pipe characters.
+      expect(prepareUrl(input)).toBeUndefined()
+    })
+
+    it('should reject URLs with multiple unencoded pipes', () => {
+      const input = 'https://example.com/feed?a=1|2|3&b=4|5'
+
+      // ssrfcheck rejects URLs with unencoded pipe characters.
+      expect(prepareUrl(input)).toBeUndefined()
+    })
+
+    it('should accept URLs with properly encoded pipes (%7C)', () => {
+      const input = 'https://example.com/feed?filter=a%7Cb'
+      const expected = 'https://example.com/feed?filter=a%7Cb'
+
+      expect(prepareUrl(input)).toBe(expected)
+    })
+
+    it('should accept URLs with encoded pipes in path', () => {
+      const input = 'https://example.com/path%7Cwith%7Cpipes'
+      const expected = 'https://example.com/path%7Cwith%7Cpipes'
+
+      expect(prepareUrl(input)).toBe(expected)
+    })
+
+    it('should preserve already-encoded pipes during normalization', () => {
+      const input = 'https://example.com/feed?filter=a%7Cb%7Cc'
+      const expected = 'https://example.com/feed?filter=a%7Cb%7Cc'
+
+      expect(prepareUrl(input)).toBe(expected)
+    })
+
+    it('should reject mixed encoded and unencoded pipes', () => {
+      const input = 'https://example.com/feed?a=1&b=%7C&c=|'
+
+      // Rejected due to the unencoded pipe character in parameter c.
+      expect(prepareUrl(input)).toBeUndefined()
+    })
+
+    it('should allow URLs with pipes when validation is disabled', () => {
+      const input = 'https://example.com/feed?filter=a|b'
+      // Validation can be disabled to bypass SSRF checks.
+      const expected = 'https://example.com/feed?filter=a|b'
+
+      expect(prepareUrl(input, { validate: false })).toBe(expected)
+    })
+  })
+
+  describe('Colon character handling', () => {
+    it('should accept URLs with colons in path', () => {
+      const input = 'http://feeds.soundcloud.com/users/soundcloud:users:184264880/sounds.rss'
+      // Colons are allowed by ssrfcheck, unlike pipe characters.
+      const expected = 'http://feeds.soundcloud.com/users/soundcloud:users:184264880/sounds.rss'
+
+      expect(prepareUrl(input)).toBe(expected)
+    })
+
+    it('should accept URLs with colons in query parameters', () => {
+      const input = 'https://example.com/feed?time=10:30:00'
+      // Colons are allowed by ssrfcheck, unlike pipe characters.
+      const expected = 'https://example.com/feed?time=10:30:00'
+
+      expect(prepareUrl(input)).toBe(expected)
     })
   })
 })
@@ -848,27 +932,32 @@ describe('isOneOfDomains', () => {
   describe('Edge cases', () => {
     it('should handle empty domains array', () => {
       const url = 'https://facebook.com'
+
       expect(isOneOfDomains(url, [])).toBe(false)
     })
 
     it('should handle malformed URL gracefully', () => {
       const url = 'not a url'
+
       expect(isOneOfDomains(url, domains)).toBe(false)
     })
 
     it('should handle URL with port', () => {
       const url = 'https://facebook.com:8080/api'
+
       expect(isOneOfDomains(url, domains)).toBe(true)
     })
 
     it('should handle URL with credentials', () => {
       const url = 'https://user:pass@facebook.com/page'
+
       expect(isOneOfDomains(url, domains)).toBe(true)
     })
 
     it('should match exact domain case-insensitively', () => {
       const url = 'https://Facebook.com'
       const lowerDomains = ['facebook.com']
+
       // URL constructor normalizes hostname to lowercase.
       expect(isOneOfDomains(url, lowerDomains)).toBe(true)
     })
