@@ -35,7 +35,7 @@
     "ioredis": "^5.8.2",
     "normalize-url": "^8.1.0",
     "postgres": "^3.4.7",
-    "ssrfcheck": "^1.2.0",
+    "ssrfcheck": "github:macieklamberski/ssrfcheck#typescript-definitions",
     "zod": "^4.1.12"
   },
   "devDependencies": {

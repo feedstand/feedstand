@@ -1,7 +1,6 @@
 import { decodeHTML } from 'entities'
 import * as ipaddr from 'ipaddr.js'
 import normalizeUrl, { type Options } from 'normalize-url'
-// @ts-expect-error: Necessary until the library is replaced or types added.
 import { isSSRFSafeURL } from 'ssrfcheck'
 
 export const isAbsoluteUrl = (url: string): boolean => {
