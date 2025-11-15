@@ -1,4 +1,5 @@
 import { decodeHTML } from 'entities'
+import * as ipaddr from 'ipaddr.js'
 import normalizeUrl, { type Options } from 'normalize-url'
 // @ts-expect-error: Necessary until the library is replaced or types added.
 import { isSSRFSafeURL } from 'ssrfcheck'
@@ -163,12 +164,6 @@ export const validateUrl = (url: string): boolean => {
 /**
  * Prepares a URL for use by decoding HTML entities, normalizing protocols,
  * resolving relative URLs, and optionally validating for security issues.
- *
- * @param url - The URL to prepare
- * @param options - Configuration options
- * @param options.base - Base URL for resolving relative URLs
- * @param options.validate - Whether to validate the URL (default: true)
- * @returns The prepared URL, or undefined if invalid
  */
 export const prepareUrl = (
   url: string,
@@ -213,6 +208,43 @@ export const isOneOfDomains = (url: string, domains: Array<string>): boolean => 
   try {
     const hostname = new URL(url).hostname
     return domains.some((domain) => hostname === domain || hostname.endsWith(`.${domain}`))
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Validates that an IP address is not a private/internal address.
+ * Uses ipaddr.js for comprehensive validation including:
+ * - RFC1918 private (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16)
+ * - Loopback (127.0.0.0/8, ::1)
+ * - Link-local (169.254.0.0/16, fe80::/10)
+ * - Carrier-grade NAT (100.64.0.0/10)
+ * - Reserved/documentation ranges
+ * - IPv4-mapped IPv6 addresses
+ */
+export const isSafePublicIp = (ip: string): boolean => {
+  try {
+    if (!ipaddr.isValid(ip)) {
+      return false
+    }
+
+    const addr = ipaddr.process(ip)
+    const range = addr.range()
+
+    const blockedRanges = [
+      'unspecified',
+      'broadcast',
+      'multicast',
+      'linkLocal',
+      'loopback',
+      'private',
+      'carrierGradeNat',
+      'reserved',
+      'uniqueLocal',
+    ]
+
+    return !blockedRanges.includes(range)
   } catch {
     return false
   }

@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import {
   isAbsoluteUrl,
   isOneOfDomains,
+  isSafePublicIp,
   isSafePublicUrl,
   isSimilarUrl,
   prepareUrl,
@@ -456,6 +457,83 @@ describe('isSafePublicUrl', () => {
 
       expect(isSafePublicUrl(value)).toBe(false)
     })
+  })
+
+  describe('Exotic URL attacks (encoding tricks)', () => {
+    const exoticUrls = [
+      // Decimal notation.
+      'http://2130706433/', // = 127.0.0.1
+      'http://3232235521/', // = 192.168.0.1
+
+      // Hexadecimal notation.
+      'http://0x7f.0x0.0x0.0x1/', // = 127.0.0.1
+      'http://0x7f000001/', // = 127.0.0.1
+      'http://0xc0a80001/', // = 192.168.0.1
+
+      // Octal notation.
+      'http://0177.0.0.1/', // = 127.0.0.1
+      'http://0177.0000.0000.0001/', // = 127.0.0.1
+
+      // Mixed notation.
+      'http://127.1/', // = 127.0.0.1 (shorthand)
+      'http://127.0.1/', // = 127.0.0.1 (shorthand)
+      'http://192.168.1/', // = 192.168.0.1 (shorthand)
+
+      // Dot tricks.
+      'http://..//..//../etc/passwd', // Path traversal in hostname
+      'http://./../.com/', // Dot abuse
+    ]
+
+    for (const url of exoticUrls) {
+      it(`should block exotic URL encoding: ${url}`, () => {
+        expect(isSafePublicUrl(url)).toBe(false)
+      })
+    }
+  })
+
+  describe('Exotic URL attacks (DNS-level validation)', () => {
+    const dnsLayerUrls = [
+      // IPv4-mapped IPv6 (pass URL validation, blocked at DNS layer).
+      'http://[::ffff:127.0.0.1]/', // IPv4-mapped IPv6 loopback
+      'http://[::ffff:c0a8:1]/', // IPv4-mapped IPv6 private
+    ]
+
+    for (const url of dnsLayerUrls) {
+      it(`should pass URL validation but block at DNS layer: ${url}`, () => {
+        expect(isSafePublicUrl(url)).toBe(true)
+      })
+    }
+  })
+
+  describe('Unicode and homograph attacks', () => {
+    const unicodeUrls = [
+      // Ideographic full stops (U+3002).
+      'http://127。0。0。1/', // Chinese full stop instead of period
+      'http://192。168。1。1/',
+
+      // Other Unicode tricks caught by ssrfcheck.
+      'http://127%E3%80%820%E3%80%820%E3%80%821/', // URL-encoded ideographic stops
+    ]
+
+    for (const url of unicodeUrls) {
+      it(`should block Unicode homograph attack: ${url}`, () => {
+        expect(isSafePublicUrl(url)).toBe(false)
+      })
+    }
+  })
+
+  describe('URL parser confusion attacks', () => {
+    const confusingUrls = [
+      'http://localhost%00.evil.com/', // Null byte injection
+      'http://localhost%23.evil.com/', // URL-encoded #
+      'http://127.0.0.1%2F.evil.com/', // URL-encoded /
+    ]
+
+    for (const url of confusingUrls) {
+      it(`should block parser confusion: ${url}`, () => {
+        expect(isSafePublicUrl(url)).toBe(false)
+      })
+    }
   })
 })
 
@@ -961,5 +1039,150 @@ describe('isOneOfDomains', () => {
       // URL constructor normalizes hostname to lowercase.
       expect(isOneOfDomains(url, lowerDomains)).toBe(true)
     })
+  })
+})
+
+describe('isSafePublicIp', () => {
+  describe('IPv4 loopback addresses', () => {
+    const loopbackIps = ['127.0.0.1', '127.0.0.2', '127.1.1.1', '127.255.255.255']
+
+    for (const ip of loopbackIps) {
+      it(`should block loopback IP: ${ip}`, () => {
+        expect(isSafePublicIp(ip)).toBe(false)
+      })
+    }
+  })
+
+  describe('IPv4 private addresses', () => {
+    const privateIps = [
+      '10.0.0.1',
+      '10.255.255.255',
+      '172.16.0.1',
+      '172.31.255.255',
+      '192.168.0.1',
+      '192.168.255.255',
+    ]
+
+    for (const ip of privateIps) {
+      it(`should block private IP: ${ip}`, () => {
+        expect(isSafePublicIp(ip)).toBe(false)
+      })
+    }
+  })
+
+  describe('IPv4 special addresses', () => {
+    const specialIps = [
+      '0.0.0.0',
+      '169.254.0.1',
+      '169.254.255.255',
+      '224.0.0.1',
+      '239.255.255.255',
+      '240.0.0.1',
+      '255.255.255.255',
+    ]
+
+    for (const ip of specialIps) {
+      it(`should block special IP: ${ip}`, () => {
+        expect(isSafePublicIp(ip)).toBe(false)
+      })
+    }
+  })
+
+  describe('IPv4 public addresses', () => {
+    const publicIps = ['8.8.8.8', '1.1.1.1', '93.184.216.34', '151.101.1.69']
+
+    for (const ip of publicIps) {
+      it(`should allow public IP: ${ip}`, () => {
+        expect(isSafePublicIp(ip)).toBe(true)
+      })
+    }
+  })
+
+  describe('IPv6 loopback addresses', () => {
+    const loopbackIps = ['::1', '0:0:0:0:0:0:0:1']
+
+    for (const ip of loopbackIps) {
+      it(`should block IPv6 loopback: ${ip}`, () => {
+        expect(isSafePublicIp(ip)).toBe(false)
+      })
+    }
+  })
+
+  describe('IPv6 link-local addresses', () => {
+    const linkLocalIps = [
+      'fe80::1',
+      'fe81::1',
+      'fe8f::dead:beef',
+      'fe80::dead:beef',
+      'fe9a::1',
+      'feaa::1',
+      'feba::1',
+    ]
+
+    for (const ip of linkLocalIps) {
+      it(`should block IPv6 link-local: ${ip}`, () => {
+        expect(isSafePublicIp(ip)).toBe(false)
+      })
+    }
+  })
+
+  describe('IPv6 unique local addresses', () => {
+    const uniqueLocalIps = ['fc00::1', 'fd00::1', 'fdff:ffff:ffff:ffff:ffff:ffff:ffff:ffff']
+
+    for (const ip of uniqueLocalIps) {
+      it(`should block IPv6 unique local: ${ip}`, () => {
+        expect(isSafePublicIp(ip)).toBe(false)
+      })
+    }
+  })
+
+  describe('IPv4-mapped IPv6 loopback addresses', () => {
+    const mappedLoopbackIps = [
+      '::ffff:127.0.0.1',
+      '::ffff:127.255.255.255',
+      '0:0:0:0:0:ffff:7f00:0001',
+    ]
+
+    for (const ip of mappedLoopbackIps) {
+      it(`should block IPv4-mapped IPv6 loopback: ${ip}`, () => {
+        expect(isSafePublicIp(ip)).toBe(false)
+      })
+    }
+  })
+
+  describe('IPv4-mapped IPv6 private addresses', () => {
+    const mappedPrivateIps = [
+      '::ffff:10.0.0.1',
+      '::ffff:192.168.1.1',
+      '::ffff:172.16.0.1',
+      '0:0:0:0:0:ffff:c0a8:1',
+      '0:0:0:0:0:ffff:ac10:1',
+    ]
+
+    for (const ip of mappedPrivateIps) {
+      it(`should block IPv4-mapped IPv6 private: ${ip}`, () => {
+        expect(isSafePublicIp(ip)).toBe(false)
+      })
+    }
+  })
+
+  describe('IPv6 public addresses', () => {
+    const publicIps = ['2001:4860:4860::8888', '2606:4700:4700::1111']
+
+    for (const ip of publicIps) {
+      it(`should allow IPv6 public: ${ip}`, () => {
+        expect(isSafePublicIp(ip)).toBe(true)
+      })
+    }
+  })
+
+  describe('Invalid IP addresses', () => {
+    const invalidIps = ['256.1.1.1', '1.2.3.4.5', 'not-an-ip', '']
+
+    for (const ip of invalidIps) {
+      it(`should reject invalid IP: ${ip}`, () => {
+        expect(isSafePublicIp(ip)).toBe(false)
+      })
+    }
   })
 })

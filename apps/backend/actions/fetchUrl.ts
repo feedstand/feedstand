@@ -21,7 +21,7 @@ import { UnsafeUrlError } from '../errors/UnsafeUrlError.ts'
 import { createStreamingChecksum } from '../helpers/hashes.ts'
 import { isOneOfContentTypes } from '../helpers/responses.ts'
 import { isJsonLike } from '../helpers/strings.ts'
-import { prepareUrl } from '../helpers/urls.ts'
+import { isSafePublicIp, prepareUrl } from '../helpers/urls.ts'
 
 // TODO:
 // - Tell the server to give the uncompressed data. This is to mitigate issues where some servers
@@ -237,6 +237,16 @@ const fetchUrlAttempt: FetchUrlAttempt = async (url, options) => {
     stream.once('response', resolve)
     stream.once('error', reject)
   })
+
+  // Validate resolved IP address (DNS-level SSRF protection).
+  if (response.ip && !isSafePublicIp(response.ip)) {
+    stream.destroy()
+    console.warn('[SECURITY] SSRF blocked: DNS resolved to private/internal IP', {
+      url,
+      resolvedIp: response.ip,
+    })
+    throw new UnsafeUrlError(`DNS resolved to private IP: ${response.ip}`)
+  }
 
   // Skip body download for retryable statuses to save bandwidth and memory.
   const status = response.statusCode ?? 0
