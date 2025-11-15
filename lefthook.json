@@ -6,7 +6,7 @@
   "pre-commit": {
     "commands": {
       "typescript": {
-        "glob": "*",
+        "glob": "*.{ts,tsx}",
         "run": "npx tsc --build"
       }
     }

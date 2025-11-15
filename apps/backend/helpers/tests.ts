@@ -14,9 +14,9 @@ export type TestServerOptions = {
 }
 
 export class TestHttpServer {
-  private server: http.Server
-  private port: number
-  public url: string
+  private server!: http.Server
+  private port!: number
+  public url!: string
 
   async start(handler: http.RequestListener): Promise<void> {
     this.server = http.createServer(handler)

@@ -8,5 +8,6 @@
     "allowImportingTsExtensions": true,
     "jsx": "react",
     "types": ["vite/client"]
-  }
+  },
+  "include": ["**/*.ts"]
 }

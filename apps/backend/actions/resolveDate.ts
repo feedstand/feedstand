@@ -1242,8 +1242,12 @@ export const resolveDate = (value: DateArg<Date> | null | undefined): Date | und
 
       if (dateCache.size >= MAX_CACHE_SIZE) {
         const firstKey = dateCache.keys().next().value
-        dateCache.delete(firstKey)
+
+        if (firstKey) {
+          dateCache.delete(firstKey)
+        }
       }
+
       dateCache.set(value, result)
 
       return result

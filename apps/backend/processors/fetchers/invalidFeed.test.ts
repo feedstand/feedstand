@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import type { FetchUrlOptions } from '../../actions/fetchUrl.ts'
 import { FetchUrlResponse } from '../../actions/fetchUrl.ts'
 import type { WorkflowContext } from '../../helpers/workflows.ts'
 import type { FeedData } from '../../types/schemas.ts'
@@ -7,7 +8,7 @@ import { invalidFeed } from './invalidFeed.ts'
 describe('invalidFeed processor', () => {
   const mockNext = vi.fn()
   const mockSelf = vi.fn()
-  const baseContext: WorkflowContext<FeedData> = {
+  const baseContext: WorkflowContext<FeedData, FetchUrlOptions> = {
     url: 'https://example.com',
     response: new FetchUrlResponse('', { url: '', contentBytes: 0 }),
   }
@@ -21,6 +22,7 @@ describe('invalidFeed processor', () => {
       meta: {
         etag: null,
         lastModified: null,
+        contentBytes: 0,
         hash: undefined,
         type: 'rss' as const,
         requestUrl: '',

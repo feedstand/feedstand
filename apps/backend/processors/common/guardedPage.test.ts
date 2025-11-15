@@ -41,6 +41,7 @@ describe('guardedPage', () => {
         meta: {
           etag: null,
           lastModified: null,
+          contentBytes: 0,
           hash: '',
           type: 'rss',
           requestUrl: '',

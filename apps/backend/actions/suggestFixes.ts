@@ -1,12 +1,12 @@
 import { inArray } from 'drizzle-orm'
-import type { Opml } from 'feedsmith/types'
+import type { DeepPartial, Opml } from 'feedsmith/types'
 import { tables } from '../database/tables.ts'
 import { prepareUrl } from '../helpers/urls.ts'
 import { db } from '../instances/database.ts'
 import type { Fixable, NewFixable } from '../types/schemas.ts'
 import { upsertChannel } from './upsertChannel.ts'
 
-export type SuggestFixes = (opml: Opml.Document<string>) => Promise<Array<Fixable>>
+export type SuggestFixes = (opml: DeepPartial<Opml.Document<string>>) => Promise<Array<Fixable>>
 
 export const suggestFixes: SuggestFixes = async (opml) => {
   const suggestedFixables: Array<NewFixable> = []

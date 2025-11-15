@@ -1,5 +1,6 @@
 import { decodeHTML } from 'entities'
 import normalizeUrl, { type Options } from 'normalize-url'
+// @ts-expect-error: Necessary until the library is replaced or types added.
 import { isSSRFSafeURL } from 'ssrfcheck'
 
 export const isAbsoluteUrl = (url: string): boolean => {

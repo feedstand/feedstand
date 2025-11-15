@@ -3,7 +3,9 @@
   "compilerOptions": {
     "composite": true,
     "module": "nodenext",
+    "moduleResolution": "nodenext",
     "resolveJsonModule": true,
     "allowImportingTsExtensions": true
-  }
+  },
+  "include": ["**/*.ts"]
 }
