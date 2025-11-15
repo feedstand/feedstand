@@ -1,9 +1,8 @@
-import pLimit from 'p-limit'
 import { chooseFeedUrl } from '../../actions/chooseFeedUrl.ts'
 import { fetchFeed } from '../../actions/fetchFeed.ts'
 import type { FindFeedsProcessor } from '../../actions/findFeeds.ts'
 import { anyFeedContentTypes } from '../../constants/fetchers.ts'
-import { feedFetchConcurrency, ignoredFeedUris } from '../../constants/finders.ts'
+import { ignoredFeedUris } from '../../constants/finders.ts'
 import { isOneOfContentTypes } from '../../helpers/responses.ts'
 import { prepareUrl } from '../../helpers/urls.ts'
 import type { FoundFeeds } from '../../types/schemas.ts'
@@ -64,30 +63,21 @@ export const webpageHeadersFinder: FindFeedsProcessor = async (context, next) =>
 
   const feedUrls = extractFeedUrlsFromHeaders(context.response.headers, context.response.url)
   const feeds: FoundFeeds['feeds'] = []
-  const limit = pLimit(feedFetchConcurrency)
+  const existingUrls = new Set<string>()
 
-  const feedResults = await Promise.all(
-    [...feedUrls].map((feedUrl) =>
-      limit(async () => {
-        try {
-          const feedData = await fetchFeed({ url: feedUrl, channel: context.channel })
-          const chosenUrl = await chooseFeedUrl(feedData)
+  for (const feedUrl of feedUrls) {
+    try {
+      const feedData = await fetchFeed({ url: feedUrl, channel: context.channel })
+      const chosenUrl = await chooseFeedUrl(feedData)
 
-          return {
-            title: feedData.channel.title,
-            url: chosenUrl,
-          }
-        } catch {}
-      }),
-    ),
-  )
-
-  for (const result of feedResults) {
-    if (!result || feeds.some(({ url }) => url === result.url)) {
-      continue
-    }
-
-    feeds.push(result)
+      if (!existingUrls.has(chosenUrl)) {
+        feeds.push({
+          title: feedData.channel.title,
+          url: chosenUrl,
+        })
+        existingUrls.add(chosenUrl)
+      }
+    } catch {}
   }
 
   if (feeds.length) {

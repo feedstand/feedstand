@@ -20,6 +20,7 @@ export const linkFinder: FindFeedsProcessor = async (context, next) => {
   // TODO: Consider stopping at 1st found feed to reduce bandwidth and CPU usage.
 
   const feeds: FoundFeeds['feeds'] = []
+  const existingUrls = new Set<string>()
 
   for (const feedUri of feedUris) {
     try {
@@ -28,7 +29,7 @@ export const linkFinder: FindFeedsProcessor = async (context, next) => {
         validate: true,
       })
 
-      if (!requestUrl || feeds.some(({ url }) => url === requestUrl)) {
+      if (!requestUrl || existingUrls.has(requestUrl)) {
         continue
       }
 
@@ -48,7 +49,7 @@ export const linkFinder: FindFeedsProcessor = async (context, next) => {
 
       const chosenUrl = await chooseFeedUrl(feedData)
 
-      if (feeds.some(({ url }) => url === chosenUrl)) {
+      if (existingUrls.has(chosenUrl)) {
         continue
       }
 
@@ -60,6 +61,7 @@ export const linkFinder: FindFeedsProcessor = async (context, next) => {
       })
 
       feeds.push({ title: feedData.channel.title, url: chosenUrl })
+      existingUrls.add(chosenUrl)
     } catch {
       // TODO: Stop if server returned 522 (origin timeout) - server is unreachable.
       // if ((error as any)?.cause === 522) {

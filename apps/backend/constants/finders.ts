@@ -1,5 +1,3 @@
-export const feedFetchConcurrency = 3
-
 export const youTubeDomains = ['youtu.be', 'youtube.com']
 
 export const ignoredFeedUris = ['wp-json/oembed/', 'wp-json/wp/']
