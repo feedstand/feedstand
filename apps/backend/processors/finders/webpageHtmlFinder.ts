@@ -1,54 +1,13 @@
-import { Parser } from 'htmlparser2'
+import { discoverFeedUris } from 'feedscout'
 import { chooseFeedUrl } from '../../actions/chooseFeedUrl.ts'
 import { fetchFeed } from '../../actions/fetchFeed.ts'
 import type { FindFeedsProcessor } from '../../actions/findFeeds.ts'
 import { anyFeedContentTypes } from '../../constants/fetchers.ts'
 import { feedUris, ignoredFeedUris } from '../../constants/finders.ts'
-import { isOneOfContentTypes } from '../../helpers/responses.ts'
 import { prepareUrl } from '../../helpers/urls.ts'
 import type { FoundFeeds } from '../../types/schemas.ts'
 
-export const extractFeedUrls = (html: string, baseUrl: string): Set<string> => {
-  const feedUrls = new Set<string>()
-
-  // Helper to add URL if valid and not seen.
-  const addUrlIfValid = (href: string | undefined): void => {
-    if (!href || ignoredFeedUris.some((ignored) => href.includes(ignored))) return
-
-    const preparedUrl = prepareUrl(href, {
-      base: baseUrl,
-      validate: true,
-    })
-
-    if (preparedUrl) {
-      feedUrls.add(preparedUrl)
-    }
-  }
-
-  const parser = new Parser({
-    onopentag(name, attribs) {
-      if (name === 'link' && attribs.href) {
-        const rel = attribs.rel?.toLowerCase()
-
-        if (rel === 'alternate' && isOneOfContentTypes(attribs.type, anyFeedContentTypes)) {
-          addUrlIfValid(attribs.href)
-        }
-      }
-
-      // Extract anchor elements with href ending in feed URIs.
-      if (name === 'a' && attribs.href) {
-        if (feedUris.some((uri) => attribs.href.endsWith(uri))) {
-          addUrlIfValid(attribs.href)
-        }
-      }
-    },
-  })
-
-  parser.write(html)
-  parser.end()
-
-  return feedUrls
-}
+const anchorLabels = ['rss', 'feed', 'atom', 'subscribe', 'syndicate', 'json feed']
 
 export const webpageHtmlFinder: FindFeedsProcessor = async (context, next) => {
   if (!context.response) {
@@ -56,9 +15,26 @@ export const webpageHtmlFinder: FindFeedsProcessor = async (context, next) => {
   }
 
   const html = await context.response.text()
-  const feedUrls = extractFeedUrls(html, context.response.url)
+  const rawFeedUrls = discoverFeedUris(html, {
+    linkMimeTypes: anyFeedContentTypes,
+    anchorUris: feedUris,
+    anchorIgnoredUris: ignoredFeedUris,
+    anchorLabels,
+  })
   const feeds: FoundFeeds['feeds'] = []
   const existingUrls = new Set<string>()
+
+  // Resolve and validate raw URLs.
+  const feedUrls = rawFeedUrls
+    .map((url) => {
+      return prepareUrl(url, {
+        base: context.response?.url,
+        validate: true,
+      })
+    })
+    .filter((url): url is string => {
+      return url != null
+    })
 
   for (const feedUrl of feedUrls) {
     try {
