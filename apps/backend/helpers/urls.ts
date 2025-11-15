@@ -223,16 +223,9 @@ export const isOneOfDomains = (url: string, domains: Array<string>): boolean => 
  * - IPv4-mapped IPv6 addresses
  */
 export const isSafePublicIp = (ip: string): boolean => {
-  // UNSAFE: Disable SSRF protection for localhost. Only use in isolated test environments.
+  // UNSAFE: Disable IP validation completely in test environments.
   if (process.env.UNSAFE_DISABLE_SSRF_CHECK === 'true') {
-    try {
-      const addr = ipaddr.process(ip)
-      if (addr.range() === 'loopback') {
-        return true
-      }
-    } catch {
-      // Fall through to normal validation.
-    }
+    return true
   }
 
   try {

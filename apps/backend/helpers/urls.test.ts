@@ -1043,6 +1043,17 @@ describe('isOneOfDomains', () => {
 })
 
 describe('isSafePublicIp', () => {
+  // Temporarily disable the unsafe flag to test actual SSRF protection.
+  const originalEnv = process.env.UNSAFE_DISABLE_SSRF_CHECK
+
+  beforeEach(() => {
+    process.env.UNSAFE_DISABLE_SSRF_CHECK = ''
+  })
+
+  afterEach(() => {
+    process.env.UNSAFE_DISABLE_SSRF_CHECK = originalEnv ?? ''
+  })
+
   describe('IPv4 loopback addresses', () => {
     const loopbackIps = ['127.0.0.1', '127.0.0.2', '127.1.1.1', '127.255.255.255']
 

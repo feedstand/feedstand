@@ -1,6 +1,5 @@
-import { describe } from 'vitest'
+import { describe, it } from 'vitest'
 
 describe('webpageHtmlFinder', () => {
-  // Integration tests for webpageHtmlFinder processor can be added here.
-  // Unit tests for discoverFeedUris are in the feedscout library.
+  it.skip('should discover feed URLs from HTML', () => {})
 })
