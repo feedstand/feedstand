@@ -1,7 +1,10 @@
 import { decodeHTML } from 'entities'
-import * as ipaddr from 'ipaddr.js'
+import * as ipaddrModule from 'ipaddr.js'
 import normalizeUrl, { type Options } from 'normalize-url'
 import { isSSRFSafeURL } from 'ssrfcheck'
+
+// Handle ESM default export (Node.js v24+ with --experimental-transform-types)
+const ipaddr = (ipaddrModule as { default?: typeof ipaddrModule }).default ?? ipaddrModule
 
 export const isAbsoluteUrl = (url: string): boolean => {
   // Protocol-relative URLs are treated as absolute (they have hostname, just need protocol)
