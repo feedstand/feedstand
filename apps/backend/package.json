@@ -28,7 +28,7 @@
     "drizzle-kit": "^0.30.6",
     "drizzle-orm": "^0.38.4",
     "drizzle-zod": "^0.8.3",
-    "feedscout": "^0.9.0",
+    "feedscout": "^1.0.0-beta.1",
     "feedsmith": "^2.4.0",
     "got": "^14.6.3",
     "hono": "^4.10.4",
