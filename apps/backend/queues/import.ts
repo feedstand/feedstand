@@ -9,7 +9,7 @@ export const importQueue = createQueue(
     queue: {
       defaultJobOptions: {
         removeOnComplete: 100,
-        removeOnFail: 1000,
+        removeOnFail: false,
         attempts: 5,
         backoff: {
           type: 'exponential',
