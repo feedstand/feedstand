@@ -1,5 +1,12 @@
 import { startSpan, withScope } from '@sentry/node'
-import { type Processor, Queue, type QueueOptions, Worker, type WorkerOptions } from 'bullmq'
+import {
+  type Processor,
+  Queue,
+  type QueueOptions,
+  UnrecoverableError,
+  Worker,
+  type WorkerOptions,
+} from 'bullmq'
 import { hasWorkerFeature } from '../constants/features.ts'
 import { GuardedUrlError } from '../errors/GuardedUrlError.ts'
 import { RateLimitError } from '../errors/RateLimitError.ts'
@@ -44,18 +51,13 @@ export const createQueue = <Data, Result, Name extends string>(
           jobId: job.id,
           jobName: job.name,
           queueName: job.queueName,
+          jobData: job.data,
           errorType: error.constructor.name,
           errorMessage: error.message,
-          url: (error as any).url,
-          cause: (error as any).cause?.message,
-          causeCode: (error as any).cause?.code,
           stack: error.stack?.split('\n').slice(0, 3).join('\n'),
         })
 
-        await job.moveToFailed(error, job.token || '', true)
-
-        // For permanent failures, manually fail the job and return.
-        return undefined as Result
+        throw new UnrecoverableError(error.message)
       }
 
       if (error instanceof RateLimitError) {
