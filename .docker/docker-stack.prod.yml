@@ -204,9 +204,9 @@ services:
       <<: *common-deploy
       replicas: 40
       resources:
-        limits:
-          cpus: '1.0'
-          memory: 450M
+        # limits:
+        #   cpus: '1.0'
+        #   memory: 450M
         reservations:
           cpus: '0.25'
           memory: 200M
