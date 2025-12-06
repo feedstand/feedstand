@@ -8,7 +8,7 @@ export const safeText = customType<{ data: string; driverData: string }>({
   fromDriver: (value: string): string => {
     return value
   },
-  toDriver: (value: unknown): string => {
+  toDriver: (value: string): string => {
     return removeNullBytes(value)
   },
 })

@@ -12,7 +12,7 @@ export const safeVarchar = customType<{
   fromDriver: (value: string): string => {
     return value
   },
-  toDriver: (value: unknown): string => {
+  toDriver: (value: string): string => {
     return removeNullBytes(value)
   },
 })
