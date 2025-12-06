@@ -1,5 +1,4 @@
 import { consoleLoggingIntegration, init } from '@sentry/node'
-import { nodeProfilingIntegration } from '@sentry/profiling-node'
 import { version } from '../constants/app.ts'
 import { hasMigratorFeature, hasServerFeature, hasWorkerFeature } from '../constants/features.ts'
 import { dsn, environment } from '../constants/sentry.ts'
@@ -8,14 +7,8 @@ export const sentry = init({
   dsn,
   environment,
   release: version,
-  integrations: [
-    nodeProfilingIntegration(),
-    consoleLoggingIntegration({ levels: ['log', 'warn', 'error'] }),
-  ],
+  integrations: [consoleLoggingIntegration({ levels: ['log', 'warn', 'error'] })],
   tracesSampleRate: 0.025,
-  // TODO: Enable later for small subset.
-  // profileSessionSampleRate: 1.0,
-  profileLifecycle: 'trace',
   enableLogs: true,
   initialScope: {
     tags: {
