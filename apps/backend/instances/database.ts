@@ -16,4 +16,4 @@ export const client = postgres({
   max_lifetime: 1800,
 })
 
-export const db = drizzle(client, { schema })
+export const db = drizzle({ client, schema })
