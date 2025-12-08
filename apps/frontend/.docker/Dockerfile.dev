@@ -1,13 +1,14 @@
-FROM node:22-alpine
-WORKDIR /home/node
+FROM oven/bun:alpine
+WORKDIR /home/bun
 
 ENV VITE_VERSION_TAG=dev
 
-COPY package*.json .
-COPY tsconfig.json .
+COPY package.json bun.lock ./
+COPY tsconfig.json ./
+COPY apps/backend/package.json apps/backend/
 COPY apps/frontend/package.json apps/frontend/
 RUN bun install --frozen-lockfile --backend=copyfile --linker=hoisted
 
 COPY . .
 EXPOSE 4000
-CMD ["npm", "run", "dev", "-w", "apps/frontend"]
+CMD ["bun", "run", "--cwd", "apps/frontend", "dev"]
