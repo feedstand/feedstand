@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'bun:test'
 import { FetchUrlResponse } from '../actions/fetchUrl.ts'
 import type { Channel } from '../types/schemas.ts'
 import type { WorkflowContext, WorkflowProcessor } from './workflows.ts'

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'bun:test'
 import { convertErrorToString } from './errors.ts'
 
 describe('convertErrorToString', () => {

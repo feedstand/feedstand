@@ -1,42 +1,33 @@
-import { beforeEach, describe, it, vi } from 'vitest'
-import type { FeedData } from '../types/schemas.ts'
-import { chooseFeedUrl } from './chooseFeedUrl.ts'
+import { describe, it } from 'bun:test'
 
-// Mock fetchUrl module
-vi.mock('./fetchUrl.ts', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('./fetchUrl.ts')>()
-  return {
-    ...actual,
-    fetchUrl: vi.fn(),
-  }
-})
+// import type { FeedData } from '../types/schemas.ts'
+// import { chooseFeedUrl } from './chooseFeedUrl.ts'
 
-const { fetchUrl } = await import('./fetchUrl.ts')
-const mockFetchUrl = fetchUrl as ReturnType<typeof vi.fn>
+// TODO: Implement mocking once test bodies are added
+// const mockFetchUrl = mock()
+// mock.module('./fetchUrl.ts', () => ({
+//   fetchUrl: mockFetchUrl,
+// }))
 
 describe('chooseFeedUrl', () => {
-  const baseFeedData: FeedData = {
-    meta: {
-      etag: null,
-      hash: 'hash123',
-      lastModified: null,
-      contentBytes: 0,
-      type: 'rss',
-      requestUrl: 'https://example.com/feed.xml',
-      responseUrl: 'https://example.com/feed.xml',
-    },
-    channel: {
-      title: 'Test Feed',
-      description: 'Test Description',
-      siteUrl: 'https://example.com',
-      selfUrl: 'https://example.com/feed.xml',
-    },
-    items: [],
-  }
-
-  beforeEach(() => {
-    mockFetchUrl.mockClear()
-  })
+  // const baseFeedData: FeedData = {
+  //   meta: {
+  //     etag: null,
+  //     hash: 'hash123',
+  //     lastModified: null,
+  //     contentBytes: 0,
+  //     type: 'rss',
+  //     requestUrl: 'https://example.com/feed.xml',
+  //     responseUrl: 'https://example.com/feed.xml',
+  //   },
+  //   channel: {
+  //     title: 'Test Feed',
+  //     description: 'Test Description',
+  //     siteUrl: 'https://example.com',
+  //     selfUrl: 'https://example.com/feed.xml',
+  //   },
+  //   items: [],
+  // }
 
   describe('when selfUrl is empty', () => {
     /**

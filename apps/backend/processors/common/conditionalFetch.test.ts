@@ -1,5 +1,5 @@
+import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
 import type http from 'node:http'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { NotModifiedError } from '../../errors/NotModifiedError.ts'
 import { TestHttpServer } from '../../helpers/tests.ts'
 import type { WorkflowContext } from '../../helpers/workflows.ts'

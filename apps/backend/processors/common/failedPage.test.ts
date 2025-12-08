@@ -1,11 +1,11 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { FetchUrlResponse } from '../../actions/fetchUrl.ts'
 import type { WorkflowContext } from '../../helpers/workflows.ts'
 import { failedPage } from './failedPage.ts'
 
 describe('failedPage', () => {
-  const mockNext = vi.fn().mockResolvedValue(undefined)
-  const mockSelf = vi.fn()
+  const mockNext = mock(() => Promise.resolve(undefined))
+  const mockSelf = mock()
   const baseContext: WorkflowContext<unknown> = {
     url: 'https://example.com',
     response: new FetchUrlResponse('', { url: '', contentBytes: 0 }),
@@ -36,7 +36,7 @@ describe('failedPage', () => {
   it('should handle Error causes', async () => {
     const cause = 'Some cause'
     const error = new Error('Surface error', { cause })
-    const context = { ...baseContext, error }
+    const context: typeof baseContext & { error?: unknown } = { ...baseContext, error }
 
     await failedPage(context, mockNext, mockSelf)
 

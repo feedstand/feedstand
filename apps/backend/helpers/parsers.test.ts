@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'bun:test'
 import { parseValue } from './parsers.ts'
 
 describe('parseValue', () => {
@@ -30,8 +30,8 @@ describe('parseValue', () => {
   })
 
   it('should return fallback value if no parser succeeds', () => {
-    const parser1 = (value: string) => (value === 'one' ? 1 : undefined)
-    const parser2 = (value: string) => (value === 'two' ? 2 : undefined)
+    const parser1 = (value: string): number | undefined => (value === 'one' ? 1 : undefined)
+    const parser2 = (value: string): number | undefined => (value === 'two' ? 2 : undefined)
 
     const result = parseValue('three', [parser1, parser2], 0)
 

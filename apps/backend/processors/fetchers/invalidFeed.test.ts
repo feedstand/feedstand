@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import type { FetchUrlOptions } from '../../actions/fetchUrl.ts'
 import { FetchUrlResponse } from '../../actions/fetchUrl.ts'
 import type { WorkflowContext } from '../../helpers/workflows.ts'
@@ -6,8 +6,8 @@ import type { FeedData } from '../../types/schemas.ts'
 import { invalidFeed } from './invalidFeed.ts'
 
 describe('invalidFeed processor', () => {
-  const mockNext = vi.fn()
-  const mockSelf = vi.fn()
+  const mockNext = mock()
+  const mockSelf = mock()
   const baseContext: WorkflowContext<FeedData, FetchUrlOptions> = {
     url: 'https://example.com',
     response: new FetchUrlResponse('', { url: '', contentBytes: 0 }),

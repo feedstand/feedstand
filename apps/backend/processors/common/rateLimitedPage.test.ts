@@ -1,17 +1,17 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { FetchUrlResponse } from '../../actions/fetchUrl.ts'
 import type { WorkflowContext } from '../../helpers/workflows.ts'
 import type { FeedData } from '../../types/schemas.ts'
 import { rateLimitedPage } from './rateLimitedPage.ts'
 
-vi.mock('../../helpers/rateLimits.ts', () => ({
-  markRateLimited: vi.fn(),
-  getRateLimitDuration: vi.fn(() => 300),
+mock.module('../../helpers/rateLimits.ts', () => ({
+  markRateLimited: mock(),
+  getRateLimitDuration: mock(() => 300),
 }))
 
 describe('rateLimitedPage', () => {
-  const mockNext = vi.fn()
-  const mockSelf = vi.fn()
+  const mockNext = mock()
+  const mockSelf = mock()
 
   const createContext = (
     url: string,

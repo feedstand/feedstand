@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'bun:test'
 import { extractValueByRegex, isOneOfContentTypes } from './responses.ts'
 
 describe('isOneOfContentTypes', () => {
@@ -86,7 +86,7 @@ describe('extractValueByRegex', () => {
   })
 
   it('should handle large content with chunk overlap', async () => {
-    const longContent = 'a'.repeat(2000) + 'target123' + 'b'.repeat(2000)
+    const longContent = `${'a'.repeat(2000)}target123${'b'.repeat(2000)}`
     const value = new Response(longContent)
     const regex = /target(\d+)/
     const result = await extractValueByRegex(value, regex, {

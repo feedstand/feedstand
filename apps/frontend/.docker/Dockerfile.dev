@@ -3,11 +3,10 @@ WORKDIR /home/bun
 
 ENV VITE_VERSION_TAG=dev
 
-COPY package.json bun.lock ./
-COPY tsconfig.json ./
+COPY package.json bun.lock bunfig.toml tsconfig.json ./
 COPY apps/backend/package.json apps/backend/
 COPY apps/frontend/package.json apps/frontend/
-RUN bun install --frozen-lockfile --backend=copyfile --linker=hoisted
+RUN bun install --frozen-lockfile
 
 COPY . .
 EXPOSE 4000

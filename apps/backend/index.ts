@@ -1,4 +1,3 @@
-import { serve } from '@hono/node-server'
 import { migrate } from 'drizzle-orm/postgres-js/migrator'
 import * as databaseConstants from './constants/database.ts'
 import { hasMigratorFeature, hasServerFeature } from './constants/features.ts'
@@ -16,7 +15,7 @@ if (hasMigratorFeature) {
 }
 
 if (hasServerFeature) {
-  serve({
+  Bun.serve({
     fetch: hono.fetch,
     hostname: serverConstants.host,
     port: serverConstants.port,

@@ -10,9 +10,13 @@ export default defineConfig(({ command }) => ({
   },
   build: {
     emptyOutDir: true,
+    // TODO: Add drop_console when Vite 8 stable supports it via rolldown.
   },
-  esbuild: {
-    drop: command === 'build' ? ['console', 'debugger'] : [],
-  },
-  plugins: [react(), tailwind(), checker({ typescript: true })],
+  plugins: [
+    react(),
+    tailwind(),
+    // Checker enabled only during serve.
+    // See: https://github.com/fi3ework/vite-plugin-checker/issues/428.
+    command === 'serve' && checker({ typescript: true }),
+  ],
 }))

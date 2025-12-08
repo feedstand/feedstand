@@ -2,6 +2,24 @@
 **/Thumbs.db
 **/.DS_Store
 
+# Git
+**/.git
+**/.gitignore
+
+# IDE
+**/.vscode
+**/.idea
+**/.zed
+**/.claude
+
+# Tests
+**/*.test.ts
+**/coverage
+
+# Docs
+**/*.md
+**/LICENSE
+
 # Environment
 # **/.env* # TODO: Only ignore when running docker-compose.prod.yml.
 
@@ -11,7 +29,7 @@
 !**/.docker/nginx.conf
 !**/.docker/.env.prod
 **/lefthook.json
-**/release.json
 **/biome.json
 # **/vite.config.js # TODO: Only ignore when running docker-compose.prod.yml.
 **/node_modules
+**/play

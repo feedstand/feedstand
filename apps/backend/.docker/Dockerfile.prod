@@ -4,12 +4,11 @@ RUN apk add --no-cache git
 WORKDIR /app
 
 # Copy workspace files
-COPY package.json bun.lock ./
+COPY package.json bun.lock bunfig.toml ./
 COPY apps/backend/package.json apps/backend/
 COPY apps/frontend/package.json apps/frontend/
 
-# Install dependencies (use copyfile to avoid symlinks, hoisted for npm-like structure)
-RUN bun install --frozen-lockfile --backend=copyfile --linker=hoisted
+RUN bun install --frozen-lockfile
 
 # Copy source
 COPY apps/backend apps/backend/
@@ -22,9 +21,8 @@ RUN bun build index.ts \
   --external=@node-rs/xxhash \
   --outdir=/app/dist
 
-# Production image
+# Production image (wget available via BusyBox for health checks)
 FROM oven/bun:alpine
-RUN apk add --no-cache wget
 WORKDIR /app
 
 ARG VERSION_TAG

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'bun:test'
 import dateResolveDateJson from './resolveDate.mock.json' with { type: 'json' }
 import { resolveDate } from './resolveDate.ts'
 
@@ -55,19 +55,15 @@ describe('parsers/resolveDate', () => {
     expect(result).toBeUndefined()
   })
 
-  for (const [input, output] of Object.entries(datesValid)) {
-    it(`should parse valid date ${input}`, () => {
-      const result = resolveDate(input)
+  it.each(Object.entries(datesValid))('should parse valid date %s', (value, expected) => {
+    const result = resolveDate(value)
 
-      expect(result?.toISOString()).toBe(output)
-    })
-  }
+    expect(result?.toISOString()).toBe(expected)
+  })
 
-  for (const input of Object.keys(datesInvalid)) {
-    it(`should return undefined for invalid date ${input}`, () => {
-      const result = resolveDate(input)
+  it.each(Object.keys(datesInvalid))('should return undefined for invalid date %s', (value) => {
+    const result = resolveDate(value)
 
-      expect(result).toBeUndefined()
-    })
-  }
+    expect(result).toBeUndefined()
+  })
 })

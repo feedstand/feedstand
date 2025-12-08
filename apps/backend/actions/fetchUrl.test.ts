@@ -1,13 +1,6 @@
-/**
- * Comprehensive test suite for fetchUrl action
- *
- * Note: HTTP behavior tests (retries, content-type rejection, size limits) are integration
- * tests that require real HTTP endpoints. They should be tested in end-to-end tests.
- */
-
+import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
 import type http from 'node:http'
 import zlib from 'node:zlib'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { UnsafeUrlError } from '../errors/UnsafeUrlError.ts'
 import { createStreamingChecksum } from '../helpers/hashes.ts'
 import { TestHttpServer } from '../helpers/tests.ts'
@@ -20,16 +13,16 @@ import { FetchUrlResponse, fetchUrl } from './fetchUrl.ts'
 describe('FetchUrlResponse', () => {
   describe('text() method', () => {
     it('should return body as string', async () => {
-      const body = '<?xml version="1.0"?><rss><channel><title>Test</title></channel></rss>'
-      const response = new FetchUrlResponse(body, {
+      const value = '<?xml version="1.0"?><rss><channel><title>Test</title></channel></rss>'
+      const response = new FetchUrlResponse(value, {
         url: 'https://example.com/feed.xml',
         status: 200,
         statusText: 'OK',
         headers: new Headers(),
-        contentBytes: body.length,
+        contentBytes: value.length,
       })
 
-      expect(await response.text()).toBe(body)
+      expect(await response.text()).toBe(value)
     })
 
     it('should handle empty body', async () => {
@@ -45,29 +38,29 @@ describe('FetchUrlResponse', () => {
     })
 
     it('should handle UTF-8 content', async () => {
-      const body = '<?xml version="1.0" encoding="UTF-8"?><rss><title>你好世界</title></rss>'
-      const response = new FetchUrlResponse(body, {
+      const value = '<?xml version="1.0" encoding="UTF-8"?><rss><title>你好世界</title></rss>'
+      const response = new FetchUrlResponse(value, {
         url: 'https://example.com',
         status: 200,
         statusText: 'OK',
         headers: new Headers(),
-        contentBytes: Buffer.byteLength(body, 'utf8'),
+        contentBytes: Buffer.byteLength(value, 'utf8'),
       })
 
-      expect(await response.text()).toBe(body)
+      expect(await response.text()).toBe(value)
     })
 
     it('should handle emojis and special characters', async () => {
-      const body = '<?xml version="1.0"?><rss><title>🚀 Test Feed 🎉</title></rss>'
-      const response = new FetchUrlResponse(body, {
+      const value = '<?xml version="1.0"?><rss><title>🚀 Test Feed 🎉</title></rss>'
+      const response = new FetchUrlResponse(value, {
         url: 'https://example.com',
         status: 200,
         statusText: 'OK',
         headers: new Headers(),
-        contentBytes: Buffer.byteLength(body, 'utf8'),
+        contentBytes: Buffer.byteLength(value, 'utf8'),
       })
 
-      expect(await response.text()).toBe(body)
+      expect(await response.text()).toBe(value)
     })
 
     it('should handle large content', async () => {
@@ -97,85 +90,88 @@ describe('FetchUrlResponse', () => {
     })
 
     it('should handle newlines and multiline content', async () => {
-      const body =
+      const value =
         '<?xml version="1.0"?>\n<rss>\n  <channel>\n    <title>Test</title>\n  </channel>\n</rss>'
-      const response = new FetchUrlResponse(body, {
+      const response = new FetchUrlResponse(value, {
         url: 'https://example.com',
         status: 200,
         statusText: 'OK',
         headers: new Headers(),
-        contentBytes: body.length,
+        contentBytes: value.length,
       })
 
-      expect(await response.text()).toBe(body)
+      expect(await response.text()).toBe(value)
     })
 
     it('should handle special XML characters', async () => {
-      const body = '<?xml version="1.0"?><rss><title>&lt;Test &amp; More&gt;</title></rss>'
-      const response = new FetchUrlResponse(body, {
+      const value = '<?xml version="1.0"?><rss><title>&lt;Test &amp; More&gt;</title></rss>'
+      const response = new FetchUrlResponse(value, {
         url: 'https://example.com',
         status: 200,
         statusText: 'OK',
         headers: new Headers(),
-        contentBytes: body.length,
+        contentBytes: value.length,
       })
 
-      expect(await response.text()).toBe(body)
+      expect(await response.text()).toBe(value)
     })
   })
 
   describe('json() method', () => {
     it('should parse valid JSON', async () => {
-      const body = '{"feed": {"title": "Test"}}'
-      const response = new FetchUrlResponse(body, {
+      const value = '{"feed": {"title": "Test"}}'
+      const response = new FetchUrlResponse(value, {
         url: 'https://example.com',
         status: 200,
         statusText: 'OK',
         headers: new Headers(),
-        contentBytes: body.length,
+        contentBytes: value.length,
       })
+      const expected = { feed: { title: 'Test' } }
 
-      expect(await response.json()).toEqual({ feed: { title: 'Test' } })
+      expect(await response.json<unknown>()).toEqual(expected)
     })
 
     it('should parse JSON array', async () => {
-      const body = '[{"id": 1}, {"id": 2}]'
-      const response = new FetchUrlResponse(body, {
+      const value = '[{"id": 1}, {"id": 2}]'
+      const response = new FetchUrlResponse(value, {
         url: 'https://example.com',
         status: 200,
         statusText: 'OK',
         headers: new Headers(),
-        contentBytes: body.length,
+        contentBytes: value.length,
       })
+      const expected = [{ id: 1 }, { id: 2 }]
 
-      expect(await response.json()).toEqual([{ id: 1 }, { id: 2 }])
+      expect(await response.json<unknown>()).toEqual(expected)
     })
 
     it('should parse nested JSON', async () => {
-      const body = '{"feed": {"items": [{"title": "Item 1"}, {"title": "Item 2"}]}}'
-      const response = new FetchUrlResponse(body, {
+      const value = '{"feed": {"items": [{"title": "Item 1"}, {"title": "Item 2"}]}}'
+      const response = new FetchUrlResponse(value, {
         url: 'https://example.com',
         status: 200,
         statusText: 'OK',
         headers: new Headers(),
-        contentBytes: body.length,
+        contentBytes: value.length,
       })
-
-      expect(await response.json()).toEqual({
+      const expected = {
         feed: {
           items: [{ title: 'Item 1' }, { title: 'Item 2' }],
         },
-      })
+      }
+
+      expect(await response.json<unknown>()).toEqual(expected)
     })
 
     it('should return undefined for invalid JSON', async () => {
-      const body = '<?xml version="1.0"?><rss></rss>'
-      const response = new FetchUrlResponse(body, {
+      const value = '<?xml version="1.0"?><rss></rss>'
+      const response = new FetchUrlResponse(value, {
         url: 'https://example.com',
         status: 200,
         statusText: 'OK',
         headers: new Headers(),
-        contentBytes: body.length,
+        contentBytes: value.length,
       })
 
       expect(await response.json()).toBeUndefined()
@@ -194,13 +190,13 @@ describe('FetchUrlResponse', () => {
     })
 
     it('should handle malformed JSON gracefully', async () => {
-      const body = '{"incomplete": '
-      const response = new FetchUrlResponse(body, {
+      const value = '{"incomplete": '
+      const response = new FetchUrlResponse(value, {
         url: 'https://example.com',
         status: 200,
         statusText: 'OK',
         headers: new Headers(),
-        contentBytes: body.length,
+        contentBytes: value.length,
       })
 
       expect(await response.json()).toBeUndefined()
@@ -337,33 +333,33 @@ describe('FetchUrlResponse', () => {
     })
 
     it('should handle UTF-8 multi-byte characters correctly', () => {
-      // String "中文" has 2 code units (.length = 2) but 6 bytes in UTF-8
-      const body = '中文'
-      const response = new FetchUrlResponse(body, {
+      // String "中文" has 2 code units (.length = 2) but 6 bytes in UTF-8.
+      const value = '中文'
+      const response = new FetchUrlResponse(value, {
         url: 'https://example.com',
         status: 200,
         statusText: 'OK',
         headers: new Headers(),
-        contentBytes: 6, // Actual UTF-8 bytes
+        contentBytes: 6,
       })
 
-      expect(body.length).toBe(2) // UTF-16 code units
-      expect(response.contentBytes).toBe(6) // Actual bytes
+      expect(value.length).toBe(2)
+      expect(response.contentBytes).toBe(6)
     })
 
     it('should handle emoji correctly', () => {
-      // Emoji "😀" has .length = 2 (surrogate pair) but 4 bytes in UTF-8
-      const body = '😀'
-      const response = new FetchUrlResponse(body, {
+      // Emoji "😀" has .length = 2 (surrogate pair) but 4 bytes in UTF-8.
+      const value = '😀'
+      const response = new FetchUrlResponse(value, {
         url: 'https://example.com',
         status: 200,
         statusText: 'OK',
         headers: new Headers(),
-        contentBytes: 4, // Actual UTF-8 bytes
+        contentBytes: 4,
       })
 
-      expect(body.length).toBe(2) // UTF-16 code units (surrogate pair)
-      expect(response.contentBytes).toBe(4) // Actual bytes
+      expect(value.length).toBe(2)
+      expect(response.contentBytes).toBe(4)
     })
 
     it('should be 0 for empty responses', () => {
@@ -1217,7 +1213,7 @@ describe.skip('fetchUrl: Timeouts (E2E)', () => {
    * - timeout.request: 15000 (fetchUrl.ts:112)
    * - Use setTimeout(() => res.writeHead(...), 16000)
    */
-  it.todo('should timeout when headers delayed beyond maxTimeout')
+  it.todo('should timeout when headers delayed beyond maxTimeout', () => {})
 
   /**
    * Test: Slow body
@@ -1235,7 +1231,7 @@ describe.skip('fetchUrl: Timeouts (E2E)', () => {
    * - timeout.request applies to entire request lifecycle
    * - Test with chunked response, long delays between chunks
    */
-  it.todo('should timeout when body chunks delayed beyond maxTimeout')
+  it.todo('should timeout when body chunks delayed beyond maxTimeout', () => {})
 
   /**
    * Test: Complete timeout
@@ -1253,7 +1249,7 @@ describe.skip('fetchUrl: Timeouts (E2E)', () => {
    * - Don't call any res.write() or res.end()
    * - Let request hang until timeout
    */
-  it.todo('should timeout when no response received')
+  it.todo('should timeout when no response received', () => {})
 
   /**
    * Test: Partial timeout
@@ -1270,7 +1266,7 @@ describe.skip('fetchUrl: Timeouts (E2E)', () => {
    * - Send 50% of body, then sleep forever
    * - Simulates broken connection mid-transfer
    */
-  it.todo('should timeout when response stalls mid-stream')
+  it.todo('should timeout when response stalls mid-stream', () => {})
 })
 
 describe('fetchUrl: Size Limits (E2E)', () => {
@@ -1411,7 +1407,7 @@ describe('fetchUrl: Retry Logic (E2E)', () => {
    * - TODO: Difficult to test - requires 45s+ for 3 timeouts at 15s each
    * - Tested manually in production logs
    */
-  it.todo('should retry 3 times on ETIMEDOUT error')
+  it.todo('should retry 3 times on ETIMEDOUT error', () => {})
 
   /**
    * Test: ECONNRESET retry
@@ -1432,7 +1428,7 @@ describe('fetchUrl: Retry Logic (E2E)', () => {
    * - Requires TCP-level simulation, not HTTP-level
    * - Tested manually in production logs
    */
-  it.todo('should retry 3 times on ECONNRESET error')
+  it.todo('should retry 3 times on ECONNRESET error', () => {})
 
   /**
    * Test: EPIPE retry
@@ -1449,7 +1445,7 @@ describe('fetchUrl: Retry Logic (E2E)', () => {
    * - EPIPE = broken pipe (client closed connection prematurely)
    * - May need to emit error event on stream
    */
-  it.todo('should retry 3 times on EPIPE error')
+  it.todo('should retry 3 times on EPIPE error', () => {})
 
   /**
    * Test: ENOTFOUND no retry
@@ -1497,7 +1493,7 @@ describe('fetchUrl: Retry Logic (E2E)', () => {
    * - Connection refused = server not running
    * - Retrying won't help
    */
-  it.todo('should NOT retry on ECONNREFUSED')
+  it.todo('should NOT retry on ECONNREFUSED', () => {})
 
   /**
    * Test: 403 with User-Agent rotation
@@ -1913,7 +1909,7 @@ describe('fetchUrl: Retry Logic (E2E)', () => {
    * - IPv4 fallback increases success rate
    * - May need to mock Got's options to verify
    */
-  it.todo('should fallback to IPv4 on ENETUNREACH error')
+  it.todo('should fallback to IPv4 on ENETUNREACH error', () => {})
 })
 
 describe('fetchUrl: Content Filtering (E2E)', () => {
@@ -2195,7 +2191,7 @@ describe('fetchUrl: Streaming Edge Cases (E2E)', () => {
    * - Send 50% of body, then destroy socket
    * - Should retry from beginning, not resume
    */
-  it.todo('should handle connection drop mid-stream with retry')
+  it.todo('should handle connection drop mid-stream with retry', () => {})
 
   /**
    * Test: Malformed chunks
@@ -2212,7 +2208,7 @@ describe('fetchUrl: Streaming Edge Cases (E2E)', () => {
    * - Raw socket write with bad HTTP chunk format
    * - Tests error handling robustness
    */
-  it.todo('should handle malformed chunked encoding gracefully')
+  it.todo('should handle malformed chunked encoding gracefully', () => {})
 
   /**
    * Test: Multiple chunks
@@ -2420,7 +2416,7 @@ describe.skip('fetchUrl: Error Handling (E2E)', () => {
    * - May throw before our code runs
    * - Verify error handling
    */
-  it.todo('should throw on invalid/malformed URL')
+  it.todo('should throw on invalid/malformed URL', () => {})
 
   /**
    * Test: DNS resolution failure (already covered in retry section)
@@ -2436,7 +2432,7 @@ describe.skip('fetchUrl: Error Handling (E2E)', () => {
    * Implementation notes:
    * - See retry section test for ENOTFOUND
    */
-  it.todo('should fail immediately on DNS resolution failure')
+  it.todo('should fail immediately on DNS resolution failure', () => {})
 
   /**
    * Test: Connection refused (already covered in retry section)
@@ -2451,7 +2447,7 @@ describe.skip('fetchUrl: Error Handling (E2E)', () => {
    * Implementation notes:
    * - See retry section test
    */
-  it.todo('should fail immediately on connection refused')
+  it.todo('should fail immediately on connection refused', () => {})
 
   /**
    * Test: SSL certificate invalid
@@ -2467,7 +2463,7 @@ describe.skip('fetchUrl: Error Handling (E2E)', () => {
    * - Create HTTPS server with bad cert
    * - Verify request succeeds despite cert issue
    */
-  it.todo('should accept invalid SSL certificates (rejectUnauthorized: false)')
+  it.todo('should accept invalid SSL certificates (rejectUnauthorized: false)', () => {})
 
   /**
    * Test: Socket hang up
@@ -2483,7 +2479,7 @@ describe.skip('fetchUrl: Error Handling (E2E)', () => {
    * Implementation notes:
    * - Destroy socket immediately: req.socket.destroy()
    */
-  it.todo('should handle socket hang up errors')
+  it.todo('should handle socket hang up errors', () => {})
 
   /**
    * Test: Network unreachable
@@ -2500,7 +2496,7 @@ describe.skip('fetchUrl: Error Handling (E2E)', () => {
    * - Difficult to simulate without OS-level changes
    * - May need to mock error emission
    */
-  it.todo('should handle network unreachable errors with IPv4 fallback')
+  it.todo('should handle network unreachable errors with IPv4 fallback', () => {})
 
   /**
    * Test: Broken response
@@ -2517,7 +2513,7 @@ describe.skip('fetchUrl: Error Handling (E2E)', () => {
    * Implementation notes:
    * - Use raw socket to send malformed HTTP
    */
-  it.todo('should handle broken/malformed HTTP responses')
+  it.todo('should handle broken/malformed HTTP responses', () => {})
 
   /**
    * Test: Unexpected response end
@@ -2533,7 +2529,7 @@ describe.skip('fetchUrl: Error Handling (E2E)', () => {
    * Implementation notes:
    * - Mismatch between Content-Length and actual body
    */
-  it.todo('should detect unexpected response end')
+  it.todo('should detect unexpected response end', () => {})
 })
 
 describe('fetchUrl: Custom Config Override (E2E)', () => {
