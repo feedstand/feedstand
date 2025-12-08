@@ -1,10 +1,9 @@
 #!/bin/sh
 
-ALLOWED_VARS=$(cat /tmp/allowed_vars)
+CONFIG=$(jo -n \
+  backendUrl="${BACKEND_URL:-}" \
+  sentryDsn="${SENTRY_DSN:-}" \
+  sentryEnv="${SENTRY_ENV:-}")
 
-for file in /usr/share/nginx/html/assets/*.js; do
-  envsubst "$ALLOWED_VARS" < "$file" > "${file}.tmp"
-  mv "${file}.tmp" "$file"
-done
-
+sed -i "s|/\*__CONFIG__\*/|window.__CONFIG__=$CONFIG|" /usr/share/nginx/html/index.html
 exec "$@"

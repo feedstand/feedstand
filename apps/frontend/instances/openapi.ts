@@ -1,5 +1,5 @@
 import type { Routes } from '@feedstand/backend/types/openapi'
 import { hc } from 'hono/client'
-import { url } from '../constants/backend'
+import { backendUrl } from '../constants/config'
 
-export const openapi = hc<Routes>(url)
+export const openapi = hc<Routes>(backendUrl)
