@@ -6,7 +6,7 @@ ENV VITE_VERSION_TAG=${VERSION_TAG}
 
 COPY package*.json .
 COPY apps/frontend/package.json apps/frontend/
-RUN npm ci --ignore-scripts -w apps/frontend
+RUN bun install --frozen-lockfile --backend=copyfile --linker=hoisted
 
 COPY tsconfig.json .
 COPY apps/backend apps/backend/
