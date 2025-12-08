@@ -1,16 +1,38 @@
-# Use Debian (glibc) - Sentry profiling native bindings fail on Alpine (musl).
-FROM node:24-slim
-RUN apt-get update && apt-get install -y --no-install-recommends wget && rm -rf /var/lib/apt/lists/*
-WORKDIR /home/node
+# Bundled build using bun for minimal image size (~170MB vs ~1.2GB unbundled).
+FROM oven/bun:1-alpine AS builder
+RUN apk add --no-cache git
+WORKDIR /app
+
+# Copy workspace files
+COPY package.json bun.lock ./
+COPY apps/backend/package.json apps/backend/
+COPY apps/frontend/package.json apps/frontend/
+
+# Install dependencies (use copyfile to avoid symlinks, hoisted for npm-like structure)
+RUN bun install --frozen-lockfile --backend=copyfile --linker=hoisted
+
+# Copy source
+COPY apps/backend apps/backend/
+
+# Bundle with bun (externalize native modules)
+WORKDIR /app/apps/backend
+RUN bun build index.ts \
+  --target=node \
+  --packages=bundle \
+  --external=@node-rs/xxhash \
+  --outdir=/app/dist
+
+# Production image
+FROM oven/bun:1-alpine
+RUN apk add --no-cache wget
+WORKDIR /app
 
 ARG VERSION_TAG
 ENV VERSION_TAG=${VERSION_TAG}
 
-COPY package*.json .
-COPY tsconfig.json .
-COPY apps/backend/package.json apps/backend/
-RUN npm ci -w apps/backend --only=production
+# Copy bundled output and native modules
+COPY --from=builder /app/dist .
+COPY --from=builder /app/node_modules/@node-rs node_modules/@node-rs
 
-COPY apps/backend apps/backend/
 EXPOSE 4001
-CMD ["npm", "run", "start", "-w", "apps/backend"]
+CMD ["bun", "run", "index.js"]

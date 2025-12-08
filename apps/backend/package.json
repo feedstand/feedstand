@@ -27,6 +27,7 @@
     "drizzle-kit": "^0.30.6",
     "drizzle-orm": "^0.38.4",
     "drizzle-zod": "^0.8.3",
+    "entities": "^7.0.0",
     "feedscout": "^1.0.0-beta.1",
     "feedsmith": "^2.4.0",
     "got": "^14.6.3",
@@ -36,7 +37,7 @@
     "ipaddr.js": "^2.2.0",
     "normalize-url": "^8.1.0",
     "postgres": "^3.4.7",
-    "ssrfcheck": "github:macieklamberski/ssrfcheck#typescript-definitions",
+    "ssrfcheck": "git+https://github.com/macieklamberski/ssrfcheck.git#typescript-definitions",
     "zod": "^4.1.12"
   },
   "devDependencies": {
