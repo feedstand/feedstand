@@ -1,34 +1,24 @@
-# Bundled build using bun for minimal image size (~170MB vs ~1.2GB unbundled).
 FROM oven/bun:alpine AS builder
 RUN apk add --no-cache git
 WORKDIR /app
 
-# Copy workspace files
 COPY package.json bun.lock bunfig.toml ./
 COPY apps/backend/package.json apps/backend/
 COPY apps/frontend/package.json apps/frontend/
 
 RUN bun install --frozen-lockfile
 
-# Copy source
 COPY apps/backend apps/backend/
 
-# Bundle with bun (externalize native modules)
 WORKDIR /app/apps/backend
-RUN bun build index.ts \
-  --target=node \
-  --packages=bundle \
-  --external=@node-rs/xxhash \
-  --outdir=/app/dist
+RUN bun build index.ts --target=bun --packages=bundle --external=@node-rs/xxhash --outdir=/app/dist
 
-# Production image (wget available via BusyBox for health checks)
 FROM oven/bun:alpine
 WORKDIR /app
 
 ARG VERSION_TAG
 ENV VERSION_TAG=${VERSION_TAG}
 
-# Copy bundled output and native modules
 COPY --from=builder /app/dist .
 COPY --from=builder /app/node_modules/@node-rs node_modules/@node-rs
 
