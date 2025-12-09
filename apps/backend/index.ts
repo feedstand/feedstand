@@ -10,14 +10,18 @@ import './queues/channel.ts'
 import './queues/channels.ts'
 import './queues/import.ts'
 
-if (hasMigratorFeature) {
-  await migrate(db, databaseConstants)
+async function main() {
+  if (hasMigratorFeature) {
+    await migrate(db, databaseConstants)
+  }
+
+  if (hasServerFeature) {
+    Bun.serve({
+      fetch: hono.fetch,
+      hostname: serverConstants.host,
+      port: serverConstants.port,
+    })
+  }
 }
 
-if (hasServerFeature) {
-  Bun.serve({
-    fetch: hono.fetch,
-    hostname: serverConstants.host,
-    port: serverConstants.port,
-  })
-}
+main()
