@@ -20,6 +20,7 @@ ARG VERSION_TAG
 ENV VERSION_TAG=${VERSION_TAG}
 
 COPY --from=builder /app/dist .
+COPY --from=builder /app/apps/backend/database/migrations database/migrations
 COPY --from=builder /app/node_modules/@node-rs node_modules/@node-rs
 COPY --from=builder /app/node_modules/@bull-board/ui node_modules/@bull-board/ui
 
