@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm'
+import { eq, inArray } from 'drizzle-orm'
 import { fetchFeed } from '../actions/fetchFeed.ts'
 import { tables } from '../database/tables.ts'
 import { db } from '../instances/database.ts'
@@ -7,6 +7,12 @@ import type { Alias, Channel } from '../types/schemas.ts'
 import { chooseFeedUrl } from './chooseFeedUrl.ts'
 import type { FetchUrlResponse } from './fetchUrl.ts'
 import { insertItems } from './insertItems.ts'
+
+const getUrlVariants = (url: string): Array<string> => {
+  const withSlash = url.endsWith('/') ? url : `${url}/`
+  const withoutSlash = url.endsWith('/') ? url.slice(0, -1) : url
+  return [withSlash, withoutSlash]
+}
 
 const fetchExistingChannelAndAlias = async (aliasUrl: string, dbOrTx: Database | Transaction) => {
   const [existingChannelAndAlias] = await dbOrTx
@@ -58,7 +64,7 @@ export const upsertChannel: UpsertResponse = async ({
     const [existingChannelByFeedUrl] = await tx
       .select()
       .from(tables.channels)
-      .where(eq(tables.channels.feedUrl, feedUrl))
+      .where(inArray(tables.channels.feedUrl, getUrlVariants(feedUrl)))
       .limit(1)
       .for('update')
 
