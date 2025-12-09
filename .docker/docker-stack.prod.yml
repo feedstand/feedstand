@@ -284,6 +284,60 @@ services:
     logging:
       <<: *common-logging
 
+  bull-board:
+    image: venatum/bull-board:latest
+    environment:
+      REDIS_HOST: queue
+      REDIS_PORT: 6379
+      BULL_PREFIX: bull
+      BULL_VERSION: BULLMQ
+      # USER_LOGIN: ${BULLBOARD_USER}
+      # USER_PASSWORD: ${BULLBOARD_PASSWORD}
+    deploy:
+      <<: *common-deploy
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        <<: *traefik-security-labels
+        traefik.enable: "true"
+        traefik.http.routers.bullboard.rule: "Host(`queues.feedstand.com`)"
+        traefik.http.routers.bullboard.entrypoints: "websecure"
+        traefik.http.routers.bullboard.tls: "true"
+        traefik.http.routers.bullboard.tls.certresolver: "letsencrypt"
+        traefik.http.routers.bullboard.middlewares: "shared-security@swarm"
+        traefik.http.services.bullboard.loadbalancer.server.port: "3000"
+        # ⚠️ Set BULLBOARD_USER and BULLBOARD_PASSWORD env vars
+    healthcheck:
+      <<: *common-healthcheck
+      test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:3000"]
+    logging:
+      <<: *common-logging
+
+  scalar:
+    image: scalarapi/api-reference:latest
+    environment:
+      API_REFERENCE_CONFIG: '{"sources":[{"url":"https://api.feedstand.com/openapi.json"}]}'
+    deploy:
+      <<: *common-deploy
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        <<: *traefik-security-labels
+        traefik.enable: "true"
+        traefik.http.routers.scalar.rule: "Host(`docs.feedstand.com`)"
+        traefik.http.routers.scalar.entrypoints: "websecure"
+        traefik.http.routers.scalar.tls: "true"
+        traefik.http.routers.scalar.tls.certresolver: "letsencrypt"
+        traefik.http.routers.scalar.middlewares: "shared-security@swarm"
+        traefik.http.services.scalar.loadbalancer.server.port: "8080"
+    healthcheck:
+      <<: *common-healthcheck
+      test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:8080/health"]
+    logging:
+      <<: *common-logging
+
   queue:
     image: redis:7-alpine
     command:
