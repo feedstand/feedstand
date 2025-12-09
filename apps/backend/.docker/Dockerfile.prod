@@ -11,7 +11,7 @@ RUN bun install --frozen-lockfile
 COPY apps/backend apps/backend/
 
 WORKDIR /app/apps/backend
-RUN bun build index.ts --target=bun --packages=bundle --external=@node-rs/xxhash --outdir=/app/dist
+RUN bun build index.ts --target=bun --format=cjs --packages=bundle --external=@node-rs/xxhash --outdir=/app/dist
 
 FROM oven/bun:alpine
 WORKDIR /app
