@@ -233,6 +233,13 @@ const fetchUrlAttempt: FetchUrlAttempt = async (url, options) => {
     dnsLookupIpVersion: options?.dnsLookupIpVersion,
   })
 
+  // Store any error that occurs during streaming to rethrow later.
+  // This prevents unhandled error events from crashing the process.
+  let streamError: Error | undefined
+  stream.on('error', (error) => {
+    streamError = error
+  })
+
   const response = await new Promise<GotResponse>((resolve, reject) => {
     stream.once('response', resolve)
     stream.once('error', reject)
@@ -321,6 +328,11 @@ const fetchUrlAttempt: FetchUrlAttempt = async (url, options) => {
     hash.update(chunk)
     // StringDecoder handles multi-byte UTF-8 sequences split across chunks
     stringChunks.push(decoder.write(chunk))
+  }
+
+  // Rethrow any error that occurred during streaming.
+  if (streamError) {
+    throw streamError
   }
 
   // Flush any remaining bytes from decoder
