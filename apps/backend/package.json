@@ -9,9 +9,9 @@
     "db:seed": "bun database/tasks/seed.ts",
     "db:truncate": "bun database/tasks/truncate.ts",
     "db:ready": "bun database/tasks/ready.ts",
-    "db:push": "drizzle-kit push",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
+    "db:push": "drizzle-kit push --config database/config.ts",
+    "db:generate": "drizzle-kit generate --config database/config.ts",
+    "db:migrate": "drizzle-kit migrate --config database/config.ts"
   },
   "dependencies": {
     "@bull-board/hono": "^6.15.0",
