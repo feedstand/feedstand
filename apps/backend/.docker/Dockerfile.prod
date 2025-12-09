@@ -11,7 +11,7 @@ RUN bun install --frozen-lockfile
 COPY apps/backend apps/backend/
 
 WORKDIR /app/apps/backend
-RUN bun build index.ts --target=bun --format=cjs --packages=bundle --external=@node-rs/xxhash --outdir=/app/dist
+RUN bun build index.ts --target=bun --format=cjs --packages=bundle --external=@node-rs/xxhash --external=@bull-board/ui --outdir=/app/dist
 
 FROM oven/bun:alpine
 WORKDIR /app
@@ -21,6 +21,7 @@ ENV VERSION_TAG=${VERSION_TAG}
 
 COPY --from=builder /app/dist .
 COPY --from=builder /app/node_modules/@node-rs node_modules/@node-rs
+COPY --from=builder /app/node_modules/@bull-board/ui node_modules/@bull-board/ui
 
 EXPOSE 4001
 CMD ["bun", "run", "index.js"]
