@@ -99,7 +99,7 @@ export const upsertChannel: UpsertResponse = async ({
       .returning()
 
     if (!omitsInsertingItems) {
-      insertItems(channel, feedData.items, tx)
+      await insertItems(channel, feedData.items, tx)
     }
 
     return { channel, alias }

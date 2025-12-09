@@ -28,7 +28,7 @@ export const scanChannel = async (channel: Channel) => {
       })
       .where(eq(tables.channels.id, channel.id))
 
-    insertItems(channel, feedData.items)
+    await insertItems(channel, feedData.items)
   } catch (error) {
     if (error instanceof NotModifiedError) {
       const headers = error.response.headers
