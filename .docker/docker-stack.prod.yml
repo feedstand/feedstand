@@ -3,7 +3,7 @@ x-common-deploy: &common-deploy
     order: start-first
     failure_action: rollback
   restart_policy:
-    condition: on-failure
+    condition: any
 
 x-common-healthcheck: &common-healthcheck
   interval: 10s
@@ -14,8 +14,8 @@ x-common-healthcheck: &common-healthcheck
 x-common-logging: &common-logging
   driver: json-file
   options:
-    max-size: "10m"
-    max-file: "3"
+    max-size: 10m
+    max-file: 3
 
 x-backend-config: &backend-config
   image: ghcr.io/feedstand/backend:${VERSION_TAG:-latest}
@@ -82,6 +82,7 @@ services:
       - --accesslog.filepath=/logs/access.log
       - --accesslog.bufferingsize=100
     deploy:
+      <<: *common-deploy
       placement:
         constraints:
           - node.role == manager
@@ -113,6 +114,7 @@ services:
       DOZZLE_LEVEL: info
       DOZZLE_TAILSIZE: 300
     deploy:
+      <<: *common-deploy
       mode: global
       resources:
         limits:
