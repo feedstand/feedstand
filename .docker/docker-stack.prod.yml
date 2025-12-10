@@ -66,7 +66,6 @@ services:
       # Entrypoints
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
-      - --entrypoints.database.address=:5432
       # Global HTTP → HTTPS Redirect
       - --entrypoints.web.http.redirections.entrypoint.to=websecure
       - --entrypoints.web.http.redirections.entrypoint.scheme=https
@@ -92,10 +91,6 @@ services:
         mode: host
       - target: 443
         published: 443
-        protocol: tcp
-        mode: host
-      - target: 5432
-        published: 5432
         protocol: tcp
         mode: host
     volumes:
@@ -247,11 +242,6 @@ services:
       placement:
         constraints:
           - node.role == manager
-      labels:
-        traefik.enable: "true"
-        traefik.tcp.routers.pgbouncer.rule: "HostSNI(`*`)"
-        traefik.tcp.routers.pgbouncer.entrypoints: "database"
-        traefik.tcp.services.pgbouncer.loadbalancer.server.port: "5432"
     healthcheck:
       <<: *common-healthcheck
       test: ["CMD", "pg_isready", "-h", "localhost", "-U", "${BACKEND_DATABASE_USER}"]
