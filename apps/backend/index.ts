@@ -10,17 +10,6 @@ import './queues/channel.ts'
 import './queues/channels.ts'
 import './queues/import.ts'
 
-// Prevent unhandled errors from crashing worker processes.
-process.on('uncaughtException', (error) => {
-  console.error('[Uncaught Exception]', error)
-  sentry?.captureException?.(error)
-})
-
-process.on('unhandledRejection', (error) => {
-  console.error('[Unhandled Rejection]', error)
-  sentry?.captureException?.(error)
-})
-
 async function main() {
   if (hasMigratorFeature) {
     await migrate(db, databaseConstants)
