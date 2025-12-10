@@ -47,6 +47,8 @@ x-traefik-security-labels: &traefik-security-labels
   traefik.http.middlewares.shared-security.headers.customResponseHeaders.server: ""
   # Enable GZIP Compression
   traefik.http.middlewares.compression.compress: "true"
+  # HTTP Basic Auth for private services
+  traefik.http.middlewares.basic-auth.basicauth.users: "${TRAEFIK_BASIC_AUTH_USERS}"
 
 services:
   traefik:
@@ -125,9 +127,8 @@ services:
         traefik.http.routers.dozzle.entrypoints: "websecure"
         traefik.http.routers.dozzle.tls: "true"
         traefik.http.routers.dozzle.tls.certresolver: "letsencrypt"
-        traefik.http.routers.dozzle.middlewares: "shared-security@swarm"
+        traefik.http.routers.dozzle.middlewares: "basic-auth@swarm,shared-security@swarm"
         traefik.http.services.dozzle.loadbalancer.server.port: "8080"
-        # ⚠️ Add HTTP Basic Authentication
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     # networks:
@@ -290,8 +291,6 @@ services:
       REDIS_PORT: 6379
       BULL_PREFIX: bull
       BULL_VERSION: BULLMQ
-      # USER_LOGIN: ${BULLBOARD_USER}
-      # USER_PASSWORD: ${BULLBOARD_PASSWORD}
     deploy:
       <<: *common-deploy
       placement:
@@ -304,9 +303,8 @@ services:
         traefik.http.routers.bullboard.entrypoints: "websecure"
         traefik.http.routers.bullboard.tls: "true"
         traefik.http.routers.bullboard.tls.certresolver: "letsencrypt"
-        traefik.http.routers.bullboard.middlewares: "shared-security@swarm"
+        traefik.http.routers.bullboard.middlewares: "basic-auth@swarm,shared-security@swarm"
         traefik.http.services.bullboard.loadbalancer.server.port: "3000"
-        # ⚠️ Set BULLBOARD_USER and BULLBOARD_PASSWORD env vars
     healthcheck:
       <<: *common-healthcheck
       test: ["CMD", "wget", "-q", "--spider", "http://0.0.0.0:3000"]
@@ -329,7 +327,7 @@ services:
         traefik.http.routers.scalar.entrypoints: "websecure"
         traefik.http.routers.scalar.tls: "true"
         traefik.http.routers.scalar.tls.certresolver: "letsencrypt"
-        traefik.http.routers.scalar.middlewares: "shared-security@swarm"
+        traefik.http.routers.scalar.middlewares: "basic-auth@swarm,shared-security@swarm"
         traefik.http.services.scalar.loadbalancer.server.port: "8080"
     healthcheck:
       <<: *common-healthcheck
