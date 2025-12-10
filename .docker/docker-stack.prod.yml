@@ -48,7 +48,7 @@ x-traefik-security-labels: &traefik-security-labels
   # Enable GZIP Compression
   traefik.http.middlewares.compression.compress: "true"
   # HTTP Basic Auth for private services
-  traefik.http.middlewares.basic-auth.basicauth.users: "${TRAEFIK_BASIC_AUTH_USERS}"
+  traefik.http.middlewares.basic-auth.basicauth.users: "${TRAEFIK_BASIC_AUTH}"
 
 services:
   traefik:
