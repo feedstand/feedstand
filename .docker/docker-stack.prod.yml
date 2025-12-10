@@ -49,11 +49,8 @@ x-traefik-security-labels: &traefik-security-labels
   traefik.http.middlewares.compression.compress: "true"
 
 services:
-  # NOTE: Pinned to v3.5.6 to avoid Docker API v1.24 issue in v3.6.0
-  # See: https://github.com/traefik/traefik/issues/12253
-  # Upgrade to v3.6.1+ when available
   traefik:
-    image: traefik:3.5.6
+    image: traefik:3
     environment:
       - CLOUDFLARE_DNS_API_TOKEN=${CLOUDFLARE_API_TOKEN}
     command:
