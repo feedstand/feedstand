@@ -274,7 +274,7 @@ services:
     logging:
       <<: *common-logging
 
-  bull-board:
+  bullboard:
     image: venatum/bull-board:latest
     environment:
       REDIS_HOST: queue
