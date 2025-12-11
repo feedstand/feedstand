@@ -1,7 +1,7 @@
 #!/bin/sh
 
 CONFIG=$(jo -n \
-  backendUrl="${BACKEND_URL:-}" \
+  apiUrl="${API_URL:-}" \
   sentryDsn="${SENTRY_DSN:-}" \
   sentryEnv="${SENTRY_ENV:-}")
 

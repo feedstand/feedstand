@@ -1,2 +1,2 @@
 export const dsn = process.env.SENTRY_DSN
-export const environment = process.env.SENTRY_ENVIRONMENT
+export const environment = process.env.SENTRY_ENV

@@ -24,15 +24,19 @@ x-backend-config: &backend-config
     - database
 
 x-backend-environment: &backend-environment
-  SERVER_HOST: 0.0.0.0
-  SERVER_PORT: 4001
-  DATABASE_HOST: pgbouncer
+  SERVER_HOST: ${BACKEND_SERVER_HOST}
+  SERVER_PORT: ${BACKEND_SERVER_PORT}
+  DATABASE_HOST: ${BACKEND_DATABASE_HOST}
+  DATABASE_PORT: ${BACKEND_DATABASE_PORT}
   DATABASE_NAME: ${BACKEND_DATABASE_NAME}
   DATABASE_USER: ${BACKEND_DATABASE_USER}
   DATABASE_PASS: ${BACKEND_DATABASE_PASS}
-  QUEUE_HOST: queue
+  QUEUE_HOST: ${BACKEND_QUEUE_HOST}
+  QUEUE_PORT: ${BACKEND_QUEUE_PORT}
+  QUEUE_USER: ${BACKEND_QUEUE_USER}
+  QUEUE_PASS: ${BACKEND_QUEUE_PASS}
   SENTRY_DSN: ${BACKEND_SENTRY_DSN}
-  SENTRY_ENVIRONMENT: ${BACKEND_SENTRY_ENVIRONMENT}
+  SENTRY_ENV: ${BACKEND_SENTRY_ENV}
 
 x-traefik-security-labels: &traefik-security-labels
   # Replaces: Cloudflare HSTS, Automatic HTTPS Rewrites
@@ -134,9 +138,9 @@ services:
   frontend:
     image: ghcr.io/feedstand/frontend:${VERSION_TAG:-latest}
     environment:
-      BACKEND_URL: ${FRONTEND_BACKEND_URL}
+      API_URL: ${FRONTEND_API_URL}
       SENTRY_DSN: ${FRONTEND_SENTRY_DSN}
-      SENTRY_ENVIRONMENT: ${FRONTEND_SENTRY_ENVIRONMENT}
+      SENTRY_ENV: ${FRONTEND_SENTRY_ENV}
     deploy:
       <<: *common-deploy
       placement:
