@@ -221,6 +221,11 @@ services:
 
   pgbouncer:
     image: edoburu/pgbouncer
+    ports:
+      - target: 5432
+        published: 5432
+        mode: host
+        host_ip: 127.0.0.1
     environment:
       DB_HOST: database
       DB_NAME: ${BACKEND_DATABASE_NAME}
