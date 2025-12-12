@@ -5,6 +5,11 @@ x-common-deploy: &common-deploy
   restart_policy:
     condition: any
 
+x-common-placement: &common-placement
+  placement:
+    constraints:
+      - node.role == manager
+
 x-common-healthcheck: &common-healthcheck
   interval: 10s
   timeout: 5s
@@ -33,8 +38,6 @@ x-backend-environment: &backend-environment
   DATABASE_PASS: ${BACKEND_DATABASE_PASS}
   QUEUE_HOST: ${BACKEND_QUEUE_HOST}
   QUEUE_PORT: ${BACKEND_QUEUE_PORT}
-  QUEUE_USER: ${BACKEND_QUEUE_USER}
-  QUEUE_PASS: ${BACKEND_QUEUE_PASS}
   SENTRY_DSN: ${BACKEND_SENTRY_DSN}
   SENTRY_ENV: ${BACKEND_SENTRY_ENV}
 
@@ -84,10 +87,7 @@ services:
       - --accesslog.filepath=/logs/access.log
       - --accesslog.bufferingsize=100
     deploy:
-      <<: *common-deploy
-      placement:
-        constraints:
-          - node.role == manager
+      <<: [*common-deploy, *common-placement]
     ports:
       - target: 80
         published: 80
@@ -142,10 +142,7 @@ services:
       SENTRY_DSN: ${FRONTEND_SENTRY_DSN}
       SENTRY_ENV: ${FRONTEND_SENTRY_ENV}
     deploy:
-      <<: *common-deploy
-      placement:
-        constraints:
-          - node.role == manager
+      <<: [*common-deploy, *common-placement]
       labels:
         <<: *traefik-security-labels
         traefik.enable: "true"
@@ -170,10 +167,7 @@ services:
       FEATURE_MIGRATOR: "true"
       FEATURE_SERVER: "true"
     deploy:
-      <<: *common-deploy
-      placement:
-        constraints:
-          - node.role == manager
+      <<: [*common-deploy, *common-placement]
       labels:
         <<: *traefik-security-labels
         traefik.enable: "true"
@@ -241,14 +235,11 @@ services:
       ADMIN_USERS: ${BACKEND_DATABASE_USER}
       AUTH_TYPE: scram-sha-256
     deploy:
-      <<: *common-deploy
+      <<: [*common-deploy, *common-placement]
       # endpoint_mode: dnsrr
-      placement:
-        constraints:
-          - node.role == manager
     healthcheck:
       <<: *common-healthcheck
-      test: ["CMD", "pg_isready", "-h", "localhost", "-U", "${BACKEND_DATABASE_USER}"]
+      test: ["CMD", "pg_isready", "-h", "localhost"]
     depends_on:
       - database
     # networks:
@@ -258,38 +249,32 @@ services:
       <<: *common-logging
 
   database:
-    image: postgres:17-alpine
+    image: postgres:18-alpine
     environment:
       POSTGRES_DB: ${BACKEND_DATABASE_NAME}
       POSTGRES_USER: ${BACKEND_DATABASE_USER}
       POSTGRES_PASSWORD: ${BACKEND_DATABASE_PASS}
     deploy:
-      <<: *common-deploy
-      placement:
-        constraints:
-          - node.role == manager
+      <<: [*common-deploy, *common-placement]
     volumes:
       - database_data:/var/lib/postgresql/data
     # networks:
     #   - internal
     healthcheck:
       <<: *common-healthcheck
-      test: ["CMD", "pg_isready", "-h", "localhost", "-U", "${BACKEND_DATABASE_USER}"]
+      test: ["CMD", "pg_isready", "-h", "localhost"]
     logging:
       <<: *common-logging
 
   bullboard:
     image: venatum/bull-board:latest
     environment:
-      REDIS_HOST: queue
-      REDIS_PORT: 6379
+      REDIS_HOST: ${BACKEND_QUEUE_HOST}
+      REDIS_PORT: ${BACKEND_QUEUE_PORT}
       BULL_PREFIX: bull
       BULL_VERSION: BULLMQ
     deploy:
-      <<: *common-deploy
-      placement:
-        constraints:
-          - node.role == manager
+      <<: [*common-deploy, *common-placement]
       labels:
         <<: *traefik-security-labels
         traefik.enable: "true"
@@ -310,10 +295,7 @@ services:
     environment:
       API_REFERENCE_CONFIG: '{"sources":[{"url":"https://api.feedstand.com/openapi.json"}]}'
     deploy:
-      <<: *common-deploy
-      placement:
-        constraints:
-          - node.role == manager
+      <<: [*common-deploy, *common-placement]
       labels:
         <<: *traefik-security-labels
         traefik.enable: "true"
@@ -330,7 +312,7 @@ services:
       <<: *common-logging
 
   queue:
-    image: redis:7-alpine
+    image: redis:8-alpine
     command:
       - "redis-server"
       - "--save ''"
@@ -343,10 +325,7 @@ services:
       - "--maxmemory-policy noeviction"
       - "--aof-use-rdb-preamble yes"
     deploy:
-      <<: *common-deploy
-      placement:
-        constraints:
-          - node.role == manager
+      <<: [*common-deploy, *common-placement]
     volumes:
       - queue_data:/data
     # networks:
@@ -359,11 +338,8 @@ services:
 
 volumes:
   letsencrypt_data:
-    driver: local
   database_data:
-    driver: local
   queue_data:
-    driver: local
 
 # networks:
 #   public:
