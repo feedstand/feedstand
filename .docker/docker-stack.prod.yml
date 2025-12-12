@@ -41,22 +41,6 @@ x-backend-environment: &backend-environment
   SENTRY_DSN: ${BACKEND_SENTRY_DSN}
   SENTRY_ENV: ${BACKEND_SENTRY_ENV}
 
-x-traefik-security-labels: &traefik-security-labels
-  # Replaces: Cloudflare HSTS, Automatic HTTPS Rewrites
-  traefik.http.middlewares.shared-security.headers.stsSeconds: "31536000"
-  traefik.http.middlewares.shared-security.headers.stsIncludeSubdomains: "true"
-  traefik.http.middlewares.shared-security.headers.stsPreload: "true"
-  traefik.http.middlewares.shared-security.headers.forceSTSHeader: "true"
-  traefik.http.middlewares.shared-security.headers.contentSecurityPolicy: "upgrade-insecure-requests"
-  traefik.http.middlewares.shared-security.headers.frameDeny: "true"
-  traefik.http.middlewares.shared-security.headers.contentTypeNosniff: "true"
-  traefik.http.middlewares.shared-security.headers.referrerPolicy: "strict-origin-when-cross-origin"
-  traefik.http.middlewares.shared-security.headers.customResponseHeaders.server: ""
-  # Enable GZIP Compression
-  traefik.http.middlewares.compression.compress: "true"
-  # HTTP Basic Auth for private services
-  traefik.http.middlewares.basic-auth.basicauth.users: "${TRAEFIK_BASIC_AUTH}"
-
 services:
   traefik:
     image: traefik:3
@@ -88,6 +72,22 @@ services:
       - --accesslog.bufferingsize=100
     deploy:
       <<: [*common-deploy, *common-placement]
+      labels:
+        traefik.enable: "true"
+        # Replaces: Cloudflare HSTS, Automatic HTTPS Rewrites
+        traefik.http.middlewares.shared-security.headers.stsSeconds: "31536000"
+        traefik.http.middlewares.shared-security.headers.stsIncludeSubdomains: "true"
+        traefik.http.middlewares.shared-security.headers.stsPreload: "true"
+        traefik.http.middlewares.shared-security.headers.forceSTSHeader: "true"
+        traefik.http.middlewares.shared-security.headers.contentSecurityPolicy: "upgrade-insecure-requests"
+        traefik.http.middlewares.shared-security.headers.frameDeny: "true"
+        traefik.http.middlewares.shared-security.headers.contentTypeNosniff: "true"
+        traefik.http.middlewares.shared-security.headers.referrerPolicy: "strict-origin-when-cross-origin"
+        traefik.http.middlewares.shared-security.headers.customResponseHeaders.server: ""
+        # Compression middleware
+        traefik.http.middlewares.compression.compress: "true"
+        # Basic auth middleware
+        traefik.http.middlewares.basic-auth.basicauth.users: "${TRAEFIK_BASIC_AUTH}"
     ports:
       - target: 80
         published: 80
@@ -120,7 +120,6 @@ services:
         reservations:
           memory: 64M
       labels:
-        <<: *traefik-security-labels
         traefik.enable: "true"
         traefik.http.routers.dozzle.rule: "Host(`logs.feedstand.com`)"
         traefik.http.routers.dozzle.entrypoints: "websecure"
@@ -144,7 +143,6 @@ services:
     deploy:
       <<: [*common-deploy, *common-placement]
       labels:
-        <<: *traefik-security-labels
         traefik.enable: "true"
         traefik.http.routers.frontend.rule: "Host(`app.feedstand.com`)"
         traefik.http.routers.frontend.entrypoints: "websecure"
@@ -169,7 +167,6 @@ services:
     deploy:
       <<: [*common-deploy, *common-placement]
       labels:
-        <<: *traefik-security-labels
         traefik.enable: "true"
         traefik.http.routers.backend.rule: "Host(`api.feedstand.com`)"
         traefik.http.routers.backend.entrypoints: "websecure"
@@ -280,7 +277,6 @@ services:
     deploy:
       <<: [*common-deploy, *common-placement]
       labels:
-        <<: *traefik-security-labels
         traefik.enable: "true"
         traefik.http.routers.bullboard.rule: "Host(`queues.feedstand.com`)"
         traefik.http.routers.bullboard.entrypoints: "websecure"
@@ -301,7 +297,6 @@ services:
     deploy:
       <<: [*common-deploy, *common-placement]
       labels:
-        <<: *traefik-security-labels
         traefik.enable: "true"
         traefik.http.routers.scalar.rule: "Host(`docs.feedstand.com`)"
         traefik.http.routers.scalar.entrypoints: "websecure"
