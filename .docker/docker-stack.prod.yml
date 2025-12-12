@@ -74,6 +74,8 @@ services:
       <<: [*common-deploy, *common-placement]
       labels:
         traefik.enable: "true"
+        # Dummy port to satisfy Traefik service discovery
+        traefik.http.services.traefik-dummy.loadbalancer.server.port: "9999"
         # Replaces: Cloudflare HSTS, Automatic HTTPS Rewrites
         traefik.http.middlewares.shared-security.headers.stsSeconds: "31536000"
         traefik.http.middlewares.shared-security.headers.stsIncludeSubdomains: "true"
@@ -84,9 +86,9 @@ services:
         traefik.http.middlewares.shared-security.headers.contentTypeNosniff: "true"
         traefik.http.middlewares.shared-security.headers.referrerPolicy: "strict-origin-when-cross-origin"
         traefik.http.middlewares.shared-security.headers.customResponseHeaders.server: ""
-        # Compression middleware
+        # Enable GZIP Compression
         traefik.http.middlewares.compression.compress: "true"
-        # Basic auth middleware
+        # HTTP Basic Auth for private services
         traefik.http.middlewares.basic-auth.basicauth.users: "${TRAEFIK_BASIC_AUTH}"
     ports:
       - target: 80
