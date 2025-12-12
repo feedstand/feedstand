@@ -72,6 +72,10 @@ services:
       - --accesslog.bufferingsize=100
     deploy:
       <<: [*common-deploy, *common-placement]
+      update_config:
+        # Host-mode ports require stop-first to release ports before starting new container
+        order: stop-first
+        failure_action: rollback
       labels:
         traefik.enable: "true"
         # Dummy port to satisfy Traefik service discovery
