@@ -51,7 +51,7 @@ export const feedscoutFinder: FindFeedsProcessor = async (context, next) => {
       headers: context.response.headers,
     },
     {
-      methods: ['html', 'headers', 'guess'],
+      methods: ['platform', 'html', 'headers', 'guess'],
       fetchFn,
       extractFn,
       concurrency: 3,
