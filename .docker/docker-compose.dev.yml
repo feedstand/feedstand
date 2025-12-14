@@ -7,7 +7,7 @@ services:
   #     context: ..
   #     dockerfile: apps/frontend/.docker/Dockerfile.dev
   #   environment:
-  #     API_URL: http://backend:4001
+  #     API_URL: ${FRONTEND_API_URL}
   #   ports:
   #     - 4000:4000
   #   volumes:
@@ -22,17 +22,18 @@ services:
       context: ..
       dockerfile: apps/backend/.docker/Dockerfile.dev
     environment:
-      SERVER_HOST: 0.0.0.0
-      SERVER_PORT: 4001
-      DATABASE_HOST: database
-      DATABASE_NAME: feedstand
-      DATABASE_USER: feedstand
-      DATABASE_PASS: feedstand
-      QUEUE_HOST: queue
-      FEATURE_SERVER: true
-      FEATURE_WORKER: true
+      SERVER_HOST: ${BACKEND_SERVER_HOST}
+      SERVER_PORT: ${BACKEND_SERVER_PORT}
+      FEATURE_SERVER: ${BACKEND_FEATURE_SERVER}
+      FEATURE_WORKER: ${BACKEND_FEATURE_WORKER}
+      DATABASE_HOST: ${DATABASE_HOST}
+      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_USER: ${DATABASE_USER}
+      DATABASE_PASS: ${DATABASE_PASS}
+      QUEUE_HOST: ${QUEUE_HOST}
+      QUEUE_PORT: ${QUEUE_PORT}
     ports:
-      - 4001:4001
+      - ${BACKEND_SERVER_PORT}:${BACKEND_SERVER_PORT}
     volumes:
       - ..:/home/bun
       - /home/bun/node_modules
@@ -43,18 +44,18 @@ services:
   database:
     image: postgres:18-alpine
     ports:
-      - 5432:5432
+      - ${DATABASE_PORT}:5432
     environment:
-      POSTGRES_DB: feedstand
-      POSTGRES_USER: feedstand
-      POSTGRES_PASSWORD: feedstand
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASS}
     volumes:
       - database_data:/var/lib/postgresql/data
 
   queue:
     image: redis:8-alpine
     ports:
-      - 6379:6379
+      - ${QUEUE_PORT}:6379
     volumes:
       - queue_data:/data
 

@@ -9,8 +9,8 @@ node_modules
 
 # Environment
 .env*
-!.env.example
-!.env.prod
+!.env.dev.example
+!.env.prod.example
 
 # Debug
 npm-debug.log*

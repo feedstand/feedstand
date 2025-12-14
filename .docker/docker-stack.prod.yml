@@ -28,15 +28,15 @@ x-backend-config: &backend-config
 x-backend-environment: &backend-environment
   SERVER_HOST: ${BACKEND_SERVER_HOST}
   SERVER_PORT: ${BACKEND_SERVER_PORT}
-  DATABASE_HOST: ${BACKEND_DATABASE_HOST}
-  DATABASE_PORT: ${BACKEND_DATABASE_PORT}
-  DATABASE_NAME: ${BACKEND_DATABASE_NAME}
-  DATABASE_USER: ${BACKEND_DATABASE_USER}
-  DATABASE_PASS: ${BACKEND_DATABASE_PASS}
-  QUEUE_HOST: ${BACKEND_QUEUE_HOST}
-  QUEUE_PORT: ${BACKEND_QUEUE_PORT}
   SENTRY_DSN: ${BACKEND_SENTRY_DSN}
   SENTRY_ENV: ${BACKEND_SENTRY_ENV}
+  DATABASE_HOST: ${DATABASE_HOST}
+  DATABASE_PORT: ${DATABASE_PORT}
+  DATABASE_NAME: ${DATABASE_NAME}
+  DATABASE_USER: ${DATABASE_USER}
+  DATABASE_PASS: ${DATABASE_PASS}
+  QUEUE_HOST: ${QUEUE_HOST}
+  QUEUE_PORT: ${QUEUE_PORT}
 
 services:
   traefik:
@@ -205,16 +205,16 @@ services:
     image: edoburu/pgbouncer
     environment:
       DB_HOST: database
-      DB_NAME: ${BACKEND_DATABASE_NAME}
-      DB_USER: ${BACKEND_DATABASE_USER}
-      DB_PASSWORD: ${BACKEND_DATABASE_PASS}
+      DB_NAME: ${DATABASE_NAME}
+      DB_USER: ${DATABASE_USER}
+      DB_PASSWORD: ${DATABASE_PASS}
       POOL_MODE: transaction
       MAX_CLIENT_CONN: 500
       DEFAULT_POOL_SIZE: 50
       MAX_DB_CONNECTIONS: 100
       RESERVE_POOL_SIZE: 25
       RESERVE_POOL_TIMEOUT: 5
-      ADMIN_USERS: ${BACKEND_DATABASE_USER}
+      ADMIN_USERS: ${DATABASE_USER}
       AUTH_TYPE: scram-sha-256
     deploy:
       <<: [*common-deploy, *common-placement]
@@ -245,9 +245,9 @@ services:
   database:
     image: postgres:18-alpine
     environment:
-      POSTGRES_DB: ${BACKEND_DATABASE_NAME}
-      POSTGRES_USER: ${BACKEND_DATABASE_USER}
-      POSTGRES_PASSWORD: ${BACKEND_DATABASE_PASS}
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASS}
     deploy:
       <<: [*common-deploy, *common-placement]
     volumes:
@@ -261,8 +261,8 @@ services:
   bullboard:
     image: venatum/bull-board:latest
     environment:
-      REDIS_HOST: ${BACKEND_QUEUE_HOST}
-      REDIS_PORT: ${BACKEND_QUEUE_PORT}
+      REDIS_HOST: ${QUEUE_HOST}
+      REDIS_PORT: ${QUEUE_PORT}
       BULL_PREFIX: bull
       BULL_VERSION: BULLMQ
     deploy:
