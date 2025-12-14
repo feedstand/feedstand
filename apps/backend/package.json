@@ -28,7 +28,7 @@
     "feedscout": "^1.1.0",
     "feedsmith": "^2.8.0",
     "got": "^14.6.5",
-    "hono": "^4.10.8",
+    "hono": "^4.11.0",
     "htmlparser2": "^10.0.0",
     "ioredis": "^5.8.2",
     "ipaddr.js": "^2.3.0",
