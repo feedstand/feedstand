@@ -224,6 +224,22 @@ services:
     logging:
       <<: *common-logging
 
+  bastion:
+    image: linuxserver/openssh-server
+    environment:
+      - PASSWORD_ACCESS=false
+      - SUDO_ACCESS=false
+      - USER_NAME=${BASTION_USER}
+      - PUBLIC_KEY=${BASTION_PUBLIC_KEY}
+    ports:
+      - target: ${BASTION_PORT}
+        published: ${BASTION_PORT}
+        mode: host
+    deploy:
+      <<: [*common-deploy, *common-placement]
+    logging:
+      <<: *common-logging
+
   database:
     image: postgres:18-alpine
     environment:
