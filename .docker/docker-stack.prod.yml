@@ -231,6 +231,8 @@ services:
       - SUDO_ACCESS=false
       - USER_NAME=${BASTION_USER}
       - PUBLIC_KEY=${BASTION_PUBLIC_KEY}
+      - LISTEN_PORT=${BASTION_PORT}
+      - DOCKER_MODS=linuxserver/mods:openssh-server-ssh-tunnel
     ports:
       - target: ${BASTION_PORT}
         published: ${BASTION_PORT}
