@@ -225,12 +225,14 @@ services:
       <<: *common-logging
 
   bastion:
-    image: binlab/docker-bastion
+    image: linuxserver/openssh-server
     environment:
-      - PUBKEY=${BASTION_PUBLIC_KEY}
-      - FORWARD=true
+      - PASSWORD_ACCESS=false
+      - SUDO_ACCESS=false
+      - USER_NAME=${BASTION_USER}
+      - PUBLIC_KEY=${BASTION_PUBLIC_KEY}
     ports:
-      - target: 22
+      - target: ${BASTION_PORT}
         published: ${BASTION_PORT}
         mode: host
     deploy:
