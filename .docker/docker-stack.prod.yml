@@ -24,9 +24,6 @@ x-common-logging: &common-logging
 
 x-backend-config: &backend-config
   image: ghcr.io/feedstand/backend:${VERSION_TAG:-latest}
-  depends_on:
-    - pgbouncer
-    - database
 
 x-backend-environment: &backend-environment
   SERVER_HOST: ${BACKEND_SERVER_HOST}
@@ -65,10 +62,6 @@ services:
       - --certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare
       - --certificatesresolvers.letsencrypt.acme.email=${TRAEFIK_ACME_EMAIL}
       - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
-      # Logging
-      - --log.level=INFO
-      - --accesslog.filepath=/logs/access.log
-      - --accesslog.bufferingsize=100
     deploy:
       <<: [*common-deploy, *common-placement]
       update_config:
@@ -89,8 +82,6 @@ services:
         traefik.http.middlewares.shared-security.headers.contentTypeNosniff: "true"
         traefik.http.middlewares.shared-security.headers.referrerPolicy: "strict-origin-when-cross-origin"
         traefik.http.middlewares.shared-security.headers.customResponseHeaders.server: ""
-        # Enable GZIP Compression
-        traefik.http.middlewares.compression.compress: "true"
         # HTTP Basic Auth for private services
         traefik.http.middlewares.basic-auth.basicauth.users: "${TRAEFIK_BASIC_AUTH}"
     ports:
@@ -227,12 +218,9 @@ services:
       AUTH_TYPE: scram-sha-256
     deploy:
       <<: [*common-deploy, *common-placement]
-      # endpoint_mode: dnsrr
     healthcheck:
       <<: *common-healthcheck
       test: ["CMD", "pg_isready", "-h", "localhost"]
-    depends_on:
-      - database
     logging:
       <<: *common-logging
 
