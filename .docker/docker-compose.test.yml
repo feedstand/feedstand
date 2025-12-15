@@ -6,13 +6,9 @@ services:
     build:
       context: ..
       dockerfile: apps/frontend/.docker/Dockerfile.test
-    volumes:
-      - /feedstand/node_modules
 
   backend:
-    image: feedstand/frontend:test
+    image: feedstand/backend:test
     build:
       context: ..
       dockerfile: apps/backend/.docker/Dockerfile.test
-    volumes:
-      - /feedstand/node_modules

@@ -1,6 +1,6 @@
 FROM oven/bun:alpine AS builder
 RUN apk add --no-cache git
-WORKDIR /app
+WORKDIR /home/bun
 
 COPY package.json bun.lock bunfig.toml ./
 COPY apps/backend/package.json apps/backend/
@@ -10,18 +10,17 @@ RUN bun install --frozen-lockfile
 
 COPY apps/backend apps/backend/
 
-WORKDIR /app/apps/backend
-RUN bun build index.ts --target=bun --packages=bundle --external=@node-rs/xxhash --outdir=/app/dist
+WORKDIR /home/bun/apps/backend
+RUN bun build index.ts --target=bun --packages=bundle --external=@node-rs/xxhash --outdir=/home/bun/dist
 
 FROM oven/bun:alpine
-WORKDIR /app
+WORKDIR /home/bun
 
 ARG VERSION_TAG
 ENV VERSION_TAG=${VERSION_TAG}
 
-COPY --from=builder /app/dist .
-COPY --from=builder /app/apps/backend/database/migrations database/migrations
-COPY --from=builder /app/node_modules/@node-rs node_modules/@node-rs
+COPY --from=builder /home/bun/dist .
+COPY --from=builder /home/bun/apps/backend/database/migrations database/migrations
+COPY --from=builder /home/bun/node_modules/@node-rs node_modules/@node-rs
 
-EXPOSE 4001
 CMD ["bun", "run", "index.js"]

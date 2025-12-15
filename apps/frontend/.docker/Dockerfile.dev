@@ -9,5 +9,4 @@ COPY apps/frontend/package.json apps/frontend/
 RUN bun install --frozen-lockfile
 
 COPY . .
-EXPOSE 4000
 CMD ["bun", "run", "--cwd", "apps/frontend", "dev"]
