@@ -1,7 +1,7 @@
 import { detectAtomFeed, parseAtomFeed } from 'feedsmith'
 import type { Atom, DeepPartial } from 'feedsmith/types'
-import type { FetchFeedProcessor } from '../../actions/fetchFeed.ts'
 import {
+  createFeedProcessor,
   parseRawFeedChannel,
   parseRawFeedItems,
   retrieveAlternateLink,
@@ -30,44 +30,19 @@ export const atomFeedItems = (feed: DeepPartial<Atom.Feed<string>>): Array<FeedI
       link,
       guid: item.id || link,
       title: item.title,
-      description: item.summary || item.dc?.description,
-      author: item.authors?.[0]?.name || item.dc?.creator,
+      description: item.summary || item.dc?.descriptions?.[0],
+      author: item.authors?.[0]?.name || item.dc?.creators?.[0],
       content: item.content,
-      publishedAt: item.published || item.dc?.date || item.updated,
+      publishedAt: item.published || item.dc?.dates?.[0] || item.updated,
     }
   })
 }
 
-export const atomFeed: FetchFeedProcessor = async (context, next) => {
-  if (!context.response?.ok || context.result) {
-    return await next()
-  }
-
-  try {
-    const xml = await context.response.text()
-
-    if (!detectAtomFeed(xml)) {
-      return await next()
-    }
-
-    const feed = parseAtomFeed(xml)
-
-    context.result = {
-      meta: {
-        etag: context.response.headers.get('etag'),
-        lastModified: context.response.headers.get('last-modified'),
-        contentBytes: context.response.contentBytes,
-        hash: context.response.hash,
-        type: 'atom',
-        requestUrl: context.url,
-        responseUrl: context.response.url,
-      },
-      channel: atomFeedChannel(feed),
-      items: atomFeedItems(feed),
-    }
-  } catch (error) {
-    context.error = error
-  }
-
-  await next()
-}
+export const atomFeed = createFeedProcessor({
+  type: 'atom',
+  getContent: (response) => response.text(),
+  detect: detectAtomFeed,
+  parse: parseAtomFeed,
+  parseChannel: atomFeedChannel,
+  parseItems: atomFeedItems,
+})

@@ -1,7 +1,6 @@
 import { detectJsonFeed, parseJsonFeed } from 'feedsmith'
 import type { DeepPartial, Json } from 'feedsmith/types'
-import type { FetchFeedProcessor } from '../../actions/fetchFeed.ts'
-import { parseRawFeedChannel, parseRawFeedItems } from '../../helpers/feeds.ts'
+import { createFeedProcessor, parseRawFeedChannel, parseRawFeedItems } from '../../helpers/feeds.ts'
 import type { FeedChannel, FeedItem } from '../../types/schemas.ts'
 
 export const jsonFeedChannel = (feed: DeepPartial<Json.Feed<string>>): FeedChannel => {
@@ -29,36 +28,11 @@ export const jsonFeedItems = (feed: DeepPartial<Json.Feed<string>>): Array<FeedI
   }))
 }
 
-export const jsonFeed: FetchFeedProcessor = async (context, next) => {
-  if (!context.response?.ok || context.result) {
-    return await next()
-  }
-
-  try {
-    const json = await context.response.json()
-
-    if (!detectJsonFeed(json)) {
-      return await next()
-    }
-
-    const feed = parseJsonFeed(json)
-
-    context.result = {
-      meta: {
-        etag: context.response.headers.get('etag'),
-        lastModified: context.response.headers.get('last-modified'),
-        contentBytes: context.response.contentBytes,
-        hash: context.response.hash,
-        type: 'json',
-        requestUrl: context.url,
-        responseUrl: context.response.url,
-      },
-      channel: jsonFeedChannel(feed),
-      items: jsonFeedItems(feed),
-    }
-  } catch (error) {
-    context.error = error
-  }
-
-  await next()
-}
+export const jsonFeed = createFeedProcessor({
+  type: 'json',
+  getContent: (response) => response.json(),
+  detect: detectJsonFeed,
+  parse: parseJsonFeed,
+  parseChannel: jsonFeedChannel,
+  parseItems: jsonFeedItems,
+})

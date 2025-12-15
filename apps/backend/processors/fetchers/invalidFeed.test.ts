@@ -24,7 +24,7 @@ describe('invalidFeed processor', () => {
         lastModified: null,
         contentBytes: 0,
         hash: undefined,
-        type: 'rss' as const,
+        type: 'rss',
         requestUrl: '',
         responseUrl: '',
       },
@@ -52,16 +52,15 @@ describe('invalidFeed processor', () => {
       '<body><p>Test</p></body>',
     ]
 
-    for (const testCase of testCases) {
-      it(`detects "${testCase.slice(0, 30)}..."`, async () => {
+    for (const value of testCases) {
+      it(`detects "${value.slice(0, 30)}..."`, async () => {
         const context = {
           ...baseContext,
-          response: new FetchUrlResponse(testCase, { url: '', contentBytes: testCase.length }),
+          response: new FetchUrlResponse(value, { url: '', contentBytes: value.length }),
         }
+        const throwing = () => invalidFeed(context, mockNext, mockSelf)
 
-        await expect(invalidFeed(context, mockNext, mockSelf)).rejects.toThrow(
-          'Invalid feed, signature: HTML page',
-        )
+        expect(throwing()).rejects.toThrow('Invalid feed, signature: HTML page')
       })
     }
   })
@@ -74,16 +73,15 @@ describe('invalidFeed processor', () => {
       'Text with special chars: &quot; but no tags',
     ]
 
-    for (const testCase of testCases) {
-      it(`detects "${testCase.slice(0, 30)}..."`, async () => {
+    for (const value of testCases) {
+      it(`detects "${value.slice(0, 30)}..."`, async () => {
         const context = {
           ...baseContext,
-          response: new FetchUrlResponse(testCase, { url: '', contentBytes: testCase.length }),
+          response: new FetchUrlResponse(value, { url: '', contentBytes: value.length }),
         }
+        const throwing = () => invalidFeed(context, mockNext, mockSelf)
 
-        await expect(invalidFeed(context, mockNext, mockSelf)).rejects.toThrow(
-          'Invalid feed, signature: Plain text',
-        )
+        expect(throwing()).rejects.toThrow('Invalid feed, signature: Plain text')
       })
     }
   })
@@ -93,10 +91,9 @@ describe('invalidFeed processor', () => {
       ...baseContext,
       response: new FetchUrlResponse('', { url: '', contentBytes: 0 }),
     }
+    const throwing = () => invalidFeed(context, mockNext, mockSelf)
 
-    await expect(invalidFeed(context, mockNext, mockSelf)).rejects.toThrow(
-      'Invalid feed, signature: Empty response',
-    )
+    expect(throwing()).rejects.toThrow('Invalid feed, signature: Empty response')
   })
 
   describe('should accept valid feeds', () => {

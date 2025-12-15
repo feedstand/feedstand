@@ -1,7 +1,7 @@
 import { detectRdfFeed, parseRdfFeed } from 'feedsmith'
 import type { DeepPartial, Rdf } from 'feedsmith/types'
-import type { FetchFeedProcessor } from '../../actions/fetchFeed.ts'
 import {
+  createFeedProcessor,
   parseRawFeedChannel,
   parseRawFeedItems,
   retrieveAlternateLink,
@@ -30,44 +30,19 @@ export const rdfFeedItems = (feed: DeepPartial<Rdf.Feed<string>>): Array<FeedIte
       link,
       guid: link,
       title: item.title,
-      description: item.description || item.atom?.summary || item.dc?.description,
-      author: item.atom?.authors?.[0]?.name || item.dc?.creator,
+      description: item.description || item.atom?.summary || item.dc?.descriptions?.[0],
+      author: item.atom?.authors?.[0]?.name || item.dc?.creators?.[0],
       content: item.content?.encoded,
-      publishedAt: item.atom?.published || item.dc?.date || item.atom?.updated,
+      publishedAt: item.atom?.published || item.dc?.dates?.[0] || item.atom?.updated,
     }
   })
 }
 
-export const rdfFeed: FetchFeedProcessor = async (context, next) => {
-  if (!context.response?.ok || context.result) {
-    return await next()
-  }
-
-  try {
-    const xml = await context.response.text()
-
-    if (!detectRdfFeed(xml)) {
-      return await next()
-    }
-
-    const feed = parseRdfFeed(xml)
-
-    context.result = {
-      meta: {
-        etag: context.response.headers.get('etag'),
-        lastModified: context.response.headers.get('last-modified'),
-        contentBytes: context.response.contentBytes,
-        hash: context.response.hash,
-        type: 'rdf',
-        requestUrl: context.url,
-        responseUrl: context.response.url,
-      },
-      channel: rdfFeedChannel(feed),
-      items: rdfFeedItems(feed),
-    }
-  } catch (error) {
-    context.error = error
-  }
-
-  await next()
-}
+export const rdfFeed = createFeedProcessor({
+  type: 'rdf',
+  getContent: (response) => response.text(),
+  detect: detectRdfFeed,
+  parse: parseRdfFeed,
+  parseChannel: rdfFeedChannel,
+  parseItems: rdfFeedItems,
+})
