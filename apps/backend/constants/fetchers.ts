@@ -20,23 +20,6 @@ export const maxHeaderSize = 64 * 1024
 
 export const avoidedContentTypes = ['audio/', 'video/', 'image/']
 
-export const htmlContentTypes = ['text/html', 'application/xhtml+xml']
-
-export const jsonFeedContentTypes = ['application/json']
-
-export const xmlFeedContentTypes = [
-  'application/rdf+xml',
-  'application/rss+xml',
-  'application/atom+xml',
-  'application/xml', // Not ideal, it should probably be discarded at some point.
-  'text/rdf+xml', // Legacy, for supporting very old websites only.
-  'text/rss+xml', // Legacy, for supporting very old websites only.
-  'text/atom+xml', // Legacy, for supporting very old websites only.
-  'text/xml', // Legacy, for supporting very old websites only.
-]
-
-export const anyFeedContentTypes = [...jsonFeedContentTypes, ...xmlFeedContentTypes]
-
 export const userAgents = [
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
