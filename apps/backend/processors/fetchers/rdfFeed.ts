@@ -39,7 +39,7 @@ export const rdfFeedItems = (feed: DeepPartial<Rdf.Feed<string>>): Array<FeedIte
 }
 
 export const rdfFeed = createFeedProcessor({
-  type: 'rdf',
+  format: 'rdf',
   getContent: (response) => response.text(),
   detect: detectRdfFeed,
   parse: parseRdfFeed,

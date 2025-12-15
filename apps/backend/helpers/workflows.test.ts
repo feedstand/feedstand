@@ -14,7 +14,7 @@ describe('createWorkflow', () => {
     siteUrl: 'http://site.com',
     selfUrl: null,
     feedUrl: 'http://site.com/feed',
-    feedType: 'rss',
+    feedFormat: 'rss',
     createdAt: new Date(),
     updatedAt: new Date(),
     lastScanAt: null,
@@ -38,18 +38,15 @@ describe('createWorkflow', () => {
     const processors: Array<WorkflowProcessor<TestResult>> = [
       async (_, next) => {
         sequence.push('first')
-
         await next()
       },
       async (_, next) => {
         sequence.push('second')
-
         await next()
       },
       async (context, next) => {
         sequence.push('third')
         context.result = { value: 'success' }
-
         await next()
       },
     ]

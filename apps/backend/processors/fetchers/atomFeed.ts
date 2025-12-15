@@ -39,7 +39,7 @@ export const atomFeedItems = (feed: DeepPartial<Atom.Feed<string>>): Array<FeedI
 }
 
 export const atomFeed = createFeedProcessor({
-  type: 'atom',
+  format: 'atom',
   getContent: (response) => response.text(),
   detect: detectAtomFeed,
   parse: parseAtomFeed,

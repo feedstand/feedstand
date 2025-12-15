@@ -24,7 +24,7 @@ describe('invalidFeed processor', () => {
         lastModified: null,
         contentBytes: 0,
         hash: undefined,
-        type: 'rss',
+        format: 'rss',
         requestUrl: '',
         responseUrl: '',
       },

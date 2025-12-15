@@ -2,8 +2,8 @@ import type { z } from 'zod'
 import type { alias } from '../schemas/alias.ts'
 import type { channel } from '../schemas/channel.ts'
 import type { channelFixCheckStatus } from '../schemas/channelFixCheckStatus.ts'
+import type { channelFormat } from '../schemas/channelFormat.ts'
 import type { channelScanStatus } from '../schemas/channelScanStatus.ts'
-import type { channelType } from '../schemas/channelType.ts'
 import type { feedChannel } from '../schemas/feedChannel.ts'
 import type { feedData } from '../schemas/feedData.ts'
 import type { feedItem } from '../schemas/feedItem.ts'
@@ -26,7 +26,7 @@ import type { user } from '../schemas/user.ts'
 
 export type User = z.infer<typeof user>
 export type NewUser = z.infer<typeof newUser>
-export type ChannelType = z.infer<typeof channelType>
+export type ChannelFormat = z.infer<typeof channelFormat>
 export type ChannelScanStatus = z.infer<typeof channelScanStatus>
 export type ChannelFixCheckStatus = z.infer<typeof channelFixCheckStatus>
 export type Channel = z.infer<typeof channel>

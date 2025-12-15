@@ -247,7 +247,7 @@ describe('jsonFeed', () => {
         lastModified: null,
         contentBytes: value.length,
         hash: undefined,
-        type: 'json',
+        format: 'json',
         requestUrl: 'https://example.com/feed.json',
         responseUrl: 'https://example.com/feed.json',
       },

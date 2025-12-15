@@ -17,7 +17,7 @@ export const scanChannel = async (channel: Channel) => {
         title: feedData.channel.title ?? channel.title,
         description: feedData.channel.description ?? channel.description,
         siteUrl: feedData.channel.siteUrl ?? channel.siteUrl,
-        feedType: feedData.meta.type || channel.feedType,
+        feedFormat: feedData.meta.format || channel.feedFormat,
         lastScanAt: new Date(),
         lastScanStatus: 'scanned',
         lastScanEtag: feedData.meta.etag,

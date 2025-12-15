@@ -86,7 +86,7 @@ export const upsertChannel: UpsertResponse = async ({
       .values({
         ...feedData.channel,
         feedUrl,
-        feedType: feedData.meta.type,
+        feedFormat: feedData.meta.format,
         lastScanAt: new Date(),
         lastScanStatus: 'scanned',
         lastScanEtag: feedData.meta.etag,

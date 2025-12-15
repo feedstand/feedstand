@@ -2,7 +2,7 @@ import type { Atom, DeepPartial } from 'feedsmith/types'
 import type { FetchUrlOptions, FetchUrlResponse } from '../actions/fetchUrl.ts'
 import { resolveDate } from '../actions/resolveDate.ts'
 import type {
-  ChannelType,
+  ChannelFormat,
   FeedChannel,
   FeedData,
   FeedItem,
@@ -13,7 +13,7 @@ import { generateChecksum } from './hashes.ts'
 import type { WorkflowProcessor } from './workflows.ts'
 
 export type FeedProcessorOptions<F> = {
-  type: ChannelType
+  format: ChannelFormat
   getContent: (response: FetchUrlResponse) => Promise<unknown>
   detect: (content: unknown) => boolean
   parse: (content: unknown) => F
@@ -44,7 +44,7 @@ export const createFeedProcessor = <F>(
           lastModified: context.response.headers.get('last-modified'),
           contentBytes: context.response.contentBytes,
           hash: context.response.hash,
-          type: options.type,
+          format: options.format,
           requestUrl: context.url,
           responseUrl: context.response.url,
         },

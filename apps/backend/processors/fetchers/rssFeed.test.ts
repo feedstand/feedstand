@@ -568,7 +568,7 @@ describe('rssFeed', () => {
         lastModified: null,
         contentBytes: value.length,
         hash: undefined,
-        type: 'rss',
+        format: 'rss',
         requestUrl: 'https://example.com/feed.xml',
         responseUrl: 'https://example.com/feed.xml',
       },

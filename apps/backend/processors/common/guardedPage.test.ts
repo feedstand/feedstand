@@ -43,7 +43,7 @@ describe('guardedPage', () => {
           lastModified: null,
           contentBytes: 0,
           hash: '',
-          type: 'rss',
+          format: 'rss',
           requestUrl: '',
           responseUrl: '',
         },

@@ -40,7 +40,7 @@ export const rssFeedItems = (feed: DeepPartial<Rss.Feed<string>>): Array<FeedIte
 }
 
 export const rssFeed = createFeedProcessor({
-  type: 'rss',
+  format: 'rss',
   getContent: (response) => response.text(),
   detect: detectRssFeed,
   parse: parseRssFeed,

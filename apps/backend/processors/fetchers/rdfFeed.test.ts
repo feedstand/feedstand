@@ -397,7 +397,7 @@ describe('rdfFeed', () => {
         lastModified: null,
         contentBytes: value.length,
         hash: undefined,
-        type: 'rdf',
+        format: 'rdf',
         requestUrl: 'https://example.com/feed.rdf',
         responseUrl: 'https://example.com/feed.rdf',
       },

@@ -25,7 +25,7 @@ export const users = pgTable(
   (table) => [uniqueIndex('users_email').on(table.email)],
 )
 
-export const channelType = pgEnum('channel_types', ['atom', 'json', 'rdf', 'rss'])
+export const channelFormat = pgEnum('channel_formats', ['atom', 'json', 'rdf', 'rss'])
 export const channelScanStatus = pgEnum('channel_scan_statuses', ['scanned', 'skipped', 'failed'])
 export const channelFixCheckStatus = pgEnum('channel_fix_check_statuses', [
   'checked',
@@ -42,7 +42,7 @@ export const channels = pgTable(
     siteUrl: safeText('site_url'),
     selfUrl: safeText('self_url'),
     feedUrl: safeText('feed_url').notNull(),
-    feedType: channelType('feed_type'),
+    feedFormat: channelFormat('feed_format'),
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at').notNull().defaultNow(),
     lastScanAt: timestamp('last_scan_at'),
@@ -171,7 +171,7 @@ export const tables = {
 }
 
 export const enums = {
-  channelType,
+  channelFormat,
   channelScanStatus,
   channelFixCheckStatus,
   fixableType,

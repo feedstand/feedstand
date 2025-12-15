@@ -29,7 +29,7 @@ export const jsonFeedItems = (feed: DeepPartial<Json.Feed<string>>): Array<FeedI
 }
 
 export const jsonFeed = createFeedProcessor({
-  type: 'json',
+  format: 'json',
   getContent: (response) => response.json(),
   detect: detectJsonFeed,
   parse: parseJsonFeed,

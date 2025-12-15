@@ -318,7 +318,7 @@ describe('atomFeed', () => {
         lastModified: null,
         contentBytes: value.length,
         hash: undefined,
-        type: 'atom',
+        format: 'atom',
         requestUrl: 'https://example.com/feed.xml',
         responseUrl: 'https://example.com/feed.xml',
       },

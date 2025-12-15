@@ -15,7 +15,7 @@ describe('createFeedProcessor', () => {
 
   const createTestProcessor = () =>
     createFeedProcessor({
-      type: 'rss',
+      format: 'rss',
       getContent: (response) => response.text(),
       detect: mockDetect,
       parse: mockParse,
@@ -71,7 +71,7 @@ describe('createFeedProcessor', () => {
         lastModified: null,
         contentBytes: 0,
         hash: undefined,
-        type: 'atom',
+        format: 'atom',
         requestUrl: '',
         responseUrl: '',
       },
@@ -149,7 +149,7 @@ describe('createFeedProcessor', () => {
       meta: {
         etag: null,
         lastModified: null,
-        type: 'rss',
+        format: 'rss',
         requestUrl: 'https://example.com/feed',
         responseUrl: 'https://example.com/feed.xml',
         contentBytes: value.length,
@@ -195,7 +195,7 @@ describe('createFeedProcessor', () => {
   it('should set error on context when getContent throws', async () => {
     const error = new Error('Failed to get content')
     const processor = createFeedProcessor({
-      type: 'rss',
+      format: 'rss',
       getContent: () => Promise.reject(error),
       detect: mockDetect,
       parse: mockParse,
@@ -260,9 +260,9 @@ describe('createFeedProcessor', () => {
     expect(mockNext).toHaveBeenCalled()
   })
 
-  it('should use correct type in meta', async () => {
+  it('should use correct format in meta', async () => {
     const jsonProcessor = createFeedProcessor({
-      type: 'json',
+      format: 'json',
       getContent: (response) => response.json(),
       detect: () => true,
       parse: (content) => content,
@@ -278,13 +278,13 @@ describe('createFeedProcessor', () => {
 
     await jsonProcessor(context, mockNext, mockSelf)
 
-    expect(context.result?.meta.type).toBe('json')
+    expect(context.result?.meta.format).toBe('json')
   })
 
   it('should set error on context when parseItems throws', async () => {
     const error = new Error('Items parse error')
     const processor = createFeedProcessor({
-      type: 'rss',
+      format: 'rss',
       getContent: (response) => response.text(),
       detect: () => true,
       parse: (content) => content,

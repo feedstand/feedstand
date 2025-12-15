@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { channelType } from './channelType.ts'
+import { channelFormat } from './channelFormat.ts'
 import { feedChannel } from './feedChannel.ts'
 import { feedItem } from './feedItem.ts'
 
@@ -9,7 +9,7 @@ export const feedData = z.object({
     lastModified: z.string().nullable(),
     contentBytes: z.number(),
     hash: z.string().optional(),
-    type: channelType,
+    format: channelFormat,
     requestUrl: z.string(),
     responseUrl: z.string(),
   }),

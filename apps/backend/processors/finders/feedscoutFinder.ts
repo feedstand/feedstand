@@ -32,7 +32,7 @@ const extractFn: DiscoverExtractFn<FeedscoutResult> = async ({ url }) => {
   return {
     url: chosenUrl,
     isValid: true,
-    format: feedData.meta.type,
+    format: feedData.meta.format,
     title: feedData.channel.title ?? undefined,
     chosenUrl,
   }

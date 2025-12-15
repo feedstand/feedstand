@@ -52,7 +52,7 @@ describe('rateLimitedPage', () => {
           lastModified: null,
           contentBytes: 0,
           hash: '',
-          type: 'rss',
+          format: 'rss',
           requestUrl: '',
           responseUrl: '',
         },
