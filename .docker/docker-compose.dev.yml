@@ -13,6 +13,7 @@ services:
   #   volumes:
   #     - ..:/home/bun
   #     - /home/bun/node_modules
+  #     - /home/bun/apps/frontend/node_modules
   #   depends_on:
   #     - backend
 
@@ -37,9 +38,12 @@ services:
     volumes:
       - ..:/home/bun
       - /home/bun/node_modules
+      - /home/bun/apps/backend/node_modules
     depends_on:
-      - database
-      - queue
+      database:
+        condition: service_healthy
+      queue:
+        condition: service_started
 
   database:
     image: postgres:18-alpine
@@ -51,6 +55,11 @@ services:
       POSTGRES_PASSWORD: ${DATABASE_PASS}
     volumes:
       - database_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${DATABASE_USER}", "-d", "${DATABASE_NAME}"]
+      interval: 2s
+      timeout: 5s
+      retries: 10
 
   queue:
     image: redis:8-alpine
