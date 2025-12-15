@@ -11,7 +11,7 @@ export const validate = <T extends keyof ValidationTargets, S extends z.ZodTypeA
 }
 
 export const createHandler = <R extends RouteConfig>(
-  route: R,
+  _route: R,
   handler: RouteHandler<R>,
 ): RouteHandler<R> => {
   return handler
