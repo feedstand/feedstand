@@ -26,14 +26,14 @@
         "feedscout": "^1.1.0",
         "feedsmith": "^2.8.0",
         "got": "^14.6.5",
-        "hono": "^4.11.0",
+        "hono": "^4.11.1",
         "htmlparser2": "^10.0.0",
         "ioredis": "^5.8.2",
         "ipaddr.js": "^2.3.0",
         "normalize-url": "^8.1.0",
         "postgres": "^3.4.7",
         "ssrfcheck": "git+https://github.com/macieklamberski/ssrfcheck.git#typescript-definitions",
-        "zod": "^4.1.13",
+        "zod": "^4.2.0",
       },
       "devDependencies": {
         "@faker-js/faker": "^10.1.0",
@@ -49,7 +49,7 @@
         "@feedstand/backend": "*",
         "@tailwindcss/vite": "^4.1.18",
         "@tanstack/react-query": "^5.90.12",
-        "hono": "^4.11.0",
+        "hono": "^4.11.1",
         "react": "^19.2.3",
         "react-dom": "^19.2.3",
         "tailwindcss": "^4.1.18",
@@ -880,7 +880,7 @@
 
     "highlight.js": ["highlight.js@10.7.3", "", {}, "sha512-tzcUFauisWKNHaRkN4Wjl/ZA07gENAjFl3J/c480dprkGTg5EQstgaNFqBfUqCq54kZRIEcreTsAgF/m2quD7A=="],
 
-    "hono": ["hono@4.11.0", "", {}, "sha512-Jg8uZzN2ul8/qlyid5FO8O624F3AK0wKtkgoeEON1qBum1rM1itYBxoMKu/1SPJC7F1+xlIZsJMmc4HHhJ1AWg=="],
+    "hono": ["hono@4.11.1", "", {}, "sha512-KsFcH0xxHes0J4zaQgWbYwmz3UPOOskdqZmItstUG93+Wk1ePBLkLGwbP9zlmh1BFUiL8Qp+Xfu9P7feJWpGNg=="],
 
     "hook-std": ["hook-std@4.0.0", "", {}, "sha512-IHI4bEVOt3vRUDJ+bFA9VUJlo7SzvFARPNLw75pqSmAOP2HmTWfFJtPvLBrDrlgjEYXY9zs7SFdHPQaJShkSCQ=="],
 
@@ -1464,7 +1464,7 @@
 
     "yoctocolors": ["yoctocolors@2.1.2", "", {}, "sha512-CzhO+pFNo8ajLM2d2IW/R93ipy99LWjtwblvC1RsoSUMZgyLbYFr221TnSNT7GjGdYui6P459mw9JH/g/zW2ug=="],
 
-    "zod": ["zod@4.1.13", "", {}, "sha512-AvvthqfqrAhNH9dnfmrfKzX5upOdjUVJYFqNSlkmGf64gRaTzlPwz99IHYnVs28qYAybvAlBV+H7pn0saFY4Ig=="],
+    "zod": ["zod@4.2.0", "", {}, "sha512-Bd5fw9wlIhtqCCxotZgdTOMwGm1a0u75wARVEY9HMs1X17trvA/lMi4+MGK5EUfYkXVTbX8UDiDKW4OgzHVUZw=="],
 
     "@actions/http-client/undici": ["undici@5.29.0", "", { "dependencies": { "@fastify/busboy": "^2.0.0" } }, "sha512-raqeBD6NQK4SkWhQzeYKd1KmIG6dllBOTt55Rmkt4HtI9mwdWtJljnrXjAFUBLTSN67HWrOIZ3EPF4kjUw80Bg=="],
 

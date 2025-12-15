@@ -28,14 +28,14 @@
     "feedscout": "^1.1.0",
     "feedsmith": "^2.8.0",
     "got": "^14.6.5",
-    "hono": "^4.11.0",
+    "hono": "^4.11.1",
     "htmlparser2": "^10.0.0",
     "ioredis": "^5.8.2",
     "ipaddr.js": "^2.3.0",
     "normalize-url": "^8.1.0",
     "postgres": "^3.4.7",
     "ssrfcheck": "git+https://github.com/macieklamberski/ssrfcheck.git#typescript-definitions",
-    "zod": "^4.1.13"
+    "zod": "^4.2.0"
   },
   "devDependencies": {
     "@faker-js/faker": "^10.1.0",
