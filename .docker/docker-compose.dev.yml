@@ -17,8 +17,6 @@ services:
           target: /home/bun
         - action: rebuild
           path: ../bun.lock
-    depends_on:
-      - backend
 
   backend:
     image: feedstand/backend:dev
@@ -26,8 +24,10 @@ services:
       context: ..
       dockerfile: apps/backend/.docker/Dockerfile.dev
     environment:
+      FEATURE_MIGRATOR: ${BACKEND_FEATURE_MIGRATOR}
       FEATURE_SERVER: ${BACKEND_FEATURE_SERVER}
       FEATURE_WORKER: ${BACKEND_FEATURE_WORKER}
+      FEATURE_METRICS: ${BACKEND_FEATURE_METRICS}
       DATABASE_HOST: ${DATABASE_HOST}
       DATABASE_NAME: ${DATABASE_NAME}
       DATABASE_USER: ${DATABASE_USER}
