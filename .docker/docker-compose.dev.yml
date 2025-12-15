@@ -7,7 +7,7 @@ services:
       context: ..
       dockerfile: apps/frontend/.docker/Dockerfile.dev
     environment:
-      API_URL: ${FRONTEND_API_URL}
+      VITE_API_URL: ${FRONTEND_API_URL}
     ports:
       - ${FRONTEND_PORT}:3000
     develop:
