@@ -55,7 +55,6 @@ export const feedscoutFinder: FindFeedsProcessor = async (context, next) => {
       fetchFn,
       extractFn,
       concurrency: 3,
-      includeInvalid: false,
     },
   )
 
