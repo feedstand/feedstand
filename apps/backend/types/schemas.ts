@@ -25,49 +25,26 @@ import type { unread } from '../schemas/unread.ts'
 import type { user } from '../schemas/user.ts'
 
 export type User = z.infer<typeof user>
-
 export type NewUser = z.infer<typeof newUser>
-
 export type ChannelType = z.infer<typeof channelType>
-
 export type ChannelScanStatus = z.infer<typeof channelScanStatus>
-
 export type ChannelFixCheckStatus = z.infer<typeof channelFixCheckStatus>
-
 export type Channel = z.infer<typeof channel>
-
 export type NewChannel = z.infer<typeof newChannel>
-
 export type Alias = z.infer<typeof alias>
-
 export type NewAlias = z.infer<typeof newAlias>
-
 export type FixableType = z.infer<typeof fixableType>
-
 export type Fixable = z.infer<typeof fixable>
-
 export type NewFixable = z.infer<typeof newFixable>
-
 export type Item = z.infer<typeof item>
-
 export type NewItem = z.infer<typeof newItem>
-
 export type Source = z.infer<typeof source>
-
 export type NewSource = z.infer<typeof newSource>
-
 export type Unread = z.infer<typeof unread>
-
 export type NewUnread = z.infer<typeof newUnread>
-
 export type FoundFeeds = z.infer<typeof foundFeeds>
-
 export type FeedData = z.infer<typeof feedData>
-
 export type FeedChannel = z.infer<typeof feedChannel>
-
 export type RawFeedChannel = z.infer<typeof rawFeedChannel>
-
 export type FeedItem = z.infer<typeof feedItem>
-
 export type RawFeedItem = z.infer<typeof rawFeedItem>
