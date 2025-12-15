@@ -3,9 +3,7 @@
   "type": "module",
   "scripts": {
     "dev": "bun --watch index.ts",
-    "play": "bun --watch play.ts",
     "test": "UNSAFE_DISABLE_SSRF_CHECK=true bun test",
-    "start": "bun index.ts",
     "db:seed": "bun database/tasks/seed.ts",
     "db:truncate": "bun database/tasks/truncate.ts",
     "db:ready": "bun database/tasks/ready.ts",
