@@ -31,4 +31,3 @@
 **/biome.json
 # **/vite.config.js # TODO: Only ignore when running docker-compose.prod.yml.
 **/node_modules
-**/play
